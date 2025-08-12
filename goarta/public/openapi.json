@@ -1,0 +1,29 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Minimal API",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/hello": {
+      "get": {
+        "summary": "Say Hello",
+        "responses": {
+          "200": {
+            "description": "A JSON object with greeting message",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
