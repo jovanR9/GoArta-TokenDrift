@@ -117,10 +117,7 @@
     "/api/social/posts": {
       "post": {
         "summary": "Create a community post",
-        "description": "Creates a new community post with a media URL and caption. Requires Bearer token authentication.",
-        "security": [
-          { "bearerAuth": [] }
-        ],
+        "description": "Creates a new community post with a media URL and caption.",
         "requestBody": {
           "required": true,
           "content": {
@@ -156,19 +153,6 @@
                     "media_url": { "type": "string", "format": "uri" },
                     "caption": { "type": "string" },
                     "created_at": { "type": "string", "format": "date-time" }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Authentication required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": { "type": "string" }
                   }
                 }
               }
