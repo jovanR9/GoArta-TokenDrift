@@ -1,6 +1,6 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest, NextApiResponse } from 'next';
 
-// these are the mock data
+// Mock data
 const events = [
   {
     id: 501,
@@ -16,22 +16,14 @@ const events = [
     start_time: '2026-02-10T15:00:00Z',
     venue_name: 'Panaji, Goa'
   }
-]
+];
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'GET') {
-    const { category } = req.query
-
-    let filteredEvents = events
-    if (category) {
-      filteredEvents = events.filter(
-        event => event.category.toLowerCase() === String(category).toLowerCase()
-      )
-    }
-
-    return res.status(200).json(filteredEvents)
+    // No filtering — just return all events
+    return res.status(200).json(events);
   } else {
-    res.setHeader('Allow', ['GET'])
-    return res.status(405).end(`Method ${req.method} Not Allowed`)
+    res.setHeader('Allow', ['GET']);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
