@@ -1,31 +1,11 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Travel Itinerary API",
+    "title": "Travel & Community API",
     "version": "1.0.0"
   },
   "paths": {
-    "/api/hello": {
-      "get": {
-        "summary": "Say Hello",
-        "responses": {
-          "200": {
-            "description": "A JSON object with greeting message",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": { "type": "string" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/itenaries/generate": {
+    "/api/itineraries/generate": {
       "post": {
         "summary": "Generate a travel itinerary",
         "description": "Generates a travel itinerary based on user preferences like interests, duration, and pace.",
@@ -104,6 +84,91 @@
             }
           }
         }
+      }
+    },
+    "/api/community/posts": {
+      "post": {
+        "summary": "Create a community post",
+        "description": "Creates a new community post with a media URL and caption. Requires Bearer token authentication.",
+        "security": [
+          { "bearerAuth": [] }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "media_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "example": "https://example.com/photo.jpg"
+                  },
+                  "caption": {
+                    "type": "string",
+                    "example": "Enjoying the sunset at the beach!"
+                  }
+                },
+                "required": ["media_url", "caption"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Post created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": { "type": "integer", "example": 123 },
+                    "author_id": { "type": "integer", "example": 42 },
+                    "media_url": { "type": "string", "format": "uri" },
+                    "caption": { "type": "string" },
+                    "created_at": { "type": "string", "format": "date-time" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid JSON or post payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
       }
     }
   }
