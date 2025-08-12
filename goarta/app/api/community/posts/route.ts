@@ -4,6 +4,6 @@ export async function GET() {
   return handleGetCommunityPosts();
 }
 
-export async function POST(request: Request) {
-  return handleCreateCommunityPost(request);
-}
+// export async function POST(request: Request) {
+//   return handleCreateCommunityPost(request);
+// }

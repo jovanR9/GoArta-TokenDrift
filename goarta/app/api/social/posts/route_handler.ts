@@ -27,14 +27,6 @@ function isValidHttpUrl(value: unknown): value is string {
   }
 }
 
-function extractBearerToken(request: Request): string | null {
-  const authHeader = request.headers.get('authorization') || request.headers.get('Authorization');
-  if (!authHeader) return null;
-  const [scheme, token] = authHeader.split(' ');
-  if (!scheme || !token || scheme.toLowerCase() !== 'bearer') return null;
-  return token.trim() || null;
-}
-
 function validateRequestBody(body: unknown): body is CreatePostRequest {
   if (typeof body !== 'object' || body === null) return false;
   const candidate = body as Partial<CreatePostRequest>;
@@ -42,10 +34,6 @@ function validateRequestBody(body: unknown): body is CreatePostRequest {
 }
 
 export async function handleCreateCommunityPost(request: Request): Promise<Response> {
-  const token = extractBearerToken(request);
-  if (!token) {
-    return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
-  }
 
   let json: unknown;
   try {
