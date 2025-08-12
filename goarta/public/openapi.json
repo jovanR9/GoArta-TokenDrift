@@ -161,6 +161,34 @@
           }
         }
       }
+    },
+    "/api/social/posts": {
+      "get": {
+        "summary": "Get all community posts",
+        "description": "Fetches a list of all community posts.",
+        "responses": {
+          "200": {
+            "description": "A list of community posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer", "example": 101 },
+                      "author_id": { "type": "integer", "example": 42 },
+                      "media_url": { "type": "string", "format": "uri", "example": "https://example.com/photo.jpg" },
+                      "caption": { "type": "string", "example": "Had a great time hiking!" },
+                      "created_at": { "type": "string", "format": "date-time", "example": "2025-08-12T12:34:56Z" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
