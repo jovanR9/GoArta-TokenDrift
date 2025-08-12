@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.3",
   "info": {
-    "title": "Minimal API",
+    "title": "Travel Itinerary API",
     "version": "1.0.0"
   },
   "paths": {
@@ -17,6 +17,87 @@
                   "type": "object",
                   "properties": {
                     "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/itenaries/generate": {
+      "post": {
+        "summary": "Generate a travel itinerary",
+        "description": "Generates a travel itinerary based on user preferences like interests, duration, and pace.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "interests": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "example": ["museums", "food", "nature"]
+                  },
+                  "duration_days": {
+                    "type": "integer",
+                    "example": 3
+                  },
+                  "pace": {
+                    "type": "string",
+                    "enum": ["relaxed", "moderate", "fast"],
+                    "example": "moderate"
+                  }
+                },
+                "required": ["interests", "duration_days", "pace"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Generated itinerary",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "itinerary_id": { "type": "string" },
+                    "days": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "day": { "type": "integer" },
+                          "activities": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "experience_id": { "type": "integer" },
+                                "name": { "type": "string" },
+                                "time_slot": { "type": "string" }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid preferences or JSON body",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string" }
                   }
                 }
               }
