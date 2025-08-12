@@ -101,3 +101,57 @@ This document outlines the API contract for the GoArta application.
       }
     ]
     ```
+
+## Events API
+
+### Get all events or filter by category
+
+*   **The Feature**: Get all events or filter by category
+*   **HTTP Method**: GET
+*   **Endpoint Path**: `/api/events`
+*   **Description**: Retrieves a list of all events, optionally filtered by category.
+*   **Request Body**: (Not applicable for GET requests with query parameters)
+*   **Query Parameters**:
+    *   `category` (Optional): Filter events by category (e.g., 'Traditional Festival', 'Cultural Fair')
+*   **Success Response (200 OK)**:
+    ```json
+    [
+      {
+        "id": 501,
+        "title": "Sao Joao Festival",
+        "category": "Traditional Festival",
+        "start_time": "2026-06-24T10:00:00Z",
+        "venue_name": "Various locations in North Goa"
+      }
+    ]
+    ```
+
+### Get a particular event by ID
+
+*   **The Feature**: Get a particular event by ID
+*   **HTTP Method**: GET
+*   **Endpoint Path**: `/api/events/{id}`
+*   **Description**: Retrieves details for a single event by its ID.
+*   **Request Body**: (Not applicable)
+*   **Path Parameters**:
+    *   `id` (Required): ID of the event to retrieve
+*   **Success Response (200 OK)**:
+    ```json
+    {
+      "id": 501,
+      "title": "Sao Joao Festival",
+      "description": "The feast of St. John the Baptist... ",
+      "category": "Traditional Festival",
+      "start_time": "2026-06-24T10:00:00Z",
+      "end_time": "2026-06-24T18:00:00Z",
+      "venue_name": "Various locations in North Goa",
+      "ticket_price": 0,
+      "booking_url": null
+    }
+    ```
+*   **Error Response (404 Not Found)**:
+    ```json
+    {
+      "error": "Event not found."
+    }
+    ```
