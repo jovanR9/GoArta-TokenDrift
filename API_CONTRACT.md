@@ -45,12 +45,34 @@ This document outlines the API contract for the GoArta application.
 
 ## Community API
 
+### Get all community posts
+
+*   **The Feature**: Get all community posts
+*   **HTTP Method**: GET
+*   **Endpoint Path**: `/api/community/posts`
+*   **Description**: Fetches a list of all community posts.
+*   **Request Body**: (Not applicable)
+*   **Success Response (200 OK)**:
+    ```json
+    [
+      {
+        "id": 101,
+        "author_id": 42,
+        "media_url": "https://example.com/photo.jpg",
+        "caption": "Had a great time hiking!",
+        "created_at": "2025-08-12T12:34:56Z"
+      }
+    ]
+    ```
+
+## Social API
+
 ### Create a community post
 
 *   **The Feature**: Create a community post
 *   **HTTP Method**: POST
-*   **Endpoint Path**: `/api/community/posts`
-*   **Description**: Creates a new community post with a media URL and caption. Requires Bearer token authentication.
+*   **Endpoint Path**: `/api/social/posts`
+*   **Description**: Creates a new community post with a media URL and caption.
 *   **Request Body**:
     ```json
     {
@@ -68,38 +90,11 @@ This document outlines the API contract for the GoArta application.
       "created_at": "date-time"
     }
     ```
-*   **Error Response (401 Unauthorized)**:
-    ```json
-    {
-      "error": "Authentication required"
-    }
-    ```
 *   **Error Response (422 Unprocessable Entity)**:
     ```json
     {
       "error": "Invalid JSON or post payload"
     }
-    ```
-
-## Social API
-
-### Get all community posts
-
-*   **The Feature**: Get all community posts
-*   **HTTP Method**: GET
-*   **Endpoint Path**: `/api/social/posts`
-*   **Description**: Fetches a list of all community posts.
-*   **Success Response (200 OK)**:
-    ```json
-    [
-      {
-        "id": 101,
-        "author_id": 42,
-        "media_url": "https://example.com/photo.jpg",
-        "caption": "Had a great time hiking!",
-        "created_at": "2025-08-12T12:34:56Z"
-      }
-    ]
     ```
 
 ## Events API
