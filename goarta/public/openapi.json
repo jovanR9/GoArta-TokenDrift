@@ -87,12 +87,37 @@
       }
     },
     "/api/community/posts": {
+      "get": {
+        "summary": "Get all community posts",
+        "description": "Fetches a list of all community posts.",
+        "responses": {
+          "200": {
+            "description": "A list of community posts",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": { "type": "integer", "example": 101 },
+                      "author_id": { "type": "integer", "example": 42 },
+                      "media_url": { "type": "string", "format": "uri", "example": "https://example.com/photo.jpg" },
+                      "caption": { "type": "string", "example": "Had a great time hiking!" },
+                      "created_at": { "type": "string", "format": "date-time", "example": "2025-08-12T12:34:56Z" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/social/posts": {
       "post": {
         "summary": "Create a community post",
-        "description": "Creates a new community post with a media URL and caption. Requires Bearer token authentication.",
-        "security": [
-          { "bearerAuth": [] }
-        ],
+        "description": "Creates a new community post with a media URL and caption.",
         "requestBody": {
           "required": true,
           "content": {
@@ -133,19 +158,6 @@
               }
             }
           },
-          "401": {
-            "description": "Authentication required",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "error": { "type": "string" }
-                  }
-                }
-              }
-            }
-          },
           "422": {
             "description": "Invalid JSON or post payload",
             "content": {
@@ -161,6 +173,83 @@
           }
         }
       }
+    },
+    "/api/events": {
+      "get": {
+        "summary": "Get all events or filter by category",
+        "description": "Retrieves a list of all events, optionally filtered by category.",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter events by category (e.g., 'Traditional Festival', 'Cultural Fair')",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/events/{id}": {
+      "get": {
+        "summary": "Get a particular event by ID",
+        "description": "Retrieves details for a single event by its ID.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the event to retrieve",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Details of the event",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Event not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -169,6 +258,67 @@
         "type": "http",
         "scheme": "bearer",
         "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "EventSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 501
+          },
+          "title": {
+            "type": "string",
+            "example": "Sao Joao Festival"
+          },
+          "category": {
+            "type": "string",
+            "example": "Traditional Festival"
+          },
+          "start_time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2026-06-24T10:00:00Z"
+          },
+          "venue_name": {
+            "type": "string",
+            "example": "Various locations in North Goa"
+          }
+        }
+      },
+      "EventDetail": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/EventSummary"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "example": "The feast of St. John the Baptist... "
+              },
+              "end_time": {
+                "type": "string",
+                "format": "date-time",
+                "example": "2026-06-24T18:00:00Z"
+              },
+              "ticket_price": {
+                "type": "number",
+                "format": "float",
+                "example": 0.0
+              },
+              "booking_url": {
+                "type": "string",
+                "format": "uri",
+                "nullable": true,
+                "example": "https://tickets.example.com/event/502"
+              }
+            }
+          }
+        ]
       }
     }
   }
