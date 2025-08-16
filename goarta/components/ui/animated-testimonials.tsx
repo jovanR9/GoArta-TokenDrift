@@ -4,6 +4,7 @@ import { IconArrowLeft, IconArrowRight, IconStarFilled, IconStar } from "@tabler
 import { motion, AnimatePresence } from "framer-motion"; // Changed from "motion/react" to "framer-motion"
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 type Testimonial = {
   quote: string;
@@ -45,7 +46,7 @@ export const AnimatedTestimonials = ({
       const interval = setInterval(handleNext, 3000);
       return () => clearInterval(interval);
     }
-  }, [autoplay, testimonials]); // Add testimonials to dependency array
+  }, [autoplay, testimonials, handleNext]); // Add testimonials to dependency array
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-20 font-sans antialiased md:max-w-7xl md:px-8 lg:px-12">
@@ -81,7 +82,7 @@ export const AnimatedTestimonials = ({
                   }}
                   className="absolute inset-0 origin-bottom"
                 >
-                  <img
+                  <Image
                     src={testimonial.src}
                     alt={testimonial.name}
                     width={500}
@@ -122,9 +123,11 @@ export const AnimatedTestimonials = ({
               {testimonials[active].designation}
             </p>
             {testimonials[active].companyLogo && (
-              <img
+              <Image
                 src={testimonials[active].companyLogo}
                 alt={`${testimonials[active].name}'s company logo`}
+                width={48} // Assuming h-12 is 48px
+                height={48} // Assuming h-12 is 48px
                 className="h-12 w-auto mt-2" // Adjust size as needed
               />
             )}

@@ -1,4 +1,4 @@
-import { handleCreateCommunityPost, handleGetCommunityPosts } from './route_handler';
+import { handleGetCommunityPosts } from './route_handler';
 
 export async function GET() {
   return handleGetCommunityPosts();

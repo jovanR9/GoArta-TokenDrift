@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export default function AIGeneratedItineraryCard() {
   return (
     <div className="w-[95%] sm:h-[40rem] lg:h-[30rem] mx-auto bg-gradient-to-br from-[#F7F4F4] to-[#918F8F] rounded-3xl shadow-inner p-6 flex items-center justify-between gap-6"
@@ -21,9 +23,11 @@ export default function AIGeneratedItineraryCard() {
 
       {/* Right Illustration */}
       <div className="flex flex-col items-center justify-center">
-        <img
+        <Image
           src="/itinerary.png"
           alt="AI Generated Trip"
+          width={500}
+          height={500}
           className="max-h-80 sm:max-h-96 lg:max-h-[40rem] animate-slow-bounce"
         />
       </div>

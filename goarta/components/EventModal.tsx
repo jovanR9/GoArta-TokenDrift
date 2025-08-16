@@ -32,8 +32,8 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
         }
         const data: EventData[] = await response.json();
         setEventCards(data);
-      } catch (e: any) {
-        setError(e.message);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'An unknown error occurred');
       } finally {
         setLoading(false);
       }
