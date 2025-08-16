@@ -4,6 +4,9 @@ import Hero from "@/components/Hero";
 import Wave from "@/components/Wave";
 import Info from "@/components/Info";
 import Pastt_events from "@/components/Past_events";
+import AIGeneratedItineraryCard from "@/components/AIGeneratedItineraryCard";
+
+
 
 
 export default function Home() {
@@ -28,6 +31,12 @@ export default function Home() {
      <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <Pastt_events />
       </div>
+
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <AIGeneratedItineraryCard />
+      </div>
+
+      
     </div>
   );
 }
