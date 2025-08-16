@@ -20,7 +20,22 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={dm_sans.className}>
-        {children}
+        <div className="relative">
+          {/* Background div */}
+          <div
+            className="fixed inset-0 bg-center z-0 bg-repeat"
+            style={{
+              backgroundImage: `url('/grid_bg.jpg')`,
+              opacity: "0.5",
+              backgroundSize: "40%"
+            }}
+          />
+          
+          {/* Content wrapper */}
+          <div className="relative z-10">
+            {children}
+          </div>
+        </div>
       </body>
     </html>
   );

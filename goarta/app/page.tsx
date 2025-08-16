@@ -6,46 +6,54 @@ import Pastt_events from "@/components/Past_events";
 import AIGeneratedItineraryCard from "@/components/AIGeneratedItineraryCard";
 import AnimatedTestimonialsDemo from "@/components/animated-testimonials-demo";
 
-
-
 import EventCard from "@/components/EventCard";
 
 export default function Home() {
   return (
-    <div className="">
-      <div>
-        <Navbar />
-      </div>
+    <div className="relative">
+      <div
+        className="fixed inset-0 bg-center z-0 bg-repeat"
+        style={{
+          backgroundImage: `url('/grid_bg.jpg')`,
+          opacity: "0.4",
+          backgroundSize: "30%"
+        }}
+      />
 
-      <div className="w-full lg:-mt-8">
-        <Hero />
-      </div>
+      {/* Content container */}
+      <div className="relative z-10">
+        <div>
+          <Navbar />
+        </div>
 
-      <div className="">
-        <Wave />
-      </div>
+        <div className="w-full lg:-mt-8">
+          <Hero />
+        </div>
 
-      <div className="">
-        <Info />
-      </div>
+        <div className="">
+          <Wave />
+        </div>
 
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <Pastt_events />
-      </div>
-      
-      <div>
-        <EventCard />
-      </div>
-      
+        <div className="">
+          <Info />
+        </div>
 
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <AIGeneratedItineraryCard />
-      </div>
+        <div className="flex justify-center items-center min-h-screen ">
+          <Pastt_events />
+        </div>
 
-      <div className="flex justify-center items-center min-h-screen bg-gray-100">
-        <AnimatedTestimonialsDemo />
+        <div>
+          <EventCard />
+        </div>
+
+        <div className="flex justify-center items-center min-h-screen">
+          <AIGeneratedItineraryCard />
+        </div>
+
+        <div className="flex justify-center items-center min-h-screen ">
+          <AnimatedTestimonialsDemo />
+        </div>
       </div>
-   
     </div>
   );
 }

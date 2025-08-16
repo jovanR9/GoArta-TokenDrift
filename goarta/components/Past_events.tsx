@@ -71,7 +71,7 @@ const PastEvents = () => {
   };
 
   return (
-    <div className="w-full px-6 py-20 bg-white">
+    <div className="w-full px-6 py-20 ">
       <div className="max-w-7xl mx-auto">
         {/* Section Title */}
         <motion.h2 
@@ -118,13 +118,13 @@ const PastEvents = () => {
           {/* Cards Container */}
           <div 
             ref={scrollContainerRef}
-            className="flex gap-8 overflow-x-auto scrollbar-hide px-20 py-8"
+            className="flex gap-8 overflow-x-scroll scrollbar-hide px-20 py-8"
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {pastEvents.map((event, index) => (
               <motion.div
                 key={event.id}
-                className={`flex-shrink-0 w-[450px] h-[550px] rounded-3xl shadow-2xl overflow-hidden group cursor-pointer relative ${
+                className={`flex-shrink-0 w-[450px] h-[550px] rounded-3xl shadow-md overflow-hidden group cursor-pointer relative ${
                   index === 2 ? 'bg-white' : 'bg-gray-900'
                 }`}
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
