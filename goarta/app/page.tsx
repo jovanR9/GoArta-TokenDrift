@@ -13,7 +13,7 @@ export default function Home() {
         <Navbar />
       </div>
 
-      <div>
+      <div className="w-full lg:-mt-8">
         <Hero />
       </div>
 
@@ -25,7 +25,7 @@ export default function Home() {
         <Info />
       </div>
 
-     <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <Pastt_events />
       </div>
     </div>
