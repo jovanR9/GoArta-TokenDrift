@@ -1,6 +1,6 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react"; // Import useEffect
 
 interface EventData {
   id: number;
@@ -19,55 +19,93 @@ interface EventModalProps {
 
 export default function EventModal({ isOpen, onClose }: EventModalProps) {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [eventCards, setEventCards] = useState<EventData[]>([]); // State for fetched data
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState<string | null>(null); // Error state
 
-  const eventCards: EventData[] = [
-    {
-      id: 1,
-      title: "Carnival Parade",
-      date: "February 22-25, 2025",
-      places: "Panjim • Margao • Vasco • Mapusa",
-      description: "A four-day spectacle of music, dance, and vibrant floats, celebrating Goa's Portuguese heritage and festive spirit.",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Goa Carnival Parade with colorful floats, masks, and vibrant celebrations"
-    },
-    {
-      id: 2,
-      title: "Shigmo Festival",
-      date: "March 15-20, 2025",
-      places: "Panjim • Old Goa • Ponda",
-      description: "Traditional spring festival featuring folk dances, colorful processions, and ancient rituals celebrating the harvest season.",
-      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Shigmo Festival with traditional folk dances and spring celebrations"
-    },
-    {
-      id: 3,
-      title: "Goa Food & Wine Festival",
-      date: "April 10-15, 2025",
-      places: "Panjim • Calangute • Margao",
-      description: "Culinary extravaganza showcasing Goan delicacies, international cuisines, and the finest wines from around the world.",
-      image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Goa Food Festival with delicious cuisines and wine tasting"
-    },
-    {
-      id: 4,
-      title: "Monsoon Music Festival",
-      date: "July 5-10, 2025",
-      places: "Panjim • Vagator • Anjuna",
-      description: "Rain-soaked melodies featuring local bands, international artists, and the magical atmosphere of Goa's monsoon season.",
-      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Monsoon Music Festival with live performances and rain atmosphere"
+  useEffect(() => {
+    const fetchEventData = async () => {
+      try {
+        const response = await fetch('/api/events');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: EventData[] = await response.json();
+        setEventCards(data);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (isOpen) { // Fetch data only when modal is open
+      fetchEventData();
     }
-  ];
+  }, [isOpen]); // Re-fetch when modal opens
 
   const nextCard = () => {
+    if (eventCards.length === 0) return;
     setCurrentCardIndex((prev) => (prev + 1) % eventCards.length);
   };
 
   const prevCard = () => {
+    if (eventCards.length === 0) return;
     setCurrentCardIndex((prev) => (prev - 1 + eventCards.length) % eventCards.length);
   };
 
   const currentCard = eventCards[currentCardIndex];
+
+  if (loading) {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <p className="text-white text-xl">Loading events...</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+
+  if (error) {
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <p className="text-red-500 text-xl">Error: {error}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
+
+  if (!currentCard) { // Handle case where data is fetched but currentCard is undefined (e.g., empty array)
+    return (
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <p className="text-white text-xl">No events available.</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
 
   return (
     <AnimatePresence>
@@ -177,4 +215,4 @@ export default function EventModal({ isOpen, onClose }: EventModalProps) {
       )}
     </AnimatePresence>
   );
-} 
+}
