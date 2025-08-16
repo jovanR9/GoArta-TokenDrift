@@ -56,7 +56,7 @@ export const AnimatedTestimonials = ({
             <AnimatePresence>
               {testimonials.map((testimonial, index) => (
                 <motion.div
-                  key={testimonial.src + (mounted ? "mounted" : "server")} // Add key to force re-evaluation on client
+                  key={testimonial.src} // Use a simpler key
                   initial={{
                     opacity: 0,
                     scale: 0.9,
