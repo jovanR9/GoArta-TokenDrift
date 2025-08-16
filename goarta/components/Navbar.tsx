@@ -2,7 +2,7 @@ import Image from "next/image";
 export default function Navbar() {
     return (
         <>
-            <header className="bg-zinc-400 m-4 rounded-lg ">
+            <header className="navbar m-8 rounded-lg ">
                 <div className="mx-auto flex h-16 max-w-screen-xl items-center gap-8 px-4 sm:px-6 lg:px-8">
                     <a className="block text-teal-600" href="#">
                         <Image
@@ -11,7 +11,7 @@ export default function Navbar() {
                             alt="Logo"
                             width={32}
                             height={48}
-                            style={{ width: "65px", height: "65px" }}
+                            style={{ width: "95px", height: "95px" }}
                         />
                     </a>
 
@@ -29,7 +29,7 @@ export default function Navbar() {
                                 </a>
 
                                 <a
-                                    className="hidden rounded-md bg-blue-900 px-5 py-2.5 text-sm 
+                                    className=" font-medium text-white hidden rounded-md bg-blue-900 px-5 py-2.5 text-sm 
                                     transition hover:bg-blue-800
                                     sm:block"
                                     href="#"

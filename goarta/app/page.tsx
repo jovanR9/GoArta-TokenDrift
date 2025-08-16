@@ -1,5 +1,9 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import Wave from "@/components/Wave";
+import Info from "@/components/Info";
+import Pastt_events from "@/components/Past_events";
 
 
 export default function Home() {
@@ -9,7 +13,21 @@ export default function Home() {
         <Navbar />
       </div>
 
+      <div>
+        <Hero />
+      </div>
 
+      <div className="">
+        <Wave />
+      </div>
+
+      <div className="">
+        <Info />
+      </div>
+
+     <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <Pastt_events />
+      </div>
     </div>
   );
 }
