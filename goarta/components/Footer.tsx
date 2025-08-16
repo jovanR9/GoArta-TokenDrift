@@ -37,7 +37,7 @@ const Footer = () => {
             <ul className="mt-8 flex gap-6">
               <li>
                 <a
-                  href="#"
+                  href="https://www.instagram.com/the_goarta"
                   rel="noreferrer"
                   target="_blank"
                   className="text-gray-700 transition hover:opacity-75 dark:text-gray-200"

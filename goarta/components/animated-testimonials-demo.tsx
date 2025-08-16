@@ -49,5 +49,5 @@ export default function AnimatedTestimonialsDemo() {
       companyLogo: "/Logo.png", // Added company logo
     },
   ];
-  return <AnimatedTestimonials testimonials={testimonials} />;
+  return <AnimatedTestimonials testimonials={testimonials} autoplay={true} />;
 }

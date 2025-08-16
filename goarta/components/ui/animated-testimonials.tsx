@@ -42,7 +42,7 @@ export const AnimatedTestimonials = ({
     setImageRotations(testimonials.map(() => Math.floor(Math.random() * 21) - 10));
 
     if (autoplay) {
-      const interval = setInterval(handleNext, 5000);
+      const interval = setInterval(handleNext, 3000);
       return () => clearInterval(interval);
     }
   }, [autoplay, testimonials]); // Add testimonials to dependency array
