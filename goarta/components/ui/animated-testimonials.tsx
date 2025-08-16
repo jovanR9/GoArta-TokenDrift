@@ -1,9 +1,8 @@
 "use client";
 
 import { IconArrowLeft, IconArrowRight, IconStarFilled, IconStar } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion"; // Changed from "motion/react" to "framer-motion"
-
-import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState, useMemo } from "react";
 import Image from "next/image";
 
 type Testimonial = {
@@ -11,9 +10,10 @@ type Testimonial = {
   name: string;
   designation: string;
   src: string;
-  rating?: number; // New property for rating
-  companyLogo?: string; // Added company logo
+  rating?: number;
+  companyLogo?: string;
 };
+
 export const AnimatedTestimonials = ({
   testimonials,
   autoplay = false,
@@ -23,7 +23,15 @@ export const AnimatedTestimonials = ({
 }) => {
   const [active, setActive] = useState(0);
   const [mounted, setMounted] = useState(false);
-  const [imageRotations, setImageRotations] = useState<number[]>([]); // New state for image rotations
+
+  // Generate stable rotations based on testimonial data (deterministic)
+  const imageRotations = useMemo(() => {
+    return testimonials.map((testimonial, index) => {
+      // Create a simple hash from the testimonial src and index for consistent rotation
+      const hash = testimonial.src.split('').reduce((acc, char) => acc + char.charCodeAt(0), index);
+      return (hash % 21) - 10; // Range from -10 to 10 degrees
+    });
+  }, [testimonials]);
 
   const handleNext = () => {
     setActive((prev) => (prev + 1) % testimonials.length);
@@ -39,24 +47,48 @@ export const AnimatedTestimonials = ({
 
   useEffect(() => {
     setMounted(true);
-    // Generate random rotations for each image only on the client side
-    setImageRotations(testimonials.map(() => Math.floor(Math.random() * 21) - 10));
+  }, []);
 
-    if (autoplay) {
+  useEffect(() => {
+    if (autoplay && mounted) {
       const interval = setInterval(handleNext, 3000);
       return () => clearInterval(interval);
     }
-  }, [autoplay, testimonials, handleNext]); // Add testimonials to dependency array
+  }, [autoplay, mounted]);
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-20 font-sans antialiased md:max-w-7xl md:px-8 lg:px-12">
+        <div className="relative grid grid-cols-1 gap-20 md:grid-cols-2">
+          <div>
+            <div className="relative h-[24rem] w-full md:h-[28rem] lg:h-[32rem]">
+              <div className="absolute inset-0 origin-bottom">
+                <div className="h-full w-full rounded-3xl bg-gray-200 dark:bg-gray-800 animate-pulse" />
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col justify-between py-4">
+            <div>
+              <div className="h-8 w-48 bg-gray-200 dark:bg-gray-800 rounded animate-pulse mb-2" />
+              <div className="h-4 w-32 bg-gray-200 dark:bg-gray-800 rounded animate-pulse mb-8" />
+              <div className="h-6 w-full bg-gray-200 dark:bg-gray-800 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-20 font-sans antialiased md:max-w-7xl md:px-8 lg:px-12">
       <div className="relative grid grid-cols-1 gap-20 md:grid-cols-2">
         <div>
           <div className="relative h-[24rem] w-full md:h-[28rem] lg:h-[32rem]">
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {testimonials.map((testimonial, index) => (
                 <motion.div
-                  key={testimonial.src} // Use a simpler key
+                  key={`${testimonial.src}-${index}`} // More stable key
                   initial={{
                     opacity: 0,
                     scale: 0.9,
@@ -81,6 +113,10 @@ export const AnimatedTestimonials = ({
                     ease: "easeInOut",
                   }}
                   className="absolute inset-0 origin-bottom"
+                  style={{
+                    // Apply rotation via style to prevent re-calculation
+                    transform: `rotate(${imageRotations[index]}deg)`,
+                  }}
                 >
                   <Image
                     src={testimonial.src}
@@ -89,7 +125,9 @@ export const AnimatedTestimonials = ({
                     height={500}
                     draggable={false}
                     className="h-full w-full rounded-3xl object-cover object-center"
-                    style={{ transform: `rotate(${imageRotations[index] || 0}deg)` }}
+                    priority={index === 0} // Prioritize first image
+                    placeholder="blur"
+                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAQIAAxEhkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
                   />
                 </motion.div>
               ))}
@@ -126,9 +164,9 @@ export const AnimatedTestimonials = ({
               <Image
                 src={testimonials[active].companyLogo}
                 alt={`${testimonials[active].name}'s company logo`}
-                width={48} // Assuming h-12 is 48px
-                height={48} // Assuming h-12 is 48px
-                className="h-12 w-auto mt-2" // Adjust size as needed
+                width={48}
+                height={48}
+                className="h-12 w-auto mt-2"
               />
             )}
             {/* Star Rating */}
