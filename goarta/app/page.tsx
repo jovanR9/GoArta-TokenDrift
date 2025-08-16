@@ -1,10 +1,9 @@
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Wave from "@/components/Wave";
 import Info from "@/components/Info";
 import Pastt_events from "@/components/Past_events";
-
+import EventCard from "@/components/EventCard";
 
 export default function Home() {
   return (
@@ -27,6 +26,10 @@ export default function Home() {
 
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <Pastt_events />
+      </div>
+
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <EventCard />
       </div>
     </div>
   );

@@ -1,0 +1,33 @@
+# Itineraries API
+
+# Generate a new itinerary (POST)
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{ "interests": ["museums", "food", "nature"], "duration_days": 3, "pace": "moderate" }' \
+  http://192.168.56.1:3000/api/itineraries/generate
+
+# Community API
+
+# Get all community posts (GET)
+curl -X GET http://192.168.56.1:3000/api/community/posts
+
+# Social API
+
+# Create a community post (POST)
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -d '{ "media_url": "https://example.com/photo.jpg", "caption": "Enjoying the sunset at the beach!" }' \
+  http://192.168.56.1:3000/api/social/posts
+
+# Events API
+
+# Get all events or filter by category (GET)
+# Get all events
+curl -X GET http://192.168.56.1:3000/api/events
+
+# Get events filtered by category (e.g., Traditional Festival)
+curl -X GET "http://192.168.56.1:3000/api/events?category=Traditional%20Festival"
+
+# Get a particular event by ID (GET)
+# Replace {id} with an actual event ID, e.g., 501
+curl -X GET http://192.168.56.1:3000/api/events/501
