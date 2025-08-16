@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Wave from "@/components/Wave";
@@ -9,6 +8,7 @@ import AnimatedTestimonialsDemo from "@/components/animated-testimonials-demo";
 
 
 
+import EventCard from "@/components/EventCard";
 
 export default function Home() {
   return (
@@ -42,6 +42,7 @@ export default function Home() {
       </div>
 
       
-    </div>
+        <EventCard />
+      </div>
   );
 }
