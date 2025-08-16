@@ -11,6 +11,7 @@ export default function AnimatedTestimonialsDemo() {
       rating: 5,
       companyLogo: "/Logo.png", // Added company logo
     },
+    
     {
       quote:
         "Implementation was seamless and the results exceeded our expectations. The platform's flexibility is remarkable. It has truly revolutionized how we manage our local events.",
