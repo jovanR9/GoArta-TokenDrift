@@ -32,6 +32,11 @@ export default function Home() {
      <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <Pastt_events />
       </div>
+      
+      <div>
+        <EventCard />
+      </div>
+      
 
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <AIGeneratedItineraryCard />
@@ -40,9 +45,7 @@ export default function Home() {
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <AnimatedTestimonialsDemo />
       </div>
-
-      
-        <EventCard />
-      </div>
+   
+    </div>
   );
 }
