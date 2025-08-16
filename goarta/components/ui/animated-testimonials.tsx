@@ -1,8 +1,9 @@
 "use client";
 
 import { IconArrowLeft, IconArrowRight, IconStarFilled, IconStar } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion"; // Changed from "motion/react" to "framer-motion"
+
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 
 type Testimonial = {
@@ -33,13 +34,13 @@ export const AnimatedTestimonials = ({
     });
   }, [testimonials]);
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     setActive((prev) => (prev + 1) % testimonials.length);
-  };
+  }, [testimonials.length]); // Dependency: testimonials.length
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     setActive((prev) => (prev - 1 + testimonials.length) % testimonials.length);
-  };
+  }, [testimonials.length]); // Dependency: testimonials.length
 
   const isActive = (index: number) => {
     return index === active;
