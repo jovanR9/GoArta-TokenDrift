@@ -1,3 +1,8 @@
+import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
+import { MagicCard } from "./magicui/magic-card";
+import { Review } from './UserReviewsSection';
+
 export const UserReviews = ({ review }: { review: Review }) => {
   const { theme } = useTheme();
 

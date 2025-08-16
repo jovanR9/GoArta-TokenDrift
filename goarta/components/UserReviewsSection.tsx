@@ -2,7 +2,7 @@
 import React from "react";
 import { UserReviews } from "@/components/UserReviews";
 
-interface Review {
+export interface Review {
   userPhoto: string;
   userName: string;
   reviewText: string;
