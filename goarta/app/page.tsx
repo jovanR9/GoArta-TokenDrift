@@ -5,6 +5,7 @@ import Wave from "@/components/Wave";
 import Info from "@/components/Info";
 import Pastt_events from "@/components/Past_events";
 import AIGeneratedItineraryCard from "@/components/AIGeneratedItineraryCard";
+import AnimatedTestimonialsDemo from "@/components/animated-testimonials-demo";
 
 
 
@@ -34,6 +35,10 @@ export default function Home() {
 
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <AIGeneratedItineraryCard />
+      </div>
+
+      <div className="flex justify-center items-center min-h-screen bg-gray-100">
+        <AnimatedTestimonialsDemo />
       </div>
 
       
