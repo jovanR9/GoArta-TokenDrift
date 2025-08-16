@@ -37,8 +37,6 @@ export default function Home() {
       <div>
         <EventCard />
       </div>
-      
-
       <div className="flex justify-center items-center min-h-screen bg-gray-100">
         <AIGeneratedItineraryCard />
       </div>
