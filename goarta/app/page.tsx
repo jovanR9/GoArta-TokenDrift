@@ -5,6 +5,7 @@ import Info from "@/components/Info";
 import Pastt_events from "@/components/Past_events";
 import AIGeneratedItineraryCard from "@/components/AIGeneratedItineraryCard";
 import AnimatedTestimonialsDemo from "@/components/animated-testimonials-demo";
+import Footer from "@/components/Footer";
 
 
 
@@ -46,6 +47,7 @@ export default function Home() {
         <AnimatedTestimonialsDemo />
       </div>
    
+      <Footer />
     </div>
   );
 }
