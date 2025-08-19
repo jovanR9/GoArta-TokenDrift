@@ -12,7 +12,7 @@ export default function Info() {
                                 What is GoArta?
                             </h1>
 
-                            <p className="hidden text-gray-500 text-sm md:mt-4 md:block md:text-base lg:text-xl">
+                            <p className=" text-gray-500 text-sm md:mt-4 md:block md:text-base lg:text-xl text-justify">
                                 GoArta is a digital platform that curates Goa’s rich cultural heritage, local art, food, and events into an interactive, easy-to-explore experience. We connect locals and travelers with authentic cultural stories, hidden gems, and vibrant activities—helping them discover Goa beyond the beaches. <br /> <br />
 
                                 From age-old traditions and heritage sites to contemporary art, music festivals, and local cuisines, GoArta brings together everything that makes Goa unique. Whether you’re a traveler seeking authentic experiences or a Goan wanting to reconnect with your roots, GoArta is your cultural companion. <br /> <br />
@@ -28,7 +28,7 @@ export default function Info() {
                     src="/Logo.png"
                     width={600}
                     height={100}
-                    className="w-full h-[40px] object-contain sm:h-auto"
+                    className="w-full h-[280px] object-contain sm:h-auto"
                 />
 
             </section>
