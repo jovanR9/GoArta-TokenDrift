@@ -5,7 +5,7 @@ export default function Hero() {
         <section className="relative flex items-center justify-center py-6 sm:py-8 md:py-12 px-4 mt-12 sm:mt-16 md:mt-24">
 
             {/* Left Tree */}
-            <div className="absolute left-0 top-[60%] sm:top-[30%] md:top-[420px] -translate-y-1/2">
+            <div className="absolute left-0 top-[60%] sm:top-[30%] md:top-[220px] lg:top-[90%] -translate-y-1/2">
                 <Image
                     src="/tree1.png"
                     alt="Tree Left"
@@ -13,22 +13,22 @@ export default function Hero() {
                     height={700}
                     className="
             w-[85px]  sm:w-[140px] md:w-[180px] lg:w-[318px] 
-            h-[150px] sm:h-[450px] md:h-[550px] lg:h-[550px]
+            h-[150px] sm:h-[450px] md:h-[300px] lg:h-[550px]
         "
                     priority
                 />
             </div>
 
             {/* Right Tree */}
-            <div className="absolute right-0 top-[55%] sm:top-[30%] md:top-[420px] lg:top-[90%] -translate-y-1/2">
+            <div className="absolute right-0 top-[55%] sm:top-[30%] md:top-[220px] lg:top-[90%] -translate-y-1/2">
                 <Image
                     src="/tree2.png"
                     alt="Tree Right"
                     width={360}
-                    height={690}
+               height={690}
                     className="
-            w-[80px]  sm:w-[140px] md:w-[180px] lg:w-[280px]
-            h-[160px] sm:h-[450px] md:h-[550px] lg:h-[550px]
+            w-[80px]  sm:w-[140px] md:w-auto lg:w-[280px]
+            h-[160px] sm:h-[450px] md:h-[300px] lg:h-[550px]
         "
                     priority
                 />
@@ -45,10 +45,10 @@ export default function Hero() {
                     width={750}
                     height={300}
                     className="
-                        -mt-[35%] sm:-mt-8 md:-mt-10 lg:-mt-3
+                        -mt-[41%] sm:-mt-8 md:-mt-6 lg:-mt-3
                         mx-auto 
-                        w-[235px] sm:w-[250px] md:w-[500px] lg:w-[860px] 
-                        h-[95px]                           lg:h-[350px]
+                        w-[220px] sm:w-[250px] md:w-[425px] lg:w-[860px] 
+                        h-[95px]               md:h-[190px]         lg:h-[350px]
                                                             
                     "
                     priority
@@ -59,8 +59,8 @@ export default function Hero() {
                     className="
                     -mt-2 
                     text-[16px] sm:text-sm md:text-lg lg:text-[53px]
-                                                      lg:-mt-12
-                    font-bold text-gray-800
+                                           md:text-[35px]          lg:-mt-12
+                                           md:-mt-3 font-bold text-gray-800
                   "
                     style={{ fontFamily: 'Playfair Display' }}
                 >

@@ -27,11 +27,11 @@ export default function Home() {
           <Navbar />
         </div>
 
-        <div className="mt-[66px] w-full lg:-mt-8">
+        <div className="mt-[66px] w-full lg:-mt-8 md:-mt-7">
           <Hero />
         </div>
 
-        <div className=" -mt-7 lg:mt-[150px]">
+        <div className=" -mt-7 lg:mt-[150px] md:-mt-20">
           <Wave />
         </div>
 

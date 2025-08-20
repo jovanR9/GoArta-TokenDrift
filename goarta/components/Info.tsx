@@ -3,9 +3,9 @@ import Image from "next/image";
 export default function Info() {
     return (
         <>
-            <section className="overflow-hidden sm:grid sm:grid-cols-2">
+            <section className="overflow-hidden sm:grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
                 <div className="p-8 md:p-12 lg:px-16 lg:py-24">
-                    <div className="mx-auto max-w-xl text-center ltr:sm:text-left rtl:sm:text-right">
+                    <div className="mx-auto max-w-xl text-center ltr:sm:text-left rtl:sm:text-right ">
                         
                         <div className="bg-white/80 rounded-xl shadow-lg p-8">
                             <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
@@ -28,7 +28,7 @@ export default function Info() {
                     src="/Logo.png"
                     width={600}
                     height={100}
-                    className="w-full h-[280px] object-contain sm:h-auto"
+                    className="w-full h-[280px] object-contain sm:h-auto md:h-[520px] lg:mt-44"
                 />
 
             </section>
