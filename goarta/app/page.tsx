@@ -6,6 +6,7 @@ import Pastt_events from "@/components/Past_events";
 import AIGeneratedItineraryCard from "@/components/AIGeneratedItineraryCard";
 import AnimatedTestimonialsDemo from "@/components/animated-testimonials-demo";
 import Footer from "@/components/Footer";
+import Scroll from "@/components/Scroll";
 
 import EventCard from "@/components/EventCard";
 
@@ -37,6 +38,10 @@ export default function Home() {
 
         <div className="">
           <Info />
+        </div>
+
+        <div>
+          <Scroll />
         </div>
 
         <div className="flex justify-center items-center min-h-screen ">

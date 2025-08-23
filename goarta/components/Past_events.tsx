@@ -1,243 +1,93 @@
 "use client";
 import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/css";
+import "swiper/css/navigation";
 
-const PastEvents = () => {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [isHovered, setIsHovered] = useState<number | null>(null);
+// Example JSON data for events
+const eventsData = [
+  {
+    id: 1,
+    title: "Inspirus 8",
+    image: "data:image/jpeg;base64,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",
+    date: "March 12, 2024",
+    location: "Goa Engineering College",
+  },
+  {
+    id: 2,
+    title: "Avinya",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQjdAPwQ2WqobrFx02TzvxJnDV1yZ5hZi5bTA&s",
+    date: "April 5, 2024",
+    location: "Panaji, Goa",
+  },
+  {
+    id: 3,
+    title: "TechnoMorph",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQJAruoeQNHoFfDByBj3hkVd9bAkSESmmQ0Hw&s",
+    date: "May 22, 2024",
+    location: "Margao, Goa",
+  },
+];
 
-  // Past events data with category labels
-  const pastEvents = [
-    {
-      id: 1,
-      category: "FESTIVALS",
-      headline: "Celebrate in style",
-      description: "Immerse yourself in Goa's vibrant cultural tapestry through traditional celebrations and modern festivities.",
-      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Shigmo Festival with traditional folk dances and spring celebrations"
-    },
-    {
-      id: 2,
-      category: "CARNIVALS",
-      headline: "Parade like a pro",
-      description: "Experience the magic of colorful floats, vibrant costumes, and the infectious energy of Goa's carnival spirit.",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Goa Carnival Parade with colorful floats, masks, and vibrant celebrations"
-    },
-    {
-      id: 3,
-      category: "CULTURE",
-      headline: "Heritage feels great",
-      description: "Discover ancient traditions, folk arts, and cultural performances that define Goa's rich heritage.",
-      image: "https://images.unsplash.com/photo-1541829070764-84a7d30dd3f3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Diwali Festival with traditional lamps and celebrations"
-    },
-    {
-      id: 4,
-      category: "TRADITIONS",
-      headline: "Roots run deep",
-      description: "Experience authentic Goan traditions, rituals, and customs passed down through generations.",
-      image: "https://images.unsplash.com/photo-1581600140680-d4b47b1f6770?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Holi Festival with colorful powders and celebrations"
-    },
-    {
-      id: 5,
-      category: "ARTS",
-      headline: "Creativity flows",
-      description: "Witness the artistic brilliance of local artisans, musicians, and performers showcasing their talents.",
-      image: "https://images.unsplash.com/photo-1606092195730-5d7b9af1efc5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Ganesh Chaturthi with traditional idol and celebrations"
-    },
-    {
-      id: 6,
-      category: "CELEBRATIONS",
-      headline: "Joy knows no bounds",
-      description: "Join in the festivities, celebrations, and joyous moments that make Goa a paradise of happiness.",
-      image: "https://images.unsplash.com/photo-1543589923-d58f523daa0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      alt: "Christmas Market with festive decorations and stalls"
-    }
-  ];
-
-  const scrollToLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -400, behavior: 'smooth' });
-    }
-  };
-
-  const scrollToRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 400, behavior: 'smooth' });
-    }
-  };
+export default function PastEvents() {
+  const [expanded, setExpanded] = useState<number | null>(null);
 
   return (
-    <div className="w-full px-6 py-20 ">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Title */}
-        <motion.h2 
-          className="text-5xl md:text-6xl font-bold text-black mb-16 text-center"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+    <section className="py-16 px-6">
+      <div className="max-w-6xl mx-auto">
+        <h2 className="text-4xl font-bold text-center mb-12 text-gray-800">
+          Past Events
+        </h2>
+
+        {/* Swiper for responsiveness */}
+        <Swiper
+          spaceBetween={20}
+          breakpoints={{
+            320: { slidesPerView: 1 }, // Mobile: 1 card
+            640: { slidesPerView: 2 }, // Small screens: 2 cards
+            1024: { slidesPerView: 3 }, // Laptops & above: 3 cards
+          }}
         >
-          Past Cultural events:
-        </motion.h2>
-
-        {/* Scrollable Cards Container */}
-        <div className="relative">
-          {/* Left Navigation Arrow */}
-          <motion.button
-            onClick={scrollToLeft}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white transition-all duration-300"
-            whileHover={{ scale: 1.1, x: -5 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </motion.button>
-
-          {/* Right Navigation Arrow */}
-          <motion.button
-            onClick={scrollToRight}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 w-14 h-14 bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-gray-200 flex items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white transition-all duration-300"
-            whileHover={{ scale: 1.1, x: 5 }}
-            whileTap={{ scale: 0.95 }}
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </motion.button>
-
-          {/* Cards Container */}
-          <div 
-            ref={scrollContainerRef}
-            className="flex gap-8 overflow-x-scroll scrollbar-hide px-20 py-8"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {pastEvents.map((event, index) => (
+          {eventsData.map((event) => (
+            <SwiperSlide key={event.id}>
               <motion.div
-                key={event.id}
-                className={`flex-shrink-0 w-[450px] h-[550px] rounded-3xl shadow-md overflow-hidden group cursor-pointer relative ${
-                  index === 2 ? 'bg-white' : 'bg-gray-900'
-                }`}
-                initial={{ opacity: 0, y: 50, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ 
-                  duration: 0.6, 
-                  delay: index * 0.1,
-                  ease: [0.25, 0.46, 0.45, 0.94]
-                }}
-                whileHover={{ 
-                  y: -10,
-                  scale: 1.02,
-                  transition: { duration: 0.3 }
-                }}
-                onHoverStart={() => setIsHovered(event.id)}
-                onHoverEnd={() => setIsHovered(null)}
+                whileHover={{ scale: 1.05 }}
+                className=" px-2 py-2 bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-[#6D74FF]"
               >
-                {/* Image Section - Top Half */}
-                <div className="relative h-1/2 overflow-hidden">
-                  <motion.img
-                    src={event.image}
-                    alt={event.alt}
-                    className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.8 }}
-                  />
-                  
-                  {/* Category Label - Positioned on Image */}
-                  <motion.div
-                    className={`absolute top-4 left-4 inline-block px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase shadow-lg ${
-                      index === 2 
-                        ? 'bg-purple-600 text-white' 
-                        : 'bg-purple-600 text-white'
-                    }`}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 + 0.2 }}
-                  >
-                    {event.category}
-                  </motion.div>
-
-                  {/* Subtle overlay for image section */}
-                  <div className={`absolute inset-0 transition-all duration-500 ${
-                    index === 2 
-                      ? 'bg-gradient-to-t from-white/30 to-transparent' 
-                      : 'bg-gradient-to-t from-black/30 to-transparent'
-                  }`}></div>
-                </div>
-
-                {/* Text Section - Bottom Half */}
-                <div className={`h-1/2 p-6 flex flex-col justify-between ${
-                  index === 2 ? 'bg-white' : 'bg-gray-900'
-                }`}>
-                  {/* Content */}
-                  <div>
-                    {/* Headline */}
-                    <motion.h3 
-                      className={`text-2xl md:text-3xl font-bold mb-4 leading-tight ${
-                        index === 2 ? 'text-gray-900' : 'text-white'
-                      }`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
-                    >
-                      {event.headline}
-                    </motion.h3>
-
-                    {/* Description */}
-                    <motion.p 
-                      className={`text-base leading-relaxed font-medium ${
-                        index === 2 ? 'text-gray-700' : 'text-gray-300'
-                      }`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
-                    >
-                      {event.description}
-                    </motion.p>
-                  </div>
-
-                  {/* Bottom Section - Enhanced CTA */}
-                  <motion.div
-                    className="pt-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 + 0.5 }}
-                  >
-                    <div className="w-12 h-1 bg-purple-500 rounded-full shadow-lg"></div>
-                    <p className={`text-sm font-medium mt-2 opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${
-                      index === 2 ? 'text-purple-600' : 'text-purple-300'
-                    }`}>
-                      Explore more
-                    </p>
-                  </motion.div>
-                </div>
-
-                {/* Enhanced Hover Glow Effect */}
-                <motion.div
-                  className={`absolute inset-0 rounded-3xl transition-opacity duration-700 pointer-events-none ${
-                    index === 2 
-                      ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20' 
-                      : 'bg-gradient-to-r from-purple-500/30 to-blue-500/30'
-                  } opacity-0 group-hover:opacity-100`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isHovered === event.id ? 1 : 0 }}
+                <img
+                  src={event.image}
+                  alt={event.title}
+                  className="h-48 w-full object-cover"
                 />
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+                <div className="p-6 flex flex-col flex-grow text-center">
+                  <h3 className="text-xl font-semibold mb-2">{event.title}</h3>
+                  <p className="text-sm mb-2 lg:text-[20px]">
+                    📅 {event.date}
+                  </p>
+                  <p className="text-sm mb-4 lg:text-[20px]">
+                    📍 {event.location}
+                  </p>
 
-export default PastEvents;
+                  <button
+                    onClick={() =>
+                      setExpanded(expanded === event.id ? null : event.id)
+                    }
+                    className="mt-4 px-4 py-2 rounded-[10px] text-white font-medium bg-gradient-to-r from-[#6D74FF] to-[#414699] hover:opacity-90 transition lg:text-lg"
+                  >
+                    Read More
+                  </button>
+                </div>
+              </motion.div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+
+        {/* Swipe hint */}
+        <p className="text-center mt-6 text-gray-500 text-sm sm:hidden">
+          👉 Swipe right to explore more
+        </p>
+      </div>
+    </section>
+  );
+}
