@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
+import Image from "next/image";
 
 // Example JSON data for events
 const eventsData = [
@@ -55,7 +56,7 @@ export default function PastEvents() {
                 whileHover={{ scale: 1.05 }}
                 className=" px-2 py-2 bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-[#6D74FF]"
               >
-                <img
+                <Image
                   src={event.image}
                   alt={event.title}
                   className="h-48 w-full object-cover"
