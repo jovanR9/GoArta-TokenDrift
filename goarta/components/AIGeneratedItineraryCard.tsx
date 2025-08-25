@@ -10,7 +10,7 @@ export default function AIGeneratedItineraryCard() {
     >
       {/* Left Content */}
       <div className="flex-1 max-w-lg">
-        <h2 className="text-3xl sm:text-4xl lg:text-7xl font-bold text-gray-900">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-gray-900">
           AI-Generated Itinerary
         </h2>
         <p className="text-gray-800 mt-3 text-lg sm:text-xl lg:text-2xl leading-relaxed">

@@ -7,7 +7,7 @@ export default function Info() {
                 <div className="p-8 md:p-12 lg:px-16 lg:py-24">
                     <div className="mx-auto max-w-xl text-center ltr:sm:text-left rtl:sm:text-right ">
                         
-                        <div className="bg-white/80 rounded-xl shadow-lg p-8">
+                        <div className="bg-white/80 rounded-xl shadow-lg p-8 lg:w-[700px]">
                             <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
                                 What is GoArta?
                             </h1>
@@ -28,7 +28,7 @@ export default function Info() {
                     src="/Logo.png"
                     width={600}
                     height={100}
-                    className="w-full h-[280px] object-contain sm:h-auto md:h-[520px] lg:mt-44"
+                    className="w-full h-[280px] object-contain sm:h-auto md:h-[520px] lg:mt-36"
                 />
 
             </section>

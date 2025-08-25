@@ -52,8 +52,8 @@ export default function Home() {
           <AIGeneratedItineraryCard />
         </div>
 
-        <div>
-          <VideoSection/>
+        <div className="-mt-12">
+          <VideoSection />
         </div>
 
         <div className="flex justify-center items-center min-h-screen ">

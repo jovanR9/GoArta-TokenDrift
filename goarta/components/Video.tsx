@@ -16,11 +16,11 @@ export default function VideoSection() {
   // Define unique width and height for each box at each breakpoint
   const boxSizes = [
     // Box 1
-    'w-60 h-34 sm:w-68 sm:h-38 md:w-76 md:h-42 lg:w-88 lg:h-[500px] lg:-ml-12',
+    ' -ml-1 w-44 h-96 sm:w-68 sm:h-38 md:w-80 md:h-[500px] lg:w-88 lg:h-[500px] lg:-ml-12',
     // Box 2
-    'w-64 h-36 sm:w-72 sm:h-40 md:w-80 md:h-44 lg:w-[430px] lg:h-58',
+    ' w-[170px] h-48 sm:w-72 sm:h-40 md:w-96 md:h-60 md:-ml-8 lg:w-[430px] lg:h-58 lg:-ml-0',
     // Box 3
-    'w-68 h-38 sm:w-76 sm:h-42 md:w-84 md:h-46 lg:w-[430px] lg:h-[243px] lg:-mt-64 lg:ml-[330px]',
+    '-mt-48 ml-[182px] w-[168px] h-44 sm:w-76 sm:h-42 md:-mt-64 md:ml-84 md:w-96 md:h-60 lg:w-[430px] lg:h-[243px] lg:-mt-64 lg:ml-[330px]',
   ];
 
   return (
@@ -31,16 +31,15 @@ export default function VideoSection() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Experience Unforgettable Events
           </h2>
-          <p className="text-lg text-gray-700 mb-6">
-            Dive into the heart of culture and entertainment with our curated events.
-            From vibrant festivals like Shigmo and electrifying music experiences
-            like Sunburn to serene heritage walks in Fontainhas, there’s something
-            for everyone. Book your tickets and share the joy with friends!
+      <p className="hidden lg:block text-lg text-gray-700 mb-6">
+            Cultural festivals bring people together through vibrant traditions, dance, and storytelling. They celebrate heritage with color, music, and shared joy, creating moments that connect generations. <br /><br />
+            Musical events offer high-energy experiences and soulful performances. From electronic beats to acoustic sets, they create spaces where rhythm and emotion take center stage. <br /><br />
+            Tourist experiences blend history and beauty—whether through heritage walks, architectural wonders, or scenic escapes. Each moment invites reflection, discovery, and delight.
           </p>
         </div>
 
         {/* Right Side: Video Boxes */}
-        <div className="lg:w-1/2 grid grid-cols-2 gap-4">
+        <div className="-mt-6 lg:w-1/2 grid grid-cols-2 gap-4">
           {videos.map((video, index) => (
             <div
               key={index}
