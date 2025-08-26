@@ -57,6 +57,8 @@ export default function PastEvents() {
                 className=" px-2 py-2 bg-white rounded-2xl shadow-lg overflow-hidden flex flex-col border border-[#6D74FF]"
               >
                 <Image
+                width={50}
+                height={50}
                   src={event.image}
                   alt={event.title}
                   className="h-48 w-full object-cover"
