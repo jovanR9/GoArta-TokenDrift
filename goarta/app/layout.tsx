@@ -22,15 +22,23 @@ export default function RootLayout({
       <body className={dm_sans.className}>
         <div className="relative">
           {/* Background div */}
-          <div
+          {/* <div
             className="fixed inset-0 bg-center z-0 bg-repeat"
             style={{
               backgroundImage: `url('/grid_bg.jpg')`,
               opacity: "0.5",
               backgroundSize: "40%"
             }}
+          /> */}
+
+          <div
+            className="fixed inset-0 bg-center z-0"
+            style={{
+              background: "linear-gradient(90deg, #FFFFFF, #F5F5F5, #E0E0E0)",
+              opacity: "0.5",
+            }}
           />
-          
+
           {/* Content wrapper */}
           <div className="relative z-10">
             {children}
