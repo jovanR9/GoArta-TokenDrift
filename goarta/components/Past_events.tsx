@@ -46,17 +46,17 @@ export default function PastEvents() {
     );
   }
 
-  const scrollToLeft = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -400, behavior: "smooth" });
-    }
-  };
+  // const scrollToLeft = () => {
+  //   if (scrollContainerRef.current) {
+  //     scrollContainerRef.current.scrollBy({ left: -400, behavior: "smooth" });
+  //   }
+  // };
 
-  const scrollToRight = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 400, behavior: "smooth" });
-    }
-  };
+  // const scrollToRight = () => {
+  //   if (scrollContainerRef.current) {
+  //     scrollContainerRef.current.scrollBy({ left: 400, behavior: "smooth" });
+  //   }
+  // };
 
   return (
     <div className="w-full px-6 py-20 bg-white">

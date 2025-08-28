@@ -1,34 +1,40 @@
 import { createClient } from "@supabase/supabase-js";
-import Image from "next/image";
 import Link from "next/link";
+import EventGallery from "@/components/EventGallery"; // Import the Client Component
 
+// Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-interface Event {
+// Define the event data shape from Supabase
+interface EventData {
   id: number;
   title: string;
   description: string;
   date: string;
   location: string;
   gallery: string[] | null;
-  youtube_url: string | null;
+  youtube_link: string | null;
 }
 
-interface EventPageProps {
+// Use a type that allows for async resolution of params
+interface PastEventPageProps {
   params: { id: string };
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function EventPage({ params }: EventPageProps) {
-  const { id } = params;
 
-  // Fetch event data with type safety
+export default async function EventPage(props:any) {
+  // Await the params if necessary (though Next.js resolves it automatically)
+  const { id } = await (props as PastEventPageProps).params;
+
+  // Fetch event data with type safety, converting string id to number
   const { data, error } = await supabase
     .from("past_events")
     .select("id, title, description, date, location, gallery, youtube_link")
-    .eq("id", id)
+    .eq("id", parseInt(id)) // Ensure id matches database type (number)
     .single();
 
   // Handle fetch errors
@@ -49,65 +55,30 @@ export default async function EventPage({ params }: EventPageProps) {
       </div>
     );
   }
+
   const gallery: string[] = data.gallery || [];
 
   return (
     <div className="min-h-screen bg-white text-black">
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* Banner */}
-        {gallery.length > 0 && (
-          <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] rounded-xl overflow-hidden">
-            <Image
-              src={gallery[0]}
-              alt={data.title || "Event banner"}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          </div>
-        )}
-
-        {/* Two side images */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-          {gallery[1] && (
-            <div className="relative w-full h-[180px] md:h-[220px] rounded-lg overflow-hidden">
-              <Image
-                src={gallery[1]}
-                alt="Event image 1"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
-          )}
-          {gallery[2] && (
-            <div className="relative w-full h-[180px] md:h-[220px] rounded-lg overflow-hidden">
-              <Image
-                src={gallery[2]}
-                alt="Event image 2"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 50vw"
-              />
-            </div>
-          )}
-        </div>
+        {/* Gallery Section (now a Client Component) */}
+        <EventGallery gallery={gallery} title={data.title} />
 
         {/* About */}
         <div className="mt-6 text-center">
           <h2 className="text-2xl font-bold">{data.title}</h2>
           {data.description
             ? data.description
-              .split("\n")
-              .filter((paragraph: string) => paragraph.trim())
-              .map((paragraph: string, index: number) => (
-                <p
-                  key={index}
-                  className="mt-4 text-gray-700 leading-relaxed text-justify"
-                >
-                  {paragraph}
-                </p>
-              ))
+                .split("\n")
+                .filter((paragraph: string) => paragraph.trim())
+                .map((paragraph: string, index: number) => (
+                  <p
+                    key={index}
+                    className="mt-4 text-gray-700 leading-relaxed text-justify"
+                  >
+                    {paragraph}
+                  </p>
+                ))
             : <p className="mt-4 text-gray-700 leading-relaxed text-justify">No description available.</p>}
         </div>
 
@@ -122,31 +93,6 @@ export default async function EventPage({ params }: EventPageProps) {
             <p>{data.location || "Not specified"}</p>
           </div>
         </div>
-
-        {/* Gallery Carousel */}
-        {gallery.length > 3 && (
-          <div className="mt-12">
-            <h2 className="text-2xl font-semibold mb-4 text-center">
-              Event Highlights
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {gallery.slice(3).map((img, index) => (
-                <div
-                  key={index}
-                  className="relative w-full h-[200px] md:h-[250px] rounded-lg overflow-hidden"
-                >
-                  <Image
-                    src={img}
-                    alt={`Gallery image ${index + 1}`}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 25vw"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* CTA Section */}
         <div className="mt-12 text-center">
@@ -182,4 +128,12 @@ export default async function EventPage({ params }: EventPageProps) {
       </div>
     </div>
   );
+}
+
+export async function generateStaticParams() {
+  const { data } = await supabase.from("past_events").select("id");
+  if (!data) {
+    return [];
+  }
+  return data.map((event) => ({ id: event.id.toString() }));
 }
