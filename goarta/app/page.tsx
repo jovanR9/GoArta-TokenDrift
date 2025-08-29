@@ -13,14 +13,14 @@ import EventCard from "@/components/EventCard";
 export default function Home() {
   return (
     <div className="relative">
-      {/* <div
+      <div
         className="fixed inset-0 bg-center z-0 bg-repeat"
         style={{
           backgroundImage: `url('/grid_bg.jpg')`,
           opacity: "0.4",
           backgroundSize: "30%"
         }}
-      /> */}
+      />
       <div
         className="fixed inset-0 bg-center z-0"
         style={{

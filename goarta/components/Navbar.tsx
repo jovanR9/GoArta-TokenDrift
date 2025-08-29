@@ -18,21 +18,20 @@ export default function Navbar() {
                 w-[70px] h-[70px]   /* default (mobile ~375px like iPhone SE) */
                 sm:w-[90px] sm:h-[90px] 
                 md:w-[110px] md:h-[110px] md:mt-10
-                lg:w-[80px] lg:h-[60px] lg:mt-20
-                xl:w-[150px] xl:h-[150px] 
-                2xl:w-[170px] 2xl:h-[170px]
+                lg:w-[100px] lg:h-[100px] lg:mt-8
+              
               "
                         />
                     </a>
 
                     {/* Navigation Buttons */}
-                    <div className="flex items-center gap-2 md:mt-7">
-                        <a
+                    <div className="flex items-center gap-2 md:mt-5">
+                        <Link
                             className="block rounded-md bg-green-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-green-800"
-                            href="#"
+                            href="/past_events"
                         >
                             About us
-                        </a>
+                        </Link>
 
                         <Link href = "/login"
                             className="block rounded-md bg-blue-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-blue-800"

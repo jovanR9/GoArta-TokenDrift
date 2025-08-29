@@ -88,7 +88,7 @@ export default function PastEvents() {
         <div className="relative">
           <div
             ref={scrollContainerRef}
-            className="flex gap-8 overflow-x-auto scrollbar-hide px-20 py-8"
+            className="flex gap-8 overflow-x-auto   py-8"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {eventsData.map((event, index) => (
