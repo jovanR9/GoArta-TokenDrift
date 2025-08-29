@@ -12,6 +12,21 @@ type Event = {
   thumbnail: string;
 };
 
+const formatDate = (dateStr: string): string => {
+  if (!dateStr) return "Not specified";
+  const [year, month, day] = dateStr.split("-");
+  const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day)); // Month is 0-indexed
+  const months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const dayNum = date.getDate();
+  const suffix = (dayNum % 10 === 1 && dayNum !== 11) ? "st" :
+    (dayNum % 10 === 2 && dayNum !== 12) ? "nd" :
+      (dayNum % 10 === 3 && dayNum !== 13) ? "rd" : "th";
+  return `${dayNum}${suffix} ${months[date.getMonth()]} ${year}`;
+};
+
 export default function PastEvents() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [eventsData, setEventsData] = useState<Event[]>([]);
@@ -79,7 +94,7 @@ export default function PastEvents() {
             {eventsData.map((event, index) => (
               <motion.div
                 key={event.id}
-                className={` flex-shrink-0 w-[350px] h-[450px] rounded-3xl shadow-2xl overflow-hidden group cursor-pointer relative ${index % 2 === 0 ? "bg-gray-900" : "bg-white"
+                className={`flex-shrink-0 w-[350px] h-[450px] rounded-3xl shadow-2xl overflow-hidden group cursor-pointer relative ${index % 2 === 0 ? "bg-gray-900" : "bg-white"
                   }`}
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -133,8 +148,8 @@ export default function PastEvents() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
                     >
-                      <b>Date:</b>{event.date} <br />
-                     <b>Location:</b> {event.location}
+                      <b>Date:</b> {formatDate(event.date)} <br />
+                      <b>Location:</b> {event.location}
                     </motion.p>
                   </div>
                   <motion.div
