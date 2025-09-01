@@ -1,7 +1,6 @@
 'use client';
 
 import Background from '@/components/ai-itenarary com/background';
-import TextInputArea from '@/components/ai-itenarary com/TextInputArea';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -10,11 +9,6 @@ export default function AIItineraryPage() {
   const bottleCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottleRiveRef = useRef<any>(null);
   const [bottleAnimationLoaded, setBottleAnimationLoaded] = useState(false);
-
-  const handleSendMessage = (message: string) => {
-    console.log('Message sent:', message);
-    // Add your AI processing logic here
-  };
 
   const handleBack = () => {
     router.push('/');
@@ -124,7 +118,37 @@ export default function AIItineraryPage() {
           <h1 className="text-4xl md:text-5xl font-bold mb-8">Hi, How Can I Help?</h1>
           
           {/* Input Area */}
-          <TextInputArea onSend={handleSendMessage} />
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
+            <div className="flex items-center gap-4">
+              <div className="flex-1 relative">
+                <input 
+                  type="text" 
+                  placeholder="Ask me about Goa travel plans..."
+                  className="w-full bg-white/20 text-white placeholder-white/70 px-4 py-3 rounded-xl border border-white/30 focus:outline-none focus:border-white/50 transition-colors"
+                />
+              </div>
+              <button className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors relative overflow-hidden group">
+                {/* Wave Animation */}
+                <div 
+                  className="absolute inset-0 rounded-full bg-white opacity-20"
+                  style={{
+                    animation: 'wave 5s infinite linear',
+                    transform: 'translateX(-50%) rotate(0deg)',
+                    left: '50%',
+                    top: '90%',
+                    width: '180px',
+                    height: '180px',
+                    borderRadius: '79px',
+                  }}
+                />
+                
+                {/* Send Icon */}
+                <svg className="w-6 h-6 relative z-10 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              </button>
+            </div>
+          </div>
           
           {/* Suggestion Buttons */}
           <div className="flex flex-wrap justify-center gap-3">
@@ -141,7 +165,21 @@ export default function AIItineraryPage() {
         </div>
       </div>
       
-
+      {/* Wave Animation Keyframes */}
+      <style jsx>{`
+        @keyframes wave {
+          0% {
+            transform: translateX(-50%) rotate(0deg);
+          }
+          100% {
+            transform: translateX(-50%) rotate(360deg);
+          }
+        }
+        
+        .group:hover .absolute {
+          top: 50% !important;
+        }
+      `}</style>
     </div>
   );
 }
