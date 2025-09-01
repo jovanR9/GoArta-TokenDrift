@@ -1,8 +1,10 @@
-'use client';
-
 import React from 'react';
 
-const SendButton: React.FC = () => {
+interface SendButtonProps {
+  onClick: () => void;
+}
+
+const SendButton: React.FC<SendButtonProps> = ({ onClick }) => {
   return (
     <button
       id="send-button"
@@ -26,6 +28,7 @@ const SendButton: React.FC = () => {
         boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
         WebkitBackdropFilter: 'blur(10px)',
       }}
+      onClick={onClick}
     >
       <i className="ri-water-fill"></i>
 

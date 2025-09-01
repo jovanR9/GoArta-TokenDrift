@@ -1,5 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useImperativeHandle, forwardRef } from "react";
 import { motion } from "framer-motion";
+
+interface ChatInputProps {
+  onSendMessage: (text: string) => void;
+}
+
+export interface ChatInputRef {
+  handleSend: () => void;
+}
 
 const emojis = [
     '😀', '😃', '😄', '😁', '😆', '😅', '😂', '🤣', '😊', '😇',
@@ -15,20 +23,36 @@ const emojis = [
     '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'
 ];
 
-const ChatInput: React.FC = () => {
+const ChatInput: React.FC<ChatInputProps> = forwardRef(({ onSendMessage }, ref) => {
   const [text, setText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setText(value);
-    // Show emoji picker when ":" is typed
     if (value.includes(":")) {
       setShowEmojiPicker(true);
     } else {
       setShowEmojiPicker(false);
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  };
+
+  const handleSend = () => {
+    onSendMessage(text);
+    setText("");
+    setShowEmojiPicker(false);
+  };
+
+  useImperativeHandle(ref, () => ({
+    handleSend: handleSend,
+  }));
 
   const addEmoji = (emoji: string) => {
     setText((prev) => prev + emoji);
@@ -40,7 +64,8 @@ const ChatInput: React.FC = () => {
       {/* Text Input */}
       <motion.textarea
         value={text}
-        onChange={handleChange}
+        onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
         placeholder="Type a message..."
         className="
           w-full max-h-40 overflow-y-auto resize-none px-4 py-3
@@ -87,6 +112,6 @@ const ChatInput: React.FC = () => {
       )}
     </div>
   );
-};
+});
 
 export default ChatInput;
