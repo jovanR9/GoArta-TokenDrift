@@ -5,6 +5,7 @@ import ChatBubble from '@/components/ai-itenarary com/right_chat_bubble';
 import LeftChatBubble from '@/components/ai-itenarary com/left_chat_bubble';
 import PastHistoryButton from '@/components/ai-itenarary com/PastHistoryButton';
 import ChatInput from '@/components/ChatInput';
+import SendButton from '@/components/SendButton';
 import { useRouter } from 'next/navigation';
 
 export default function AIItineraryPage() {
@@ -32,8 +33,11 @@ export default function AIItineraryPage() {
               <LeftChatBubble />
             </div>
         </div>
-        <div className="w-full max-w-4xl mx-auto mt-4">
-          <ChatInput />
+        <div className="w-full max-w-4xl mx-auto mt-4 flex items-center gap-4">
+          <div className="flex-grow">
+            <ChatInput />
+          </div>
+          <SendButton />
         </div>
       </div>
     </div>

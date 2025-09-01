@@ -46,7 +46,7 @@ const ChatInput: React.FC = () => {
           w-full max-h-40 overflow-y-auto resize-none px-4 py-3
           text-white text-base outline-none
           rounded-[51px]
-          border-[17px] border-white
+          border-[5px] border-white
           shadow-lg
           backdrop-blur-[60px]
           bg-[rgba(217,217,217,0.1)]
