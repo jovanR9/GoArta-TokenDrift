@@ -98,8 +98,8 @@ const PastHistoryButton: React.FC = () => {
         position: 'fixed',
         top: 0,
         left: '20px',
-        width: '145px',
-        height: '106px',
+        width: '110px',
+        height: '80px',
         cursor: 'pointer',
         zIndex: 31
       }}

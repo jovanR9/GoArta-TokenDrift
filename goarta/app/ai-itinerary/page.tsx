@@ -50,7 +50,7 @@ export default function AIItineraryPage() {
       
 
       {/* Chat Interface */}
-      <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4">
+      <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24">
         <div className="w-full max-w-4xl mx-auto space-y-4 flex flex-col overflow-y-auto flex-grow">
             {messages.map((msg, index) => (
                 msg.type === 'user' ? (

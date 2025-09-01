@@ -15,28 +15,28 @@ const LeftChatBubble: React.FC<ChatBubbleProps> = ({ text }) => {
     >
       {/* Image 1 - top left */}
       <img
-        src="/path/to/your/image1.png"
+        src="/ai_itinerary_images/image1.png"
         alt="image1"
         className="absolute top-2 left-2 w-12 h-12"
       />
 
       {/* Image 2 - top right */}
       <img
-        src="/path/to/your/image2.png"
+        src="/ai_itinerary_images/image2.png"
         alt="image2"
         className="absolute top-2 right-2 w-12 h-12"
       />
 
       {/* Image 3 - bottom left */}
       <img
-        src="/path/to/your/image3.png"
+        src="/ai_itinerary_images/image3.png"
         alt="image3"
         className="absolute bottom-2 left-2 w-12 h-12"
       />
 
       {/* Image 4 - bottom right */}
       <img
-        src="/path/to/your/image4.png"
+        src="/ai_itinerary_images/image4.png"
         alt="image4"
         className="absolute bottom-2 right-2 w-12 h-12"
       />
