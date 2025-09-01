@@ -73,7 +73,9 @@ const Background: React.FC<BackgroundProps> = ({ className = '' }) => {
         riveInstanceRef.current = new window.rive.Rive({
           src: "/animations/beach.riv",
           canvas: canvasRef.current,
+          artboard: "Desktop - 1",
           autoplay: true,
+          animations: ["clouds animation", "palm tree timeline", "stars animation"],
           onLoad: () => {
             console.log("Rive loaded successfully!");
             // Set the initial layout and start listening for resize events
