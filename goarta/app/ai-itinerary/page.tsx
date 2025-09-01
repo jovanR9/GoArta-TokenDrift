@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Background from '@/components/ai-itenarary com/background';
 import ChatBubble from '@/components/ai-itenarary com/right_chat_bubble';
 import LeftChatBubble from '@/components/ai-itenarary com/left_chat_bubble';
@@ -15,6 +15,7 @@ export default function AIItineraryPage() {
     { type: 'ai', text: 'Hello! How can I help you plan your trip?' }
   ]);
   const chatInputRef = useRef<ChatInputRef>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleBack = () => {
     router.push('/');
@@ -34,6 +35,11 @@ export default function AIItineraryPage() {
       ]);
     }, 1000);
   };
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   return (
     <div className="relative min-h-screen">
@@ -57,6 +63,7 @@ export default function AIItineraryPage() {
                     </div>
                 )
             ))}
+            <div ref={messagesEndRef} />
         </div>
         <div className="w-full max-w-4xl mx-auto mt-4 flex items-center gap-4">
           <div className="flex-grow">
