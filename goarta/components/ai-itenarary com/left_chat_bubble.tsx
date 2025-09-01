@@ -1,0 +1,53 @@
+import React from "react";
+
+type ChatBubbleProps = {
+  text?: string;
+};
+
+const LeftChatBubble: React.FC<ChatBubbleProps> = ({ text }) => {
+  return (
+    <div
+      className="relative max-w-md w-full p-12 rounded-2xl text-center text-white"
+      style={{
+        background:
+          "linear-gradient(to bottom right, #54529E 5%, #824A97 54%, #AB3988 100%)",
+      }}
+    >
+      {/* Image 1 - top left */}
+      <img
+        src="/path/to/your/image1.png"
+        alt="image1"
+        className="absolute top-2 left-2 w-12 h-12"
+      />
+
+      {/* Image 2 - top right */}
+      <img
+        src="/path/to/your/image2.png"
+        alt="image2"
+        className="absolute top-2 right-2 w-12 h-12"
+      />
+
+      {/* Image 3 - bottom left */}
+      <img
+        src="/path/to/your/image3.png"
+        alt="image3"
+        className="absolute bottom-2 left-2 w-12 h-12"
+      />
+
+      {/* Image 4 - bottom right */}
+      <img
+        src="/path/to/your/image4.png"
+        alt="image4"
+        className="absolute bottom-2 right-2 w-12 h-12"
+      />
+
+      {/* Bubble Text */}
+      <p className="text-lg leading-relaxed">
+        {text ??
+          "This is a sample chatbot response bubble. The text can expand vertically, and the corner decorations stay pinned without stretching.This is a sample chatbot response bubble. The text can expand vertically, and the corner decorations stay pinned without stretching."}
+      </p>
+    </div>
+  );
+};
+
+export default LeftChatBubble;
