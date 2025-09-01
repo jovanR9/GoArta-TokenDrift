@@ -38,12 +38,12 @@ const PastHistoryButton: React.FC = () => {
       riveInstance = new window.rive.Rive({
         src: '/animations/bottle_hover.riv',
         canvas: canvasRef.current,
-        artboard: 'Desktop - 1',
+                artboard: 'Desktop - 1',
         stateMachines: ['bottle hover'],
         autoplay: true,
         layout: new window.rive.Layout({
-          fit: window.rive.Fit.Cover,
-          alignment: window.rive.Alignment.TopLeft
+          fit: window.rive.Fit.Contain,
+          alignment: window.rive.Alignment.BottomCenter
         }),
         onLoad: () => {
           console.log('Rive loaded');
@@ -91,13 +91,15 @@ const PastHistoryButton: React.FC = () => {
   return (
     <canvas
       ref={canvasRef}
+      width="97"
+      height="71"
       onClick={handleClick}
       style={{
         position: 'fixed',
         top: 0,
-        left: 0,
-        width: '80vw',
-        height: '80vh',
+        left: '20px',
+        width: '145px',
+        height: '106px',
         cursor: 'pointer',
         zIndex: 31
       }}

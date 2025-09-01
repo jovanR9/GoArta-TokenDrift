@@ -20,18 +20,7 @@ export default function AIItineraryPage() {
       {/* Background Animation */}
       <Background className="fixed inset-0" />
       
-      {/* Header */}
-      <div className="relative z-30 p-6">
-        <div className="flex items-center justify-between">
-          <div></div>
-          <button 
-            onClick={handleBack}
-            className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center gap-2"
-          >
-            ← Back to Home
-          </button>
-        </div>
-      </div>
+      
 
       {/* Chat Interface */}
       <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4">
