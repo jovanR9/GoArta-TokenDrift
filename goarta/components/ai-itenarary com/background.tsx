@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import TextInputArea from './TextInputArea';
 
 // Extend Window interface to include rive
 declare global {
@@ -11,9 +12,15 @@ declare global {
 
 interface BackgroundProps {
   className?: string;
+  showInputArea?: boolean;
+  onSendMessage?: (message: string) => void;
 }
 
-const Background: React.FC<BackgroundProps> = ({ className = '' }) => {
+const Background: React.FC<BackgroundProps> = ({ 
+  className = '', 
+  showInputArea = false,
+  onSendMessage 
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<any>(null);
 
@@ -118,64 +125,6 @@ const Background: React.FC<BackgroundProps> = ({ className = '' }) => {
           zIndex: -1,
         }}
       />
-      
-      {/* Circular Send Button with Wave Animation */}
-      <button 
-        className="fixed bottom-8 right-8 w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white text-xl transition-all duration-300 cursor-pointer overflow-hidden hover:text-cyan-400 z-50"
-        style={{
-          boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
-        }}
-        onClick={() => {
-          console.log('Send button clicked!');
-          // Add your send functionality here
-        }}
-      >
-        {/* Wave Animation */}
-        <div 
-          className="absolute inset-0 rounded-full bg-white opacity-20"
-          style={{
-            animation: 'wave 5s infinite linear',
-            transform: 'translateX(-50%) rotate(0deg)',
-            left: '50%',
-            top: '90%',
-            width: '180px',
-            height: '180px',
-            borderRadius: '79px',
-          }}
-        />
-        
-        {/* Send Icon */}
-        <svg 
-          className="relative z-10" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24"
-          style={{ width: '20px', height: '20px' }}
-        >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" 
-          />
-        </svg>
-      </button>
-
-      {/* Wave Animation Keyframes */}
-      <style jsx>{`
-        @keyframes wave {
-          0% {
-            transform: translateX(-50%) rotate(0deg);
-          }
-          100% {
-            transform: translateX(-50%) rotate(360deg);
-          }
-        }
-        
-        button:hover .absolute {
-          top: 50% !important;
-        }
-      `}</style>
     </div>
   );
 };
