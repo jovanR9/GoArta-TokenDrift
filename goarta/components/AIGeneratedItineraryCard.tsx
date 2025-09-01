@@ -1,6 +1,14 @@
+'use client';
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function AIGeneratedItineraryCard() {
+  const router = useRouter();
+
+  const handleCreateTrip = () => {
+    router.push('/ai-itinerary');
+  };
   return (
     <div className="w-[95%] sm:h-[40rem] lg:h-[30rem] mx-auto bg-gradient-to-br from-[#F7F4F4] to-[#918F8F] rounded-3xl shadow-inner p-6 flex items-center justify-between gap-6"
          style={{
@@ -16,7 +24,10 @@ export default function AIGeneratedItineraryCard() {
         <p className="text-gray-800 mt-3 text-lg sm:text-xl lg:text-2xl leading-relaxed">
           Let our AI craft your perfect Goa experience — tailored to your interests, time, and vibe.
         </p>
-        <button className="mt-6 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition transform hover:scale-105 text-base sm:text-lg lg:text-xl">
+        <button 
+          onClick={handleCreateTrip}
+          className="mt-6 bg-gray-800 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition transform hover:scale-105 text-base sm:text-lg lg:text-xl"
+        >
           Create my trip
         </button>
       </div>
