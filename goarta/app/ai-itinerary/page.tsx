@@ -47,6 +47,11 @@ export default function AIItineraryPage() {
     }, 500);
   };
 
+  const handleClosePastChats = () => {
+    setShowPastChats(false);
+    setIsBackgroundBlurred(false);
+  };
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -59,7 +64,7 @@ export default function AIItineraryPage() {
       {/* Background Animation */}
       <Background className="fixed inset-0" isBlurred={isBackgroundBlurred} />
       
-      {showPastChats && <PastChatsDisplay />}
+      {showPastChats && <PastChatsDisplay onClose={handleClosePastChats} />}
 
       {/* Chat Interface */}
       <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24">

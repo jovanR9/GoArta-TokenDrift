@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef } from 'react';
+import CloseButton from '@/components/CloseButton';
 
 declare global {
   interface Window {
@@ -10,9 +11,10 @@ declare global {
 
 interface PastChatsDisplayProps {
   className?: string;
+  onClose: () => void;
 }
 
-const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '' }) => {
+const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<any>(null);
 
@@ -89,6 +91,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '' }) =
           position: 'relative',
         }}
       />
+      <CloseButton onClick={onClose} />
     </div>
   );
 };

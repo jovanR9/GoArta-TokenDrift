@@ -10,12 +10,14 @@ const CloseButton: React.FC<CloseButtonProps> = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="absolute top-4 right-4 z-50 cursor-pointer"
+      className="absolute z-50 cursor-pointer"
+      style={{ top: '6vh', right: '14vw' }}
     >
       <img
-        src="/images/close_past_chats_button_image.png" // Placeholder image path
+        src="/ai_itinerary_images/close_past_chats_button_image.png" // Correct image path
         alt="Close"
-        className="w-8 h-8" // Adjust size as needed
+        className="min-w-[60px] min-h-[32px]" // Adjust size as needed
+        style={{ width: '5vw', height: '6vh' }} // Adjust size as needed
       />
     </button>
   );
