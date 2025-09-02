@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import CloseButton from '@/components/CloseButton';
 
 declare global {
@@ -17,8 +17,15 @@ interface PastChatsDisplayProps {
 const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
     const loadRiveScript = async () => {
       if (typeof window === 'undefined') return;
 
@@ -59,7 +66,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
             console.log("PastChatsDisplay Rive loaded successfully!");
             riveInstanceRef.current.resizeDrawingSurfaceToCanvas();
           },
-          onError: (error) => {
+          onError: (error: any) => {
             console.error("PastChatsDisplay Rive Error:", error);
           }
         });
@@ -80,17 +87,19 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
         }
       }
     };
-  }, []);
+  }, [isMounted]);
 
   return (
     <div className={`fixed inset-0 z-40 flex items-center justify-center ${className}`}>
-      <canvas
-        ref={canvasRef}
-        className="w-[110vw] h-[110vh]"
-        style={{
-          position: 'relative',
-        }}
-      />
+      {isMounted && (
+        <canvas
+          ref={canvasRef}
+          className="w-[110vw] h-[110vh]"
+          style={{
+            position: 'relative',
+          }}
+        />
+      )}
       <CloseButton onClick={onClose} />
     </div>
   );

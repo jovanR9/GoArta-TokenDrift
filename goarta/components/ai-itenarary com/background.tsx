@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 // Extend Window interface to include rive
 declare global {
@@ -11,13 +11,21 @@ declare global {
 
 interface BackgroundProps {
   className?: string;
+  isBlurred?: boolean;
 }
 
-const Background: React.FC<BackgroundProps> = ({ className = '' }) => {
+const Background: React.FC<BackgroundProps> = ({ className = '', isBlurred = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
     // Load Rive script dynamically
     const loadRiveScript = async () => {
       if (typeof window === 'undefined') return;
@@ -104,25 +112,23 @@ const Background: React.FC<BackgroundProps> = ({ className = '' }) => {
         }
       }
     };
-  }, []);
+  }, [isMounted]);
 
   return (
-    <div className={`relative w-full h-full ${className}`}>
-      <canvas
-        ref={canvasRef}
-        className={`w-full h-full`}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: -1,
-          transition: 'filter 0.3s ease-in-out',
-        }}
-      />
-      
-      
+    <div className={`${className} ${isBlurred ? 'blur-sm' : ''}`}>
+      {isMounted && (
+        <canvas
+          ref={canvasRef}
+          className="w-full h-full"
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+          }}
+        />
+      )}
     </div>
   );
 };

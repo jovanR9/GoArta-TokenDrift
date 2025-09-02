@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react';
 
 declare global {
   interface Window {
@@ -20,8 +20,15 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnim
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveRef = useRef<any>(null);
   const numberInputRef = useRef<any>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
     let handleResize: () => void;
 
     const loadRiveScript = () => {
@@ -88,7 +95,7 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnim
         window.removeEventListener('resize', handleResize);
       }
     };
-  }, []);
+  }, [isMounted]);
 
   const resetAnimation = () => {
     if (riveRef.current) {
@@ -130,22 +137,26 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnim
   };
 
   return (
-    <canvas
-      ref={canvasRef}
-      width="97"
-      height="71"
-      onClick={handleClick}
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: '20px',
-        width: '110px',
-        height: '80px',
-        cursor: 'pointer',
-        zIndex: 31
-      }}
-      className=""
-    />
+    <>
+      {isMounted && (
+        <canvas
+          ref={canvasRef}
+          width="97"
+          height="71"
+          onClick={handleClick}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: '20px',
+            width: '110px',
+            height: '80px',
+            cursor: 'pointer',
+            zIndex: 31
+          }}
+          className=""
+        />
+      )}
+    </>
   );
 });
 

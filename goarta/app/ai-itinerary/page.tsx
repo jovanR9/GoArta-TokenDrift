@@ -4,18 +4,22 @@ import React, { useState, useRef, useEffect } from 'react';
 import Background from '@/components/ai-itenarary com/background';
 import ChatBubble from '@/components/ai-itenarary com/right_chat_bubble';
 import LeftChatBubble from '@/components/ai-itenarary com/left_chat_bubble';
-import PastHistoryButton, { PastHistoryButtonRef } from '@/components/ai-itenarary com/PastHistoryButton';
+import PastHistoryButton from '@/components/ai-itenarary com/PastHistoryButton';
 import ChatInput, { ChatInputRef } from '@/components/ChatInput';
 import SendButton from '@/components/SendButton';
 import { useRouter } from 'next/navigation';
 import PastChatsDisplay from '@/components/PastChatsDisplay';
 import BlurOverlay from '@/components/BlurOverlay';
+import HeroItinerary from '@/components/ai-itenarary com/HeroItinerary';
 
 export default function AIItineraryPage() {
   const router = useRouter();
   const [messages, setMessages] = useState<{ type: 'user' | 'ai', text: string }[]>([
     { type: 'ai', text: 'Hello! How can I help you plan your trip?' }
   ]);
+  const [currentItineraryId, setCurrentItineraryId] = useState<number | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [showChatInterface, setShowChatInterface] = useState(false);
   const chatInputRef = useRef<ChatInputRef>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showPastChats, setShowPastChats] = useState(false);
@@ -23,12 +27,17 @@ export default function AIItineraryPage() {
   const [pastChatsKey, setPastChatsKey] = useState(0);
   const [pastHistoryButtonKey, setPastHistoryButtonKey] = useState(0);
 
-  const handleBack = () => {
-    router.push('/');
-  };
-
-  const handleSendMessage = (text: string) => {
+  const handleSendMessage = async (text: string) => {
     if (text.trim() === '') return;
+
+    // Show chat interface when first message is sent
+    if (!showChatInterface) {
+      setShowChatInterface(true);
+      // Add a welcome message when transitioning to chat
+      setMessages([
+        { type: 'ai', text: 'Great! I\'m here to help you plan your perfect trip. What would you like to know?' }
+      ]);
+    }
 
     // Add user message
     setMessages((prevMessages) => [...prevMessages, { type: 'user', text }]);
@@ -40,6 +49,10 @@ export default function AIItineraryPage() {
         { type: 'ai', text: 'This is a simulated AI response to: "' + text + '"' },
       ]);
     }, 1000);
+  };
+
+  const handleShowChat = () => {
+    setShowChatInterface(true);
   };
 
   const handlePastChatsButtonClick = () => {
@@ -64,35 +77,54 @@ export default function AIItineraryPage() {
   return (
     <div className="relative min-h-screen">
       {isBackgroundBlurred && <BlurOverlay />}
-      <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} key={`history-${pastHistoryButtonKey}`} />
+      
+      {/* PastHistoryButton - Only show when hero section is visible */}
+      {!showChatInterface && (
+        <div className="animate-in fade-in duration-500">
+          <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} key={`history-${pastHistoryButtonKey}`} />
+        </div>
+      )}
+      
+      {/* Hero Section - Only show when chat interface is not visible */}
+      {!showChatInterface && (
+        <div className="animate-in fade-in duration-500">
+          <HeroItinerary 
+            onSendMessage={handleSendMessage}
+            onShowChat={handleShowChat}
+          />
+        </div>
+      )}
+      
       {/* Background Animation */}
       <Background className="fixed inset-0" isBlurred={isBackgroundBlurred} />
       
       {showPastChats && <PastChatsDisplay key={`past-${pastChatsKey}`} onClose={handleClosePastChats} />}
 
       {/* Chat Interface */}
-      <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24">
-        <div className="w-full max-w-4xl mx-auto space-y-4 flex flex-col overflow-y-auto flex-grow">
-            {messages.map((msg, index) => (
-                msg.type === 'user' ? (
-                    <div key={index} className="max-w-2xl self-end">
-                        <ChatBubble text={msg.text} />
-                    </div>
-                ) : (
-                    <div key={index} className="max-w-2xl self-start">
-                        <LeftChatBubble text={msg.text} />
-                    </div>
-                )
-            ))}
-            <div ref={messagesEndRef} />
-        </div>
-        <div className="w-full max-w-4xl mx-auto mt-4 flex items-center gap-4">
-          <div className="flex-grow">
-            <ChatInput onSendMessage={handleSendMessage} ref={chatInputRef} />
+      {showChatInterface && (
+        <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24 animate-in fade-in duration-500">
+          <div className="w-full max-w-4xl mx-auto space-y-4 flex flex-col overflow-y-auto flex-grow">
+              {messages.map((msg, index) => (
+                  msg.type === 'user' ? (
+                      <div key={index} className="max-w-2xl self-end animate-in slide-in-from-right duration-300">
+                          <ChatBubble text={msg.text} />
+                      </div>
+                  ) : (
+                      <div key={index} className="max-w-2xl self-start animate-in slide-in-from-left duration-300">
+                          <LeftChatBubble text={msg.text} />
+                      </div>
+                  )
+              ))}
+              <div ref={messagesEndRef} />
           </div>
-          <SendButton onClick={() => chatInputRef.current?.handleSend()} />
+          <div className="w-full max-w-4xl mx-auto mt-4 flex items-center gap-4">
+            <div className="flex-grow">
+              <ChatInput onSendMessage={handleSendMessage} ref={chatInputRef} />
+            </div>
+            <SendButton onClick={() => chatInputRef.current?.handleSend()} />
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

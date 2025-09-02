@@ -23,7 +23,7 @@ const emojis = [
     '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾'
 ];
 
-const ChatInput: React.FC<ChatInputProps> = forwardRef(({ onSendMessage }, ref) => {
+const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ onSendMessage }, ref) => {
   const [text, setText] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 

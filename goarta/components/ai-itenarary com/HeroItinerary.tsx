@@ -4,18 +4,108 @@ import Background from '@/components/ai-itenarary com/background';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
-export default function HeroItinerary() {
+interface HeroItineraryProps {
+  onSendMessage?: (text: string) => void;
+  onShowChat?: () => void;
+}
+
+export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItineraryProps) {
   const router = useRouter();
   const bottleCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottleRiveRef = useRef<any>(null);
   const [bottleAnimationLoaded, setBottleAnimationLoaded] = useState(false);
+  const [inputText, setInputText] = useState('');
+  const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
+
+  // Rotating suggestions array
+  const suggestions = [
+    "Plan my Goa trip",
+    "Best beaches to visit",
+    "Local food recommendations",
+    "Adventure activities",
+    "Cultural heritage sites",
+    "Budget travel tips",
+    "Luxury accommodations",
+    "Water sports options",
+    "Nightlife recommendations",
+    "Family-friendly activities",
+    "Romantic getaways",
+    "Shopping destinations"
+  ];
+
+  // Set mounted state to prevent hydration mismatch
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Auto-rotate suggestions
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    const interval = setInterval(() => {
+      setCurrentSuggestionIndex((prev) => (prev + 1) % suggestions.length);
+    }, 5000); // Change every 5 seconds for better readability
+
+    return () => clearInterval(interval);
+  }, [suggestions.length, isMounted]);
+
+  // Get next suggestions for display
+  const getNextSuggestions = () => {
+    const nextSuggestions = [];
+    for (let i = 1; i <= 3; i++) {
+      const index = (currentSuggestionIndex + i) % suggestions.length;
+      nextSuggestions.push(suggestions[index]);
+    }
+    return nextSuggestions;
+  };
 
   const handleBack = () => {
     router.push('/');
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputText(e.target.value);
+  };
+
+  const handleSendMessage = () => {
+    if (inputText.trim() === '') return;
+    
+    if (onSendMessage) {
+      onSendMessage(inputText);
+    }
+    
+    if (onShowChat) {
+      onShowChat();
+    }
+    
+    setInputText('');
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSendMessage();
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setInputText(suggestion);
+    // Auto-send suggestion after a brief delay with smooth transition
+    setTimeout(() => {
+      if (onSendMessage) {
+        onSendMessage(suggestion);
+      }
+      if (onShowChat) {
+        onShowChat();
+      }
+    }, 800); // Slightly longer delay for smooth transition
+  };
+
   // Initialize bottle hover animation
   useEffect(() => {
+    if (!isMounted) return;
+    
     const initializeBottleAnimation = () => {
       if (typeof window === 'undefined' || !bottleCanvasRef.current) {
         return;
@@ -69,7 +159,7 @@ export default function HeroItinerary() {
         }
       }
     };
-  }, []);
+  }, [isMounted]);
 
   return (
     <div className="relative min-h-screen">
@@ -82,16 +172,18 @@ export default function HeroItinerary() {
           <div className="flex items-center gap-2">
             {/* Animated Bottle Icon */}
             <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 relative">
-              <canvas 
-                ref={bottleCanvasRef}
-                className="w-10 h-10"
-                style={{
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(255, 255, 255, 0.3)', // Even more visible fallback
-                }}
-              />
+              {isMounted && (
+                <canvas 
+                  ref={bottleCanvasRef}
+                  className="w-10 h-10"
+                  style={{
+                    borderRadius: '50%',
+                    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Even more visible fallback
+                  }}
+                />
+              )}
               {/* Fallback bottle icon */}
-              {!bottleAnimationLoaded && (
+              {(!bottleAnimationLoaded || !isMounted) && (
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                   <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -125,9 +217,15 @@ export default function HeroItinerary() {
                   type="text" 
                   placeholder="Ask me about Goa travel plans..."
                   className="w-full bg-white/20 text-white placeholder-white/70 px-4 py-3 rounded-xl border border-white/30 focus:outline-none focus:border-white/50 transition-colors"
+                  value={inputText}
+                  onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
                 />
               </div>
-              <button className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors relative overflow-hidden group">
+              <button 
+                onClick={handleSendMessage}
+                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors relative overflow-hidden group"
+              >
                 {/* Wave Animation */}
                 <div 
                   className="absolute inset-0 rounded-full bg-white opacity-20"
@@ -152,15 +250,33 @@ export default function HeroItinerary() {
           
           {/* Suggestion Buttons */}
           <div className="flex flex-wrap justify-center gap-3">
-            <button className="bg-gradient-to-r from-orange-400/70 to-pink-400/70 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:from-orange-400/80 hover:to-pink-400/80 transition-all">
-              Plan my Goa trip
-            </button>
-            <button className="bg-gradient-to-r from-orange-400/70 to-pink-400/70 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:from-orange-400/80 hover:to-pink-400/80 transition-all">
-              Best beaches to visit
-            </button>
-            <button className="bg-gradient-to-r from-orange-400/70 to-pink-400/70 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:from-orange-400/80 hover:to-pink-400/80 transition-all">
-              Local food recommendations
-            </button>
+            {/* Main rotating suggestion */}
+            <div className="relative overflow-hidden">
+              <button 
+                onClick={() => handleSuggestionClick(suggestions[currentSuggestionIndex])}
+                className="bg-gradient-to-r from-orange-400/70 to-pink-400/70 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:from-orange-400/80 hover:to-pink-400/80 transition-all duration-700 transform hover:scale-105 shadow-lg"
+              >
+                <span 
+                  key={currentSuggestionIndex}
+                  className="block transition-all duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2 duration-500"
+                >
+                  {suggestions[currentSuggestionIndex]}
+                </span>
+              </button>
+            </div>
+            
+            {/* Additional suggestion buttons */}
+            <div className="flex gap-3">
+              {getNextSuggestions().map((suggestion, index) => (
+                <button 
+                  key={`${currentSuggestionIndex}-${index}`}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="bg-gradient-to-r from-blue-400/70 to-purple-400/70 backdrop-blur-sm text-white px-4 py-3 rounded-xl hover:from-blue-400/80 hover:to-purple-400/80 transition-all duration-500 transform hover:scale-105 animate-in fade-in duration-700 shadow-lg"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
