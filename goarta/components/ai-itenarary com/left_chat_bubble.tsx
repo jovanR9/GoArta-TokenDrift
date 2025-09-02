@@ -1,4 +1,5 @@
 import React from "react";
+import ReactMarkdown from 'react-markdown';
 
 type ChatBubbleProps = {
   text?: string;
@@ -42,10 +43,9 @@ const LeftChatBubble: React.FC<ChatBubbleProps> = ({ text }) => {
       />
 
       {/* Bubble Text */}
-      <p className="text-lg leading-relaxed">
-        {text ??
-          "This is a sample chatbot response bubble. The text can expand vertically, and the corner decorations stay pinned without stretching.This is a sample chatbot response bubble. The text can expand vertically, and the corner decorations stay pinned without stretching."}
-      </p>
+      <div className="text-lg leading-relaxed text-left">
+        <ReactMarkdown>{text ?? ""}</ReactMarkdown>
+      </div>
     </div>
   );
 };
