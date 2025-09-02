@@ -40,7 +40,7 @@ export default function PastEvents() {
         .select("id, title, date, location, thumbnail");
 
       if (error) {
-        console.error("Error fetching events:", error.message);
+        console.error("Supabase error:", error.message);
         setError("Failed to load past events. Please try again later.");
       } else {
         console.log("Fetched events:", data);
@@ -61,23 +61,18 @@ export default function PastEvents() {
     );
   }
 
-  // const scrollToLeft = () => {
-  //   if (scrollContainerRef.current) {
-  //     scrollContainerRef.current.scrollBy({ left: -400, behavior: "smooth" });
-  //   }
-  // };
-
-  // const scrollToRight = () => {
-  //   if (scrollContainerRef.current) {
-  //     scrollContainerRef.current.scrollBy({ left: 400, behavior: "smooth" });
-  //   }
-  // };
+  const scrollBy = (offset: number) => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
 
   return (
-    <div className="w-full px-6 py-20 bg-white">
+    <div className="w-full px-6 py-20">
       <div className="max-w-7xl mx-auto">
+        {/* Section Title */}
         <motion.h2
-          className="text-2xl md:text-2xl lg:text-4xl font-bold text-black mb-16 text-center"
+          className="text-center text-2xl md:text-5xl font-bold text-black mb-16"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
@@ -85,100 +80,89 @@ export default function PastEvents() {
           Past Cultural Events
         </motion.h2>
 
+        {/* Cards Container */}
         <div className="relative">
+          {/* Scroll buttons */}
+          <motion.button
+            onClick={() => scrollBy(-400)}
+            className="hidden md:flex absolute left-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-600 items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white transition-all duration-300"
+            whileHover={{ scale: 1.05, x: -4 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            aria-label="Scroll left"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </motion.button>
+
+          <motion.button
+            onClick={() => scrollBy(400)}
+            className="hidden md:flex absolute right-4 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-blue-600 items-center justify-center text-gray-700 hover:text-gray-900 hover:bg-white transition-all duration-300"
+            whileHover={{ scale: 1.05, x: 4 }}
+            whileTap={{ scale: 0.95 }}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            aria-label="Scroll right"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </motion.button>
+
           <div
             ref={scrollContainerRef}
-            className="flex gap-8 overflow-x-auto   py-8"
+            className="flex gap-8 overflow-x-auto scrollbar-hide px-2 py-4"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {eventsData.map((event, index) => (
               <motion.div
                 key={event.id}
-                className={`flex-shrink-0 w-[350px] h-[450px] rounded-3xl shadow-2xl overflow-hidden group cursor-pointer relative ${index % 2 === 0 ? "bg-gray-900" : "bg-white"
-                  }`}
-                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                className="flex-shrink-0 w-[320px] rounded-3xl bg-white border border-blue-600 shadow-md overflow-hidden"
+                initial={{ opacity: 0, y: 40, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.6,
-                  delay: index * 0.1,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-                whileHover={{
-                  y: -10,
-                  scale: 1.02,
-                  transition: { duration: 0.3 },
-                }}
-                onHoverStart={() => setIsHovered(event.id)}
-                onHoverEnd={() => setIsHovered(null)}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                whileHover={{ y: -6, transition: { duration: 0.25 } }}
               >
-                <div className="relative h-1/2 overflow-hidden">
+                <div className="h-44 w-full overflow-hidden">
                   <motion.img
-                    src={event.thumbnail || "/placeholder.jpg"}
+                    src={event.thumbnail || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
                     alt={event.title}
                     className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.8 }}
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.6 }}
                   />
-                  <div
-                    className={`absolute inset-0 transition-all duration-500 ${index % 2 === 0
-                      ? "bg-gradient-to-t from-black/30 to-transparent"
-                      : "bg-gradient-to-t from-white/30 to-transparent"
-                      }`}
-                  ></div>
                 </div>
 
-                <div
-                  className={`h-1/2 p-6 flex flex-col justify-between ${index % 2 === 0 ? "bg-gray-900" : "bg-white"
-                    }`}
-                >
-                  <div>
-                    <motion.h3
-                      className={`text-center text-2xl md:text-3xl lg:text-2xl font-bold mb-4 leading-tight ${index % 2 === 0 ? "text-white" : "text-gray-900"
-                        }`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
-                    >
-                      {event.title}
-                    </motion.h3>
-                    <motion.p
-                      className={`lg:text-[16px] text-center text-base leading-relaxed font-medium ${index % 2 === 0 ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
-                    >
-                      <b>Date:</b> {formatDate(event.date)} <br />
-                      <b>Location:</b> {event.location}
-                    </motion.p>
+                <div className="p-5">
+                  <h3 className="text-xl font-bold text-gray-900">{event.title}</h3>
+                  <div className="mt-2 space-y-1 text-gray-700">
+                    <p className="text-sm">Date : {formatDate(event.date)}</p>
+                    <p className="text-sm">Location : {event.location}</p>
                   </div>
-                  <motion.div
-                    className="pt-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 + 0.5 }}
-                  >
-                    <div className="w-12 h-1 bg-purple-500 rounded-full shadow-lg"></div>
-                    <Link
-                      href={`/past_events/${event.id}`}
-                      className={`text-sm font-medium mt-2 opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${index % 2 === 0 ? "text-purple-300" : "text-purple-600"
-                        }`}
-                    >
-                      Read More
-                    </Link>
-                  </motion.div>
-                </div>
 
-                <motion.div
-                  className={`absolute inset-0 rounded-3xl transition-opacity duration-700 pointer-events-none ${index % 2 === 0
-                    ? "bg-gradient-to-r from-purple-500/30 to-blue-500/30"
-                    : "bg-gradient-to-r from-purple-500/20 to-blue-500/20"
-                    } opacity-0 group-hover:opacity-100`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isHovered === event.id ? 1 : 0 }}
-                />
+                  <div className="mt-5">
+                    <div className="rounded-xl p-0.5 bg-gradient-to-r from-purple-300/40 to-indigo-300/40">
+                      <Link
+                        href={`/past_events/${event.id}`}
+                        className="w-full rounded-[10px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-3 text-sm font-semibold shadow hover:from-indigo-600 hover:to-purple-600 transition-colors duration-200 flex items-center justify-center gap-2"
+                      >
+                        Read more <span aria-hidden>→</span>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             ))}
+          </div>
+        </div>
+
+        <div className="mt-6 flex justify-center">
+          <div className="px-4 py-1 text-gray-600 text-sm bg-gray-100 rounded-full border border-blue-600">
+            Swipe left to see more
           </div>
         </div>
       </div>
