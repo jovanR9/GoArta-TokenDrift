@@ -27,6 +27,10 @@ export default function AIItineraryPage() {
   const [pastChatsKey, setPastChatsKey] = useState(0);
   const [pastHistoryButtonKey, setPastHistoryButtonKey] = useState(0);
 
+  const handleBack = () => {
+    router.push('/');
+  };
+
   const handleSendMessage = async (text: string) => {
     if (text.trim() === '') return;
 
@@ -42,13 +46,31 @@ export default function AIItineraryPage() {
     // Add user message
     setMessages((prevMessages) => [...prevMessages, { type: 'user', text }]);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/ai-itinerary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: text }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
       setMessages((prevMessages) => [
         ...prevMessages,
-        { type: 'ai', text: 'This is a simulated AI response to: "' + text + '"' },
+        { type: 'ai', text: data.aiResponse },
       ]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error sending message to AI:', error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { type: 'ai', text: 'Sorry, I could not get a response from the AI.' },
+      ]);
+    }
   };
 
   const handleShowChat = () => {
