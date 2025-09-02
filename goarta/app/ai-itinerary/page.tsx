@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Background from '@/components/ai-itenarary com/background';
 import ChatBubble from '@/components/ai-itenarary com/right_chat_bubble';
 import LeftChatBubble from '@/components/ai-itenarary com/left_chat_bubble';
-import PastHistoryButton from '@/components/ai-itenarary com/PastHistoryButton';
+import PastHistoryButton, { PastHistoryButtonRef } from '@/components/ai-itenarary com/PastHistoryButton';
 import ChatInput, { ChatInputRef } from '@/components/ChatInput';
 import SendButton from '@/components/SendButton';
 import { useRouter } from 'next/navigation';
@@ -20,6 +20,8 @@ export default function AIItineraryPage() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [showPastChats, setShowPastChats] = useState(false);
   const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
+  const [pastChatsKey, setPastChatsKey] = useState(0);
+  const [pastHistoryButtonKey, setPastHistoryButtonKey] = useState(0);
 
   const handleBack = () => {
     router.push('/');
@@ -50,6 +52,8 @@ export default function AIItineraryPage() {
   const handleClosePastChats = () => {
     setShowPastChats(false);
     setIsBackgroundBlurred(false);
+    setPastChatsKey(prevKey => prevKey + 1);
+    setPastHistoryButtonKey(prevKey => prevKey + 1);
   };
 
   // Scroll to bottom when messages change
@@ -60,11 +64,11 @@ export default function AIItineraryPage() {
   return (
     <div className="relative min-h-screen">
       {isBackgroundBlurred && <BlurOverlay />}
-      <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} />
+      <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} key={`history-${pastHistoryButtonKey}`} />
       {/* Background Animation */}
       <Background className="fixed inset-0" isBlurred={isBackgroundBlurred} />
       
-      {showPastChats && <PastChatsDisplay onClose={handleClosePastChats} />}
+      {showPastChats && <PastChatsDisplay key={`past-${pastChatsKey}`} onClose={handleClosePastChats} />}
 
       {/* Chat Interface */}
       <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24">

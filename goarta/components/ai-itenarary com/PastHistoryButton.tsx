@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
 declare global {
   interface Window {
@@ -12,13 +12,16 @@ interface PastHistoryButtonProps {
   onAnimationComplete: () => void;
 }
 
-const PastHistoryButton: React.FC<PastHistoryButtonProps> = ({ onAnimationComplete }) => {
+export interface PastHistoryButtonRef {
+  resetAnimation: () => void;
+}
+
+const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnimationComplete }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveRef = useRef<any>(null);
   const numberInputRef = useRef<any>(null);
 
   useEffect(() => {
-    let riveInstance: any;
     let handleResize: () => void;
 
     const loadRiveScript = () => {
@@ -56,6 +59,7 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = ({ onAnimationComple
             const inputs = newRiveInstance.stateMachineInputs('bottle hover');
             console.log("Inputs found:", inputs.map((i: any) => ({ name: i.name, type: i.type })));
             numberInputRef.current = inputs.find((i: any) => i.name === 'Number 1');
+            
             if (numberInputRef.current) {
               console.log("✅ Found Number 1 input");
             } else {
@@ -76,14 +80,38 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = ({ onAnimationComple
     loadRiveScript();
 
     return () => {
-      if (riveInstance) {
-        riveInstance.cleanup();
+      if (riveRef.current) {
+        riveRef.current.cleanup();
+        riveRef.current = null; // Explicitly nullify the ref
       }
       if (handleResize) {
         window.removeEventListener('resize', handleResize);
       }
     };
   }, []);
+
+  const resetAnimation = () => {
+    if (riveRef.current) {
+      try {
+        riveRef.current.reset({ stateMachines: ['bottle hover'] });
+        console.log("PastHistoryButton animation reset");
+      } catch (e) {
+        console.error("Error resetting Rive animation:", e);
+        // Fallback if reset fails
+        if (numberInputRef.current) {
+          numberInputRef.current.value = 1;
+          console.log("PastHistoryButton animation reset to 1 (fallback)");
+        }
+      }
+    } else if (numberInputRef.current) {
+      numberInputRef.current.value = 1;
+      console.log("PastHistoryButton animation reset to 1 (fallback)");
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    resetAnimation: resetAnimation,
+  }));
 
   const handleClick = () => {
     if (numberInputRef.current) {
@@ -119,6 +147,6 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = ({ onAnimationComple
       className=""
     />
   );
-};
+});
 
 export default PastHistoryButton;
