@@ -18,6 +18,8 @@ export default function FilterBar() {
   // Placeholder locations (later fetch from DB)
   const locations = ["Goa", "Mumbai", "Delhi", "Bangalore"];
 
+  const category = ["Cultural", "Heritage", "Musical"];
+
   const handleFilter = () => {
     console.log({ search, month, year, location });
     // TODO: Pass filters to parent / fetch filtered data
@@ -55,6 +57,18 @@ export default function FilterBar() {
         <option value="">Year</option>
         {years.map((y, idx) => (
           <option key={idx} value={y}>{y}</option>
+        ))}
+      </select>
+
+      {/* Category Dropdown */}
+      <select
+        value={location}
+        onChange={(e) => setLocation(e.target.value)}
+        className="p-2 border rounded-lg w-full md:w-1/5"
+      >
+        <option value="">Categoty</option>
+        {category.map((loc, idx) => (
+          <option key={idx} value={loc}>{loc}</option>
         ))}
       </select>
 

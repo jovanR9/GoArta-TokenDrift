@@ -1,12 +1,11 @@
-"use client"
-// import PastEvents from "@/components/Past_events";
+"use client";
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
-import Filter from "@/components/Filter";
+import FilterBar from "@/components/Filter"; // Updated import
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabaseClient } from "@/lib/supabaseClient";
 import Link from "next/link";
+import Modal from "@/components/LoginModel"; // Update if incorrect
 
 type Event = {
   id: number;
@@ -34,8 +33,16 @@ const formatDate = (dateStr: string): string => {
 export default function PastEvents() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [eventsData, setEventsData] = useState<Event[]>([]);
-  const [isHovered, setIsHovered] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [filters, setFilters] = useState({
+    search: "",
+    month: "",
+    year: "",
+    location: "",
+    category: "",
+  });
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -48,12 +55,26 @@ export default function PastEvents() {
         setError("Failed to load past events. Please try again later.");
       } else {
         console.log("Fetched events:", data);
-        setEventsData(data as Event[]);
+        let filteredData = data as Event[];
+        if (filters.search || filters.month || filters.year || filters.location || filters.category) {
+          filteredData = filteredData.filter((event) => {
+            const formattedDate = formatDate(event.date).toLowerCase();
+            const matchesSearch = event.title.toLowerCase().includes(filters.search.toLowerCase()) ||
+              event.location.toLowerCase().includes(filters.search.toLowerCase()) ||
+              formattedDate.includes(filters.search.toLowerCase());
+            const matchesMonth = !filters.month || formattedDate.includes(filters.month.toLowerCase());
+            const matchesYear = !filters.year || event.date.includes(filters.year);
+            const matchesLocation = !filters.location || event.location.toLowerCase() === filters.location.toLowerCase();
+            const matchesCategory = !filters.category || event.title.toLowerCase().includes(filters.category.toLowerCase()); // Assuming category is in title for simplicity
+            return matchesSearch && matchesMonth && matchesYear && matchesLocation && matchesCategory;
+          });
+        }
+        setEventsData(filteredData);
       }
     };
 
     fetchEvents();
-  }, []);
+  }, [filters]);
 
   if (error) {
     return (
@@ -65,17 +86,18 @@ export default function PastEvents() {
     );
   }
 
-  // const scrollToLeft = () => {
-  //   if (scrollContainerRef.current) {
-  //     scrollContainerRef.current.scrollBy({ left: -400, behavior: "smooth" });
-  //   }
-  // };
+  const openModal = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
 
-  // const scrollToRight = () => {
-  //   if (scrollContainerRef.current) {
-  //     scrollContainerRef.current.scrollBy({ left: 400, behavior: "smooth" });
-  //   }
-  // };
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
+  };
+
+  const eventsToShow = eventsData.slice(0, 8);
+  const hasMoreEvents = eventsData.length > 8;
 
   return (
     <>
@@ -84,118 +106,112 @@ export default function PastEvents() {
       </div>
 
       <div className="mt-16">
-        <Filter />
+        <FilterBar
+          onFilterChange={(newFilters) => setFilters(newFilters)}
+        />
       </div>
 
-    <div className="w-full px-6 py-20 bg-white">
-      <div className="max-w-7xl mx-auto">
-        <motion.h2
-          className="text-2xl md:text-2xl lg:text-4xl font-bold text-black mb-16 text-center"
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          Past Cultural Events
-        </motion.h2>
-
-        <div className="relative">
-          <div
-            ref={scrollContainerRef}
-            className="flex gap-8 overflow-x-auto scrollbar-hide px-20 py-8"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      <div className="w-full px-6 py-20">
+        <div className="max-w-7xl mx-auto">
+          {/* Section Title */}
+          <motion.h2
+            className="text-center text-2xl md:text-5xl font-bold text-black mb-16"
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
-            {eventsData.map((event, index) => (
+            Past Cultural Events
+          </motion.h2>
+
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+            {eventsToShow.map((event, index) => (
               <motion.div
                 key={event.id}
-                className={`flex-shrink-0 w-[350px] h-[450px] rounded-3xl shadow-2xl overflow-hidden group cursor-pointer relative ${index % 2 === 0 ? "bg-gray-900" : "bg-white"
-                  }`}
-                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                className="rounded-3xl bg-white border border-blue-600 shadow-md overflow-hidden"
+                initial={{ opacity: 0, y: 40, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{
-                  duration: 0.6,
-                  delay: index * 0.1,
-                  ease: [0.25, 0.46, 0.45, 0.94],
-                }}
-                whileHover={{
-                  y: -10,
-                  scale: 1.02,
-                  transition: { duration: 0.3 },
-                }}
-                onHoverStart={() => setIsHovered(event.id)}
-                onHoverEnd={() => setIsHovered(null)}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+                whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                onClick={() => openModal(event)}
+                style={{ cursor: "pointer" }}
               >
-                <div className="relative h-1/2 overflow-hidden">
+                <div className="h-44 w-full overflow-hidden">
                   <motion.img
-                    src={event.thumbnail || "/placeholder.jpg"}
+                    src={event.thumbnail || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
                     alt={event.title}
                     className="w-full h-full object-cover"
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.8 }}
+                    whileHover={{ scale: 1.04 }}
+                    transition={{ duration: 0.6 }}
                   />
-                  <div
-                    className={`absolute inset-0 transition-all duration-500 ${index % 2 === 0
-                      ? "bg-gradient-to-t from-black/30 to-transparent"
-                      : "bg-gradient-to-t from-white/30 to-transparent"
-                      }`}
-                  ></div>
                 </div>
 
-                <div
-                  className={`h-1/2 p-6 flex flex-col justify-between ${index % 2 === 0 ? "bg-gray-900" : "bg-white"
-                    }`}
-                >
-                  <div>
-                    <motion.h3
-                      className={`text-center text-2xl md:text-3xl lg:text-2xl font-bold mb-4 leading-tight ${index % 2 === 0 ? "text-white" : "text-gray-900"
-                        }`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.3 }}
-                    >
-                      {event.title}
-                    </motion.h3>
-                    <motion.p
-                      className={`lg:text-[16px] text-center text-base leading-relaxed font-medium ${index % 2 === 0 ? "text-gray-300" : "text-gray-700"
-                        }`}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.5, delay: index * 0.1 + 0.4 }}
-                    >
-                      <b>Date:</b> {formatDate(event.date)} <br />
-                      <b>Location:</b> {event.location}
-                    </motion.p>
+                <div className="p-5">
+                  <h3 className="text-xl font-bold text-gray-900">{event.title}</h3>
+                  <div className="mt-2 space-y-1 text-gray-700">
+                    <p className="text-sm">Date : {formatDate(event.date)}</p>
+                    <p className="text-sm">Location : {event.location}</p>
                   </div>
-                  <motion.div
-                    className="pt-4"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 + 0.5 }}
-                  >
-                    <div className="w-12 h-1 bg-purple-500 rounded-full shadow-lg"></div>
-                    <Link
-                      href={`/past_events/${event.id}`}
-                      className={`text-sm font-medium mt-2 opacity-80 group-hover:opacity-100 transition-opacity duration-300 ${index % 2 === 0 ? "text-purple-300" : "text-purple-600"
-                        }`}
-                    >
-                      Read More
-                    </Link>
-                  </motion.div>
-                </div>
 
-                <motion.div
-                  className={`absolute inset-0 rounded-3xl transition-opacity duration-700 pointer-events-none ${index % 2 === 0
-                    ? "bg-gradient-to-r from-purple-500/30 to-blue-500/30"
-                    : "bg-gradient-to-r from-purple-500/20 to-blue-500/20"
-                    } opacity-0 group-hover:opacity-100`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: isHovered === event.id ? 1 : 0 }}
-                />
+                  <div className="mt-5">
+                    <div className="rounded-xl p-0.5 bg-gradient-to-r from-purple-300/40 to-indigo-300/40">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openModal(event);
+                        }}
+                        className="w-full rounded-[10px] bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-3 text-sm font-semibold shadow hover:from-indigo-600 hover:to-purple-600 transition-colors duration-200 flex items-center justify-center gap-2"
+                      >
+                        Read more <span aria-hidden>→</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
+
+          {/* View More Events Button */}
+          {hasMoreEvents && (
+            <div className="mt-8 text-center">
+              <button
+                onClick={() => {
+                  const nextEvent = eventsData[8]; // Get the next event after the first 8
+                  openModal(nextEvent || { id: 0, title: "No More Events", date: "", location: "", thumbnail: "" });
+                }}
+                className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow hover:bg-blue-700 transition-colors duration-200"
+              >
+                View More Events
+              </button>
+            </div>
+          )}
         </div>
       </div>
-    </div>
+
+      {/* Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={selectedEvent?.title}
+      >
+        {selectedEvent && (
+          <div className="space-y-4">
+            <div className="relative w-full h-64">
+              <motion.img
+                src={selectedEvent.thumbnail || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
+                alt={selectedEvent.title}
+                className="w-full h-full object-cover rounded-lg"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.5 }}
+              />
+            </div>
+            <p><strong>Date:</strong> {formatDate(selectedEvent.date)}</p>
+            <p><strong>Location:</strong> {selectedEvent.location}</p>
+            <p><strong>Description:</strong> No description available.</p>
+          </div>
+        )}
+      </Modal>
     </>
   );
 }
