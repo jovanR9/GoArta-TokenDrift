@@ -8,7 +8,11 @@ declare global {
   }
 }
 
-const PastHistoryButton: React.FC = () => {
+interface PastHistoryButtonProps {
+  onAnimationComplete: () => void;
+}
+
+const PastHistoryButton: React.FC<PastHistoryButtonProps> = ({ onAnimationComplete }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveRef = useRef<any>(null);
   const numberInputRef = useRef<any>(null);
@@ -35,10 +39,10 @@ const PastHistoryButton: React.FC = () => {
     const initializeRive = () => {
       if (!canvasRef.current || !window.rive) return;
 
-      riveInstance = new window.rive.Rive({
+      const newRiveInstance = new window.rive.Rive({
         src: '/animations/bottle_hover.riv',
         canvas: canvasRef.current,
-                artboard: 'Desktop - 1',
+        artboard: 'Desktop - 1',
         stateMachines: ['bottle hover'],
         autoplay: true,
         layout: new window.rive.Layout({
@@ -47,21 +51,25 @@ const PastHistoryButton: React.FC = () => {
         }),
         onLoad: () => {
           console.log('Rive loaded');
-          riveInstance.resizeDrawingSurfaceToCanvas();
-          const inputs = riveInstance.stateMachineInputs('bottle hover');
-          console.log("Inputs found:", inputs.map((i: any) => ({ name: i.name, type: i.type })));
-          numberInputRef.current = inputs.find((i: any) => i.name === 'Number 1');
-          if (numberInputRef.current) {
-            console.log("✅ Found Number 1 input");
-          } else {
-            console.error("❌ Could not find 'Number 1'");
+          newRiveInstance.resizeDrawingSurfaceToCanvas();
+          try {
+            const inputs = newRiveInstance.stateMachineInputs('bottle hover');
+            console.log("Inputs found:", inputs.map((i: any) => ({ name: i.name, type: i.type })));
+            numberInputRef.current = inputs.find((i: any) => i.name === 'Number 1');
+            if (numberInputRef.current) {
+              console.log("✅ Found Number 1 input");
+            } else {
+              console.error("❌ Could not find 'Number 1'");
+            }
+          } catch (e) {
+            console.error("Error getting state machine inputs:", e);
           }
         },
       });
 
-      riveRef.current = riveInstance;
+      riveRef.current = newRiveInstance;
 
-      handleResize = () => riveInstance.resizeDrawingSurfaceToCanvas();
+      handleResize = () => newRiveInstance.resizeDrawingSurfaceToCanvas();
       window.addEventListener('resize', handleResize);
     };
 
@@ -85,6 +93,11 @@ const PastHistoryButton: React.FC = () => {
         numberInputRef.current.value = 1;
       }
       console.log("Number 1 toggled to:", numberInputRef.current.value);
+      
+      // Call onAnimationComplete after 500ms
+      setTimeout(() => {
+        onAnimationComplete();
+      }, 500);
     }
   };
 

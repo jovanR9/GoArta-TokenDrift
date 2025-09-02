@@ -8,6 +8,8 @@ import PastHistoryButton from '@/components/ai-itenarary com/PastHistoryButton';
 import ChatInput, { ChatInputRef } from '@/components/ChatInput';
 import SendButton from '@/components/SendButton';
 import { useRouter } from 'next/navigation';
+import PastChatsDisplay from '@/components/PastChatsDisplay';
+import BlurOverlay from '@/components/BlurOverlay';
 
 export default function AIItineraryPage() {
   const router = useRouter();
@@ -16,6 +18,8 @@ export default function AIItineraryPage() {
   ]);
   const chatInputRef = useRef<ChatInputRef>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showPastChats, setShowPastChats] = useState(false);
+  const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
 
   const handleBack = () => {
     router.push('/');
@@ -36,6 +40,13 @@ export default function AIItineraryPage() {
     }, 1000);
   };
 
+  const handlePastChatsButtonClick = () => {
+    setIsBackgroundBlurred(true);
+    setTimeout(() => {
+      setShowPastChats(true);
+    }, 500);
+  };
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -43,11 +54,12 @@ export default function AIItineraryPage() {
 
   return (
     <div className="relative min-h-screen">
-      <PastHistoryButton />
+      {isBackgroundBlurred && <BlurOverlay />}
+      <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} />
       {/* Background Animation */}
-      <Background className="fixed inset-0" />
+      <Background className="fixed inset-0" isBlurred={isBackgroundBlurred} />
       
-      
+      {showPastChats && <PastChatsDisplay />}
 
       {/* Chat Interface */}
       <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24">

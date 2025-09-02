@@ -110,7 +110,7 @@ const Background: React.FC<BackgroundProps> = ({ className = '' }) => {
     <div className={`relative w-full h-full ${className}`}>
       <canvas
         ref={canvasRef}
-        className="w-full h-full"
+        className={`w-full h-full`}
         style={{
           position: 'fixed',
           top: 0,
@@ -118,6 +118,7 @@ const Background: React.FC<BackgroundProps> = ({ className = '' }) => {
           width: '100%',
           height: '100%',
           zIndex: -1,
+          transition: 'filter 0.3s ease-in-out',
         }}
       />
       
