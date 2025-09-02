@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     });
 
     const response = await chat.invoke([
-      new SystemMessage('You are a helpful AI assistant that helps plan travel itineraries.'),
+      new SystemMessage('You are a helpful AI assistant that helps plan travel itineraries. Please format your responses with clear newlines and empty lines for readability. Also, use relevant emojis to make the response more engaging and friendly.'),
       new HumanMessage(message),
     ]);
 
