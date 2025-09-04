@@ -22,6 +22,8 @@ export default function AIItineraryPage() {
   const [messages, setMessages] = useState<Message[]>([
     { type: 'ai', text: 'Hello! How can I help you plan your trip?' }
   ]);
+  const [typingMessage, setTypingMessage] = useState<string | null>(null);
+  const [displayedTypingMessage, setDisplayedTypingMessage] = useState<string>('');
   const [showChatInterface, setShowChatInterface] = useState(false);
   const chatInputRef = useRef<ChatInputRef>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -64,17 +66,11 @@ export default function AIItineraryPage() {
       }
 
       const data = await response.json();
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: 'ai', text: data.aiResponse },
-      ]);
+      setTypingMessage(data.aiResponse); // Set the message to be typed
       setConversationHistory(data.history); // Update history from the API response
     } catch (error) {
       console.error('Error sending message to AI:', error);
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { type: 'ai', text: 'Sorry, I could not get a response from the AI.' },
-      ]);
+      setTypingMessage('Sorry, I could not get a response from the AI.'); // Display error with typing effect
     }
   };
 
@@ -100,18 +96,35 @@ export default function AIItineraryPage() {
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, typingMessage]);
+
+  // Typing effect for AI messages
+  useEffect(() => {
+    if (typingMessage) {
+      let i = 0;
+      setDisplayedTypingMessage(''); // Clear previous typing message
+      const typingInterval = setInterval(() => {
+        setDisplayedTypingMessage((prev) => prev + typingMessage[i]);
+        i++;
+        if (i === typingMessage.length) {
+          clearInterval(typingInterval);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { type: 'ai', text: typingMessage },
+          ]);
+          setTypingMessage(null); // Clear typing message after completion
+        }
+      }, 1); // Adjust typing speed here (e.g., 1ms for snappy)
+
+      return () => clearInterval(typingInterval); // Cleanup on unmount or typingMessage change
+    }
+  }, [typingMessage]);
 
   return (
     <div className="relative min-h-screen">
       {isBackgroundBlurred && <BlurOverlay />}
       
-      {/* PastHistoryButton - Only show when hero section is visible */}
-      {!showChatInterface && (
-        <div className="animate-in fade-in duration-500">
-          <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} key={`history-${pastHistoryButtonKey}`} />
-        </div>
-      )}
+      <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} key={`history-${pastHistoryButtonKey}`} />
       
       {/* Hero Section - Only show when chat interface is not visible */}
       {!showChatInterface && (
@@ -143,6 +156,11 @@ export default function AIItineraryPage() {
                       </div>
                   )
               ))}
+              {typingMessage && ( // Display typing message if available
+                <div key="typing-message" className="max-w-2xl self-start animate-in slide-in-from-left duration-300">
+                  <LeftChatBubble text={displayedTypingMessage} />
+                </div>
+              )}
               <div ref={messagesEndRef} />
           </div>
           <div className="w-full max-w-2xl mx-auto mt-4 flex items-center gap-4">
