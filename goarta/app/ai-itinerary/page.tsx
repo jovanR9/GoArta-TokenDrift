@@ -82,9 +82,7 @@ export default function AIItineraryPage() {
 
   const handlePastChatsButtonClick = () => {
     setIsBackgroundBlurred(true);
-    setTimeout(() => {
-      setShowPastChats(true);
-    }, 500);
+    setShowPastChats(true);
   };
 
   const handleClosePastChats = () => {
@@ -138,7 +136,7 @@ export default function AIItineraryPage() {
       )}
       
       {/* Background Animation */}
-      <Background className="fixed inset-0" isBlurred={isBackgroundBlurred} />
+      <Background className="fixed inset-0" />
       
       {showPastChats && <PastChatsDisplay key={`past-${pastChatsKey}`} onClose={handleClosePastChats} />}
 
