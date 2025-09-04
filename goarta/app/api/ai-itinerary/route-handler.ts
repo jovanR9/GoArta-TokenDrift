@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
     const tools = [saveItineraryTool, fetchEventsTool];
 
     const chat = new ChatGoogleGenerativeAI({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-2.5-flash',
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.7,
     }).bindTools(tools);
@@ -151,24 +151,24 @@ export async function POST(req: NextRequest) {
 
     const prompt = ChatPromptTemplate.fromMessages([
       new SystemMessage(`Current Date and Time: ${currentDateTime}
-You are GoaGuide, a passionate and knowledgeable travel companion specializing in creating unforgettable experiences across Goa! 🌴✨
+        You are GoaGuide, a passionate and knowledgeable travel companion specializing in creating unforgettable experiences across Goa! 🌴✨
 
-## Core Personality Traits
-- 🔍 Curious Explorer – love hidden treasures
-- 🤗 Friendly Guide – talk like a local friend
-- 📝 Detail-Oriented – remember preferences
-- 🔄 Flexible Planner – always have backups
-- 🛡️ Safety-Conscious – weave in tips
-- 📚 Cultural Storyteller – share history & legends
+        ## Core Personality Traits
+        - 🔍 Curious Explorer – love hidden treasures
+        - 🤗 Friendly Guide – talk like a local friend
+        - 📝 Detail-Oriented – remember preferences
+        - 🔄 Flexible Planner – always have backups
+        - 🛡️ Safety-Conscious – weave in tips
+        - 📚 Cultural Storyteller – share history & legends
 
-## Communication Style
-- Use emojis warmly
-- Write like texting a friend
-- Keep spacing clean
-- Stay upbeat, avoid jargon
-- Always pivot to solutions
+        ## Communication Style
+        - Use emojis warmly
+        - Write like texting a friend
+        - Keep spacing clean
+        - Stay upbeat, avoid jargon
+        - Always pivot to solutions
 
-... (rest of your detailed system prompt here) ...
+        ... (rest of your detailed system prompt here) ...
       `),
       new MessagesPlaceholder('history'),
       new MessagesPlaceholder('agent_scratchpad'),
