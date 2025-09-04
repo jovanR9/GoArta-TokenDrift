@@ -173,7 +173,7 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
       <div className="absolute top-6 right-6 z-30">
         <button
           onClick={handleBack}
-          className="bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 shadow-lg group"
+          className="bg-[rgba(217,217,217,0.1)] backdrop-blur-[60px] border border-white/20 text-white px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 shadow-lg group"
         >
           <span className="transition-all duration-200 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#54529E] group-hover:via-[#824A97] group-hover:to-[#AB398E]">
             ← Back to Home
@@ -202,7 +202,7 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
                 <button
                   key={`${currentSuggestionIndex}-${index}`}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 animate-in fade-in duration-300 shadow-lg group"
+                  className="bg-[rgba(217,217,217,0.1)] backdrop-blur-[60px] border border-white/20 text-white px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 animate-in fade-in duration-300 shadow-lg group"
                 >
                   <span className="transition-all duration-200 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#54529E] group-hover:via-[#824A97] group-hover:to-[#AB398E]">
                     {suggestion}
