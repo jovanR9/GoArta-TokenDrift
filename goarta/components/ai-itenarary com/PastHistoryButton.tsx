@@ -4,8 +4,26 @@ import React, { useEffect, useRef, useImperativeHandle, forwardRef, useState } f
 
 declare global {
   interface Window {
-    rive: any;
+    rive: {
+      Rive: new (args: object) => RiveInstance;
+      Layout: new (args: object) => object;
+      Fit: { [key: string]: string };
+      Alignment: { [key: string]: string };
+    };
   }
+}
+
+interface RiveInput {
+  name: string;
+  type: string;
+  value: number;
+}
+
+interface RiveInstance {
+  resizeDrawingSurfaceToCanvas: () => void;
+  stateMachineInputs: (name: string) => RiveInput[];
+  cleanup: () => void;
+  reset: (options: { stateMachines: string[] }) => void;
 }
 
 interface PastHistoryButtonProps {
@@ -16,10 +34,10 @@ export interface PastHistoryButtonRef {
   resetAnimation: () => void;
 }
 
-const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnimationComplete }, ref) => {
+const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef<PastHistoryButtonRef, PastHistoryButtonProps>(({ onAnimationComplete }, ref) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const riveRef = useRef<any>(null);
-  const numberInputRef = useRef<any>(null);
+  const riveRef = useRef<RiveInstance | null>(null);
+  const numberInputRef = useRef<RiveInput | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -64,15 +82,15 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnim
           newRiveInstance.resizeDrawingSurfaceToCanvas();
           try {
             const inputs = newRiveInstance.stateMachineInputs('bottle hover');
-            console.log("Inputs found:", inputs.map((i: any) => ({ name: i.name, type: i.type })));
-            numberInputRef.current = inputs.find((i: any) => i.name === 'Number 1');
+            console.log("Inputs found:", inputs.map((i: RiveInput) => ({ name: i.name, type: i.type })));
+            numberInputRef.current = inputs.find((i: RiveInput) => i.name === 'Number 1') || null;
             
             if (numberInputRef.current) {
               console.log("✅ Found Number 1 input");
             } else {
               console.error("❌ Could not find 'Number 1'");
             }
-          } catch (e) {
+          } catch (e: unknown) {
             console.error("Error getting state machine inputs:", e);
           }
         },
@@ -102,7 +120,7 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnim
       try {
         riveRef.current.reset({ stateMachines: ['bottle hover'] });
         console.log("PastHistoryButton animation reset");
-      } catch (e) {
+      } catch (e: unknown) {
         console.error("Error resetting Rive animation:", e);
         // Fallback if reset fails
         if (numberInputRef.current) {
@@ -159,5 +177,7 @@ const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef(({ onAnim
     </>
   );
 });
+
+PastHistoryButton.displayName = 'PastHistoryButton';
 
 export default PastHistoryButton;

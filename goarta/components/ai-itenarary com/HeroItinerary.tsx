@@ -14,7 +14,7 @@ interface HeroItineraryProps {
 export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItineraryProps) {
   const router = useRouter();
   const bottleCanvasRef = useRef<HTMLCanvasElement>(null);
-  const bottleRiveRef = useRef<any>(null);
+  const bottleRiveRef = useRef<object | null>(null);
   const [bottleAnimationLoaded, setBottleAnimationLoaded] = useState(false);
   const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
@@ -117,11 +117,11 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
                 console.log("Bottle animation loaded successfully!");
                 setBottleAnimationLoaded(true);
               },
-              onError: (error: any) => {
+              onError: (error: Error) => {
                 console.error("Bottle animation error:", error);
               }
             });
-          } catch (e) {
+          } catch (e: unknown) {
             console.error("Error creating bottle Rive instance:", e);
           }
         } else {
@@ -141,8 +141,8 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
       clearTimeout(timer);
       if (bottleRiveRef.current) {
         try {
-          bottleRiveRef.current.cleanup();
-        } catch (e) {
+          (bottleRiveRef.current as { cleanup: () => void }).cleanup();
+        } catch (e: unknown) {
           console.error("Error cleaning up bottle Rive instance:", e);
         }
       }

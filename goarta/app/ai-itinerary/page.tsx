@@ -17,8 +17,6 @@ export default function AIItineraryPage() {
   const [messages, setMessages] = useState<{ type: 'user' | 'ai', text: string }[]>([
     { type: 'ai', text: 'Hello! How can I help you plan your trip?' }
   ]);
-  const [currentItineraryId, setCurrentItineraryId] = useState<number | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [showChatInterface, setShowChatInterface] = useState(false);
   const chatInputRef = useRef<ChatInputRef>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -26,11 +24,7 @@ export default function AIItineraryPage() {
   const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
   const [pastChatsKey, setPastChatsKey] = useState(0);
   const [pastHistoryButtonKey, setPastHistoryButtonKey] = useState(0);
-  const [conversationHistory, setConversationHistory] = useState<any[]>([]); // New state for Langchain history
-
-  const handleBack = () => {
-    router.push('/');
-  };
+  const [conversationHistory, setConversationHistory] = useState<{ type: string, text: string }[]>([]); // New state for Langchain history
 
   const handleSendMessage = async (text: string) => {
     if (text.trim() === '') return;

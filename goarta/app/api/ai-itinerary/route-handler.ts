@@ -51,9 +51,9 @@ class SaveItineraryTool extends StructuredTool<typeof SaveItinerarySchema> {
       }
       console.log('Itinerary saved to Supabase:', data);
       return "Itinerary successfully saved to the database.";
-    } catch (e: any) { // Explicitly type 'e' as 'any' to resolve 'unknown' type error
+    } catch (e: unknown) { // Explicitly type 'e' as 'any' to resolve 'unknown' type error
       console.error('Exception in save_itinerary tool:', e);
-      return `An error occurred while saving the itinerary: ${e.message}`;
+      return `An error occurred while saving the itinerary: ${(e as Error).message}`;
     }
   }
 }
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest) {
 
     // Populate memory with previous conversation history if provided
     if (rawHistory && Array.isArray(rawHistory)) {
-      const messagesToAdd: BaseMessage[] = rawHistory.map((msg: any) => {
+      const messagesToAdd: BaseMessage[] = rawHistory.map((msg: { type: string; text: string }) => {
         if (msg.type === 'user') {
           return new HumanMessage(msg.text);
         } else if (msg.type === 'ai') {
