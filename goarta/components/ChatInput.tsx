@@ -114,4 +114,6 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ onSendMessage }, r
   );
 });
 
+ChatInput.displayName = 'ChatInput';
+
 export default ChatInput;

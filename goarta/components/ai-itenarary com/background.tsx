@@ -5,7 +5,12 @@ import React, { useEffect, useRef, useState } from 'react';
 // Extend Window interface to include rive
 declare global {
   interface Window {
-    rive: any;
+    rive: {
+      Rive: new (args: object) => RiveInstance;
+      Layout: new (args: object) => object;
+      Fit: { [key: string]: string };
+      Alignment: { [key: string]: string };
+    };
   }
 }
 
@@ -16,7 +21,7 @@ interface BackgroundProps {
 
 const Background: React.FC<BackgroundProps> = ({ className = '', isBlurred = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const riveInstanceRef = useRef<any>(null);
+  const riveInstanceRef = useRef<RiveInstance | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -90,12 +95,12 @@ const Background: React.FC<BackgroundProps> = ({ className = '', isBlurred = fal
             handleResize();
             window.addEventListener('resize', handleResize);
           },
-          onError: (error: any) => {
+          onError: (error: Error) => {
             console.error("Rive Error:", error);
           }
         });
         console.log("Rive constructor called.");
-      } catch (e) {
+      } catch (e: unknown) {
         console.error("Error creating Rive instance:", e);
       }
     };
@@ -107,7 +112,7 @@ const Background: React.FC<BackgroundProps> = ({ className = '', isBlurred = fal
       if (riveInstanceRef.current) {
         try {
           riveInstanceRef.current.cleanup();
-        } catch (e) {
+        } catch (e: unknown) {
           console.error("Error cleaning up Rive instance:", e);
         }
       }

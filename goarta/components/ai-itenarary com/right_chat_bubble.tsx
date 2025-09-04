@@ -1,5 +1,6 @@
 import React from "react";
 import ReactMarkdown from 'react-markdown';
+import Image from 'next/image';
 
 type ChatBubbleProps = {
   text?: string;
@@ -15,30 +16,38 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ text }) => {
       }}
     >
       {/* Crab - top left */}
-      <img
+      <Image
         src="/ai_itinerary_images/crab.png"
         alt="crab"
+        width={48}
+        height={48}
         className="absolute top-2 left-2 w-12 h-12"
       />
 
       {/* Castle - top right */}
-      <img
+      <Image
         src="/ai_itinerary_images/castle.png"
         alt="castle"
+        width={48}
+        height={48}
         className="absolute top-2 right-2 w-12 h-12"
       />
 
       {/* Beach ball - bottom left */}
-      <img
+      <Image
         src="/ai_itinerary_images/ball.png"
         alt="beach ball"
+        width={48}
+        height={48}
         className="absolute bottom-2 left-2 w-12 h-12"
       />
 
       {/* Shell - bottom right */}
-      <img
+      <Image
         src="/ai_itinerary_images/shell.png"
         alt="shell"
+        width={48}
+        height={48}
         className="absolute bottom-2 right-2 w-12 h-12"
       />
 

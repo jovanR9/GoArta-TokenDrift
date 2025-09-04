@@ -3,12 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CloseButton from '@/components/CloseButton';
 
-declare global {
-  interface Window {
-    rive: any;
-  }
-}
-
 interface PastChatsDisplayProps {
   className?: string;
   onClose: () => void;
@@ -16,7 +10,7 @@ interface PastChatsDisplayProps {
 
 const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const riveInstanceRef = useRef<any>(null);
+  const riveInstanceRef = useRef<RiveInstance | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -64,9 +58,9 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
           }),
           onLoad: () => {
             console.log("PastChatsDisplay Rive loaded successfully!");
-            riveInstanceRef.current.resizeDrawingSurfaceToCanvas();
+            (riveInstanceRef.current as { resizeDrawingSurfaceToCanvas: () => void }).resizeDrawingSurfaceToCanvas();
           },
-          onError: (error: any) => {
+          onError: (error: Error) => {
             console.error("PastChatsDisplay Rive Error:", error);
           }
         });
