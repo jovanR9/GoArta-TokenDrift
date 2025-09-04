@@ -19,6 +19,8 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
   const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const chatInputRef = useRef<ChatInputRef>(null);
+  const fullGreeting = "Hi, How Can I Help?";
+  const [displayedGreeting, setDisplayedGreeting] = useState("");
 
   // Rotating suggestions array
   const suggestions = [
@@ -44,13 +46,32 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
   // Auto-rotate suggestions
   useEffect(() => {
     if (!isMounted) return;
-    
+
     const interval = setInterval(() => {
       setCurrentSuggestionIndex((prev) => (prev + 1) % suggestions.length);
     }, 5000); // Change every 5 seconds for better readability
 
     return () => clearInterval(interval);
   }, [suggestions.length, isMounted]);
+
+  // Typing effect for greeting
+  useEffect(() => {
+    let index = 0;
+
+    const typeCharacter = () => {
+      if (index <= fullGreeting.length) {
+        setDisplayedGreeting(fullGreeting.slice(0, index));
+        index++;
+        setTimeout(typeCharacter, 50); // Typing speed
+      }
+    };
+
+    typeCharacter();
+
+    return () => {
+      // no cleanup needed for simple timeout chain
+    };
+  }, [fullGreeting]);
 
   // Get next suggestions for display
   const getNextSuggestions = () => {
@@ -68,11 +89,11 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
 
   const handleChatInputSend = (text: string) => {
     if (text.trim() === '') return;
-    
+
     if (onSendMessage) {
       onSendMessage(text);
     }
-    
+
     if (onShowChat) {
       onShowChat();
     }
@@ -87,28 +108,27 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
       if (onShowChat) {
         onShowChat();
       }
-    }, 800); // Slightly longer delay for smooth transition
+    }, 800);
   };
 
   // Initialize bottle hover animation
   useEffect(() => {
     if (!isMounted) return;
-    
+
     const initializeBottleAnimation = () => {
       if (typeof window === 'undefined' || !bottleCanvasRef.current) {
         return;
       }
 
-      // Wait for Rive to be available
       const checkRive = () => {
         if (window.rive) {
           try {
             console.log("Initializing bottle animation...");
-            
+
             // Set canvas size explicitly
             bottleCanvasRef.current!.width = 40;
             bottleCanvasRef.current!.height = 40;
-            
+
             bottleRiveRef.current = new window.rive.Rive({
               src: "/animations/bottle_hover.riv",
               canvas: bottleCanvasRef.current!,
@@ -125,16 +145,13 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
             console.error("Error creating bottle Rive instance:", e);
           }
         } else {
-          // Retry after a short delay
           setTimeout(checkRive, 100);
         }
       };
 
-      // Start checking for Rive
       checkRive();
     };
 
-    // Initialize after a short delay to let the background animation load first
     const timer = setTimeout(initializeBottleAnimation, 1000);
 
     return () => {
@@ -153,50 +170,25 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
     <div className="relative h-screen overflow-hidden flex flex-col">
       {/* Background Animation */}
       <Background className="fixed inset-0" />
-      
-      {/* Logo in top-left corner */}
-      <div className="relative z-30 p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {/* Animated Bottle Icon */}
-            <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 relative">
-              {isMounted && (
-                <canvas 
-                  ref={bottleCanvasRef}
-                  className="w-10 h-10"
-                  style={{
-                    borderRadius: '50%',
-                    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Even more visible fallback
-                  }}
-                />
-              )}
-              {/* Fallback bottle icon */}
-              {(!bottleAnimationLoaded || !isMounted) && (
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
-                </div>
-              )}
-            </div>
-            <span className="text-white font-semibold">GoArta AI</span>
-          </div>
-          
-          <button 
-            onClick={handleBack}
-            className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg hover:bg-white/30 transition-colors flex items-center gap-2"
-          >
+
+      {/* Back to Home Button - Top Right */}
+      <div className="absolute top-6 right-6 z-30">
+        <button
+          onClick={handleBack}
+          className="bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 shadow-lg group"
+        >
+          <span className="transition-all duration-200 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#54529E] group-hover:via-[#824A97] group-hover:to-[#AB398E]">
             ← Back to Home
-          </button>
-        </div>
+          </span>
+        </button>
       </div>
 
       {/* Main UI Content - Centered */}
       <div className="relative z-20 flex-grow flex items-center justify-center px-6 overflow-hidden">
         <div className="text-center text-white max-w-2xl w-full">
           {/* Greeting */}
-          <h1 className="text-4xl md:text-5xl font-bold mb-8">Hi, How Can I Help?</h1>
-          
+          <h1 className="text-4xl md:text-5xl font-bold mb-8">{displayedGreeting}</h1>
+
           {/* Input Area */}
           <div className="w-full max-w-4xl mx-auto mt-4 flex items-center gap-4">
             <div className="flex-grow">
@@ -204,13 +196,12 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
             </div>
             <SendButton onClick={() => chatInputRef.current?.handleSend()} />
           </div>
-          
+
           {/* Suggestion Buttons */}
           <div className="flex flex-wrap justify-center gap-3 mt-8 mb-8">
-            {/* Additional suggestion buttons */}
             <div className="flex gap-3">
               {getNextSuggestions().map((suggestion, index) => (
-                <button 
+                <button
                   key={`${currentSuggestionIndex}-${index}`}
                   onClick={() => handleSuggestionClick(suggestion)}
                   className="bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 animate-in fade-in duration-300 shadow-lg group"
@@ -224,7 +215,7 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
           </div>
         </div>
       </div>
-      
+
       {/* Wave Animation Keyframes */}
       <style jsx>{`
         @keyframes wave {
@@ -235,7 +226,6 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
             transform: translateX(-50%) rotate(360deg);
           }
         }
-        
         .group:hover .absolute {
           top: 50% !important;
         }

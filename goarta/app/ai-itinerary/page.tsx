@@ -152,13 +152,13 @@ export default function AIItineraryPage() {
                           <ChatBubble text={msg.text} />
                       </div>
                   ) : (
-                      <div key={index} className="max-w-2xl self-start animate-in slide-in-from-left duration-300">
+                      <div key={index} className="max-w-2xl self-start">
                           <LeftChatBubble text={msg.text} />
                       </div>
                   )
               ))}
               {typingMessage && ( // Display typing message if available
-                <div key="typing-message" className="max-w-2xl self-start animate-in slide-in-from-left duration-300">
+                <div key="typing-message" className="max-w-2xl self-start">
                   <LeftChatBubble text={displayedTypingMessage} />
                 </div>
               )}
