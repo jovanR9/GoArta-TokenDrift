@@ -53,12 +53,13 @@ export default function AIItineraryPage() {
 
 
     try {
+      const currentDateTime = new Date().toISOString(); // Get current date and time
       const response = await fetch('/api/ai-itinerary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: text, history: newHistory }), // Send current history
+        body: JSON.stringify({ message: text, history: newHistory, currentDateTime }), // Send current history and date/time
       });
 
       if (!response.ok) {

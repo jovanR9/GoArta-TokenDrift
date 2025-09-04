@@ -116,7 +116,7 @@ const fetchEventsTool = new FetchEventsTool();
 // ------------------ API Route ------------------
 export async function POST(req: NextRequest) {
   try {
-    const { message, history: rawHistory } = await req.json();
+    const { message, history: rawHistory, currentDateTime } = await req.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     }
 
     const prompt = ChatPromptTemplate.fromMessages([
-      new SystemMessage(`
+      new SystemMessage(`Current Date and Time: ${currentDateTime}
 You are GoaGuide, a passionate and knowledgeable travel companion specializing in creating unforgettable experiences across Goa! 🌴✨
 
 ## Core Personality Traits
