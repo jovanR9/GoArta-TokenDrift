@@ -1,4 +1,4 @@
-import React, { useState, useImperativeHandle, forwardRef, useRef } from "react";
+import React, { useState, useImperativeHandle, forwardRef, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 
 interface ChatInputProps {
@@ -61,6 +61,20 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ onSendMessage }, r
     setShowEmojiPicker(false);
   };
 
+  // Adjust textarea height based on content
+  useEffect(() => {
+    const textarea = textareaRef.current; // Declare textarea here
+    if (textarea) {
+      textarea.style.boxSizing = 'border-box'; // Ensure border-box for consistent sizing
+      textarea.style.resize = 'none'; // Disable manual resizing
+      textarea.style.overflowY = 'auto'; // Enable scrollbar on overflow
+      textarea.style.minHeight = '60px'; // Initial height matches button
+      textarea.style.maxHeight = '160px'; // Max expansion height
+      textarea.style.height = 'auto'; // Reset height to auto to get accurate scrollHeight
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`; // Set height, capped by maxHeight
+    }
+  }, [text]);
+
   return (
     <div className="relative w-full flex flex-col items-center">
       {/* Text Input */}
@@ -72,7 +86,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(({ onSendMessage }, r
         onKeyDown={handleKeyDown}
         placeholder="Type a message..."
         className="
-          w-full max-h-40 overflow-y-auto resize-none px-4 py-3
+          w-full px-4 py-3
           text-white text-base outline-none
           rounded-[51px]
           border-[5px] border-white
