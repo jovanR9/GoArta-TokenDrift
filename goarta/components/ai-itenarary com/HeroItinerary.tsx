@@ -15,7 +15,6 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
   const router = useRouter();
   const bottleCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottleRiveRef = useRef<object | null>(null);
-  const [bottleAnimationLoaded, setBottleAnimationLoaded] = useState(false);
   const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
   const chatInputRef = useRef<ChatInputRef>(null);
@@ -135,7 +134,6 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
               autoplay: true,
               onLoad: () => {
                 console.log("Bottle animation loaded successfully!");
-                setBottleAnimationLoaded(true);
               },
               onError: (error: Error) => {
                 console.error("Bottle animation error:", error);
