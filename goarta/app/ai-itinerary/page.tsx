@@ -144,11 +144,11 @@ export default function AIItineraryPage() {
 
       {/* Chat Interface */}
       {showChatInterface && (
-        <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24 animate-in fade-in duration-500">
+        <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24 animate-in fade-in duration-500 overflow-x-hidden">
           <div className="w-full max-w-4xl mx-auto space-y-4 flex flex-col overflow-y-auto flex-grow">
               {messages.map((msg, index) => (
                   msg.type === 'user' ? (
-                      <div key={index} className="max-w-2xl self-end animate-in slide-in-from-right duration-300">
+                      <div key={index} className="max-w-2xl self-end">
                           <ChatBubble text={msg.text} />
                       </div>
                   ) : (
@@ -172,6 +172,11 @@ export default function AIItineraryPage() {
           </div>
         </div>
       )}
+    <style jsx global>{`
+        html, body {
+          overflow-x: hidden !important;
+        }
+      `}</style>
     </div>
   );
 };
