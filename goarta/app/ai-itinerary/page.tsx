@@ -26,6 +26,7 @@ export default function AIItineraryPage() {
   const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
   const [pastChatsKey, setPastChatsKey] = useState(0);
   const [pastHistoryButtonKey, setPastHistoryButtonKey] = useState(0);
+  const [conversationHistory, setConversationHistory] = useState<any[]>([]); // New state for Langchain history
 
   const handleBack = () => {
     router.push('/');
@@ -34,17 +35,21 @@ export default function AIItineraryPage() {
   const handleSendMessage = async (text: string) => {
     if (text.trim() === '') return;
 
-    // Show chat interface when first message is sent
+    const userMessage = { type: 'user', text };
+    let newHistory = [...conversationHistory, userMessage];
+
     if (!showChatInterface) {
       setShowChatInterface(true);
-      // Add a welcome message when transitioning to chat
       setMessages([
-        { type: 'ai', text: 'Great! I\'m here to help you plan your perfect trip. What would you like to know?' }
+        { type: 'ai', text: 'Great! I\'m here to help you plan your perfect trip. What would you like to know?' },
+        userMessage
       ]);
+      newHistory = [userMessage];
+    } else {
+      setMessages((prevMessages) => [...prevMessages, userMessage]);
     }
+    setConversationHistory(newHistory);
 
-    // Add user message
-    setMessages((prevMessages) => [...prevMessages, { type: 'user', text }]);
 
     try {
       const response = await fetch('/api/ai-itinerary', {
@@ -52,7 +57,7 @@ export default function AIItineraryPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text, history: newHistory }), // Send current history
       });
 
       if (!response.ok) {
@@ -64,6 +69,7 @@ export default function AIItineraryPage() {
         ...prevMessages,
         { type: 'ai', text: data.aiResponse },
       ]);
+      setConversationHistory(data.history); // Update history from the API response
     } catch (error) {
       console.error('Error sending message to AI:', error);
       setMessages((prevMessages) => [
@@ -75,6 +81,7 @@ export default function AIItineraryPage() {
 
   const handleShowChat = () => {
     setShowChatInterface(true);
+    setConversationHistory([]); // Clear history when switching to chat view
   };
 
   const handlePastChatsButtonClick = () => {
@@ -149,4 +156,4 @@ export default function AIItineraryPage() {
       )}
     </div>
   );
-}
+};

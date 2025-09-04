@@ -62,7 +62,7 @@ const saveItineraryTool = new SaveItineraryTool();
 
 export async function POST(req: NextRequest) {
   try {
-    const { message } = await req.json();
+    const { message, history: rawHistory } = await req.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -85,14 +85,28 @@ export async function POST(req: NextRequest) {
       outputKey: "output", // Explicitly tell memory which key contains the agent's final output
     });
 
+    // Populate memory with previous conversation history if provided
+    if (rawHistory && Array.isArray(rawHistory)) {
+      const messagesToAdd: BaseMessage[] = rawHistory.map((msg: any) => {
+        if (msg.type === 'user') {
+          return new HumanMessage(msg.text);
+        } else if (msg.type === 'ai') {
+          return new AIMessage(msg.text);
+        }
+        // Fallback for unexpected types, or throw an error
+        return new AIMessage(`Error: Could not parse previous message of type ${msg.type}`);
+      });
+      await memory.chatHistory.addMessages(messagesToAdd);
+    }
+
     const prompt = ChatPromptTemplate.fromMessages([
       new SystemMessage(
         "You are a helpful AI assistant that helps plan travel itineraries. " +
-        "When a complete travel itinerary has been generated and the user might want to save it, " +
-        "use the `save_itinerary` tool with all the required parameters. " +
+        "Use the conversation history to understand the user's needs and provide relevant suggestions. " +
+        "Only use the `save_itinerary` tool with all the required parameters when the user explicitly asks you to save the itinerary. " +
         "Please format your responses with clear newlines and empty lines for readability. " +
         "Also, use relevant emojis to make the response even more engaging and friendly. \n\n" +
-        "You have access to the following tools: {tools}" // Removed the explicit instruction on tool call format
+        "You have access to the following tools: {tools}"
       ),
       new MessagesPlaceholder("history"), // Memory gets injected here
       new MessagesPlaceholder("agent_scratchpad"), // This is crucial for the agent's internal state
@@ -116,7 +130,14 @@ export async function POST(req: NextRequest) {
       input: message,
     });
 
-    return NextResponse.json({ aiResponse: result.output });
+    // Get the updated full history after the agent's turn to send back to the client
+    const updatedHistory = await memory.chatHistory.getMessages();
+    const serializableHistory = updatedHistory.map(msg => ({
+      type: msg._getType() === 'human' ? 'user' : 'ai',
+      text: msg.content,
+    }));
+
+    return NextResponse.json({ aiResponse: result.output, history: serializableHistory });
   } catch (error) {
     console.error('Langchain API error:', error);
     return NextResponse.json({ error: 'Failed to get AI response' }, { status: 500 });
