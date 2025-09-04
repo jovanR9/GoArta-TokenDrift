@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Message {
   type: 'ai' | 'user';
@@ -18,6 +19,7 @@ import BlurOverlay from '@/components/BlurOverlay';
 import HeroItinerary from '@/components/ai-itenarary com/HeroItinerary';
 
 export default function AIItineraryPage() {
+  const router = useRouter();
   // const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([
     { type: 'ai', text: 'Hello! How can I help you plan your trip?' }
@@ -32,6 +34,10 @@ export default function AIItineraryPage() {
   const [pastChatsKey, setPastChatsKey] = useState(0);
   const [pastHistoryButtonKey, setPastHistoryButtonKey] = useState(0);
   const [conversationHistory, setConversationHistory] = useState<{ type: string, text: string }[]>([]); // New state for Langchain history
+
+  const handleBack = () => {
+    router.push('/');
+  };
 
   const handleSendMessage = async (text: string) => {
     if (text.trim() === '') return;
@@ -121,6 +127,17 @@ export default function AIItineraryPage() {
 
   return (
     <div className="relative min-h-screen">
+      {/* Back to Home Button - Top Right */}
+      <div className="absolute top-6 right-6 z-30">
+        <button
+          onClick={handleBack}
+          className="bg-[rgba(217,217,217,0.1)] backdrop-blur-[60px] border border-white/20 text-white px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 shadow-lg group"
+        >
+          <span className="transition-all duration-200 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#54529E] group-hover:via-[#824A97] group-hover:to-[#AB398E]">
+            ← Back to Home
+          </span>
+        </button>
+      </div>
       {isBackgroundBlurred && <BlurOverlay />}
       
       <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} key={`history-${pastHistoryButtonKey}`} />
