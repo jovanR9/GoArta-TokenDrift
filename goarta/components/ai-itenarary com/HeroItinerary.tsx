@@ -3,6 +3,8 @@
 import Background from '@/components/ai-itenarary com/background';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import ChatInput, { ChatInputRef } from '@/components/ChatInput';
+import SendButton from '@/components/SendButton';
 
 interface HeroItineraryProps {
   onSendMessage?: (text: string) => void;
@@ -14,9 +16,9 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
   const bottleCanvasRef = useRef<HTMLCanvasElement>(null);
   const bottleRiveRef = useRef<any>(null);
   const [bottleAnimationLoaded, setBottleAnimationLoaded] = useState(false);
-  const [inputText, setInputText] = useState('');
   const [currentSuggestionIndex, setCurrentSuggestionIndex] = useState(0);
   const [isMounted, setIsMounted] = useState(false);
+  const chatInputRef = useRef<ChatInputRef>(null);
 
   // Rotating suggestions array
   const suggestions = [
@@ -64,33 +66,19 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
     router.push('/');
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputText(e.target.value);
-  };
-
-  const handleSendMessage = () => {
-    if (inputText.trim() === '') return;
+  const handleChatInputSend = (text: string) => {
+    if (text.trim() === '') return;
     
     if (onSendMessage) {
-      onSendMessage(inputText);
+      onSendMessage(text);
     }
     
     if (onShowChat) {
       onShowChat();
     }
-    
-    setInputText('');
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleSendMessage();
-    }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
-    setInputText(suggestion);
     // Auto-send suggestion after a brief delay with smooth transition
     setTimeout(() => {
       if (onSendMessage) {
@@ -210,42 +198,11 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
           <h1 className="text-4xl md:text-5xl font-bold mb-8">Hi, How Can I Help?</h1>
           
           {/* Input Area */}
-          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 mb-6">
-            <div className="flex items-center gap-4">
-              <div className="flex-1 relative">
-                <input 
-                  type="text" 
-                  placeholder="Ask me about Goa travel plans..."
-                  className="w-full bg-white/20 text-white placeholder-white/70 px-4 py-3 rounded-xl border border-white/30 focus:outline-none focus:border-white/50 transition-colors"
-                  value={inputText}
-                  onChange={handleInputChange}
-                  onKeyDown={handleKeyDown}
-                />
-              </div>
-              <button 
-                onClick={handleSendMessage}
-                className="bg-white/20 hover:bg-white/30 text-white p-3 rounded-full transition-colors relative overflow-hidden group"
-              >
-                {/* Wave Animation */}
-                <div 
-                  className="absolute inset-0 rounded-full bg-white opacity-20"
-                  style={{
-                    animation: 'wave 5s infinite linear',
-                    transform: 'translateX(-50%) rotate(0deg)',
-                    left: '50%',
-                    top: '90%',
-                    width: '180px',
-                    height: '180px',
-                    borderRadius: '79px',
-                  }}
-                />
-                
-                {/* Send Icon */}
-                <svg className="w-6 h-6 relative z-10 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-              </button>
+          <div className="w-full max-w-4xl mx-auto mt-4 flex items-center gap-4">
+            <div className="flex-grow">
+              <ChatInput onSendMessage={handleChatInputSend} ref={chatInputRef} />
             </div>
+            <SendButton onClick={() => chatInputRef.current?.handleSend()} />
           </div>
           
           {/* Suggestion Buttons */}
