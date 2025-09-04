@@ -145,7 +145,7 @@ export default function AIItineraryPage() {
               ))}
               <div ref={messagesEndRef} />
           </div>
-          <div className="w-full max-w-4xl mx-auto mt-4 flex items-center gap-4">
+          <div className="w-full max-w-2xl mx-auto mt-4 flex items-center gap-4">
             <div className="flex-grow">
               <ChatInput onSendMessage={handleSendMessage} ref={chatInputRef} />
             </div>

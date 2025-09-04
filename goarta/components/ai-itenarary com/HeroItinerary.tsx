@@ -150,7 +150,7 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
   }, [isMounted]);
 
   return (
-    <div className="relative min-h-screen">
+    <div className="relative h-screen overflow-hidden flex flex-col">
       {/* Background Animation */}
       <Background className="fixed inset-0" />
       
@@ -192,7 +192,7 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
       </div>
 
       {/* Main UI Content - Centered */}
-      <div className="relative z-20 min-h-screen flex items-center justify-center px-6">
+      <div className="relative z-20 flex-grow flex items-center justify-center px-6 overflow-hidden">
         <div className="text-center text-white max-w-2xl w-full">
           {/* Greeting */}
           <h1 className="text-4xl md:text-5xl font-bold mb-8">Hi, How Can I Help?</h1>
@@ -206,31 +206,18 @@ export default function HeroItinerary({ onSendMessage, onShowChat }: HeroItinera
           </div>
           
           {/* Suggestion Buttons */}
-          <div className="flex flex-wrap justify-center gap-3">
-            {/* Main rotating suggestion */}
-            <div className="relative overflow-hidden">
-              <button 
-                onClick={() => handleSuggestionClick(suggestions[currentSuggestionIndex])}
-                className="bg-gradient-to-r from-orange-400/70 to-pink-400/70 backdrop-blur-sm text-white px-6 py-3 rounded-xl hover:from-orange-400/80 hover:to-pink-400/80 transition-all duration-700 transform hover:scale-105 shadow-lg"
-              >
-                <span 
-                  key={currentSuggestionIndex}
-                  className="block transition-all duration-700 ease-in-out animate-in fade-in slide-in-from-bottom-2 duration-500"
-                >
-                  {suggestions[currentSuggestionIndex]}
-                </span>
-              </button>
-            </div>
-            
+          <div className="flex flex-wrap justify-center gap-3 mt-8 mb-8">
             {/* Additional suggestion buttons */}
             <div className="flex gap-3">
               {getNextSuggestions().map((suggestion, index) => (
                 <button 
                   key={`${currentSuggestionIndex}-${index}`}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="bg-gradient-to-r from-blue-400/70 to-purple-400/70 backdrop-blur-sm text-white px-4 py-3 rounded-xl hover:from-blue-400/80 hover:to-purple-400/80 transition-all duration-500 transform hover:scale-105 animate-in fade-in duration-700 shadow-lg"
+                  className="bg-white/10 backdrop-blur-sm border border-white/20 text-white/70 px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 animate-in fade-in duration-300 shadow-lg group"
                 >
-                  {suggestion}
+                  <span className="transition-all duration-200 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-[#54529E] group-hover:via-[#824A97] group-hover:to-[#AB398E]">
+                    {suggestion}
+                  </span>
                 </button>
               ))}
             </div>
