@@ -128,7 +128,7 @@ export default function AIItineraryPage() {
   return (
     <div className="relative min-h-screen">
       {/* Back to Home Button - Top Right */}
-      <div className="absolute top-6 right-6 z-30">
+      <div className="fixed top-6 right-6 z-30">
         <button
           onClick={handleBack}
           className="bg-[rgba(217,217,217,0.1)] backdrop-blur-[60px] border border-white/20 text-white px-4 py-3 rounded-xl hover:bg-white transition-all duration-200 transform hover:scale-105 shadow-lg group"
