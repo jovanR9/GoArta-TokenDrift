@@ -3,17 +3,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CloseButton from '@/components/CloseButton';
 
-declare global {
-  interface Window {
-    rive: {
-      Rive: new (args: object) => object;
-      Layout: new (args: object) => object;
-      Fit: { Contain: string };
-      Alignment: { Center: string };
-    };
-  }
-}
-
 interface PastChatsDisplayProps {
   className?: string;
   onClose: () => void;
@@ -21,7 +10,7 @@ interface PastChatsDisplayProps {
 
 const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const riveInstanceRef = useRef<object | null>(null);
+  const riveInstanceRef = useRef<RiveInstance | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {

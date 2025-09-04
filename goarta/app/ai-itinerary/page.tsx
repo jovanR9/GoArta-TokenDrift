@@ -1,20 +1,25 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+
+interface Message {
+  type: 'ai' | 'user';
+  text: string;
+}
 import Background from '@/components/ai-itenarary com/background';
 import ChatBubble from '@/components/ai-itenarary com/right_chat_bubble';
 import LeftChatBubble from '@/components/ai-itenarary com/left_chat_bubble';
 import PastHistoryButton from '@/components/ai-itenarary com/PastHistoryButton';
 import ChatInput, { ChatInputRef } from '@/components/ChatInput';
 import SendButton from '@/components/SendButton';
-import { useRouter } from 'next/navigation';
+
 import PastChatsDisplay from '@/components/PastChatsDisplay';
 import BlurOverlay from '@/components/BlurOverlay';
 import HeroItinerary from '@/components/ai-itenarary com/HeroItinerary';
 
 export default function AIItineraryPage() {
-  const router = useRouter();
-  const [messages, setMessages] = useState<{ type: 'user' | 'ai', text: string }[]>([
+  // const router = useRouter();
+  const [messages, setMessages] = useState<Message[]>([
     { type: 'ai', text: 'Hello! How can I help you plan your trip?' }
   ]);
   const [showChatInterface, setShowChatInterface] = useState(false);
@@ -29,7 +34,7 @@ export default function AIItineraryPage() {
   const handleSendMessage = async (text: string) => {
     if (text.trim() === '') return;
 
-    const userMessage = { type: 'user', text };
+    const userMessage: Message = { type: 'user', text };
     let newHistory = [...conversationHistory, userMessage];
 
     if (!showChatInterface) {

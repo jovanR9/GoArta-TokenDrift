@@ -19,13 +19,6 @@ interface RiveInput {
   value: number;
 }
 
-interface RiveInstance {
-  resizeDrawingSurfaceToCanvas: () => void;
-  stateMachineInputs: (name: string) => RiveInput[];
-  cleanup: () => void;
-  reset: (options: { stateMachines: string[] }) => void;
-}
-
 interface PastHistoryButtonProps {
   onAnimationComplete: () => void;
 }

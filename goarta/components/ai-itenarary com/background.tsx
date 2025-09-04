@@ -14,12 +14,6 @@ declare global {
   }
 }
 
-interface RiveInstance {
-  layout: object;
-  resizeDrawingSurfaceToCanvas: () => void;
-  cleanup: () => void;
-}
-
 interface BackgroundProps {
   className?: string;
   isBlurred?: boolean;
