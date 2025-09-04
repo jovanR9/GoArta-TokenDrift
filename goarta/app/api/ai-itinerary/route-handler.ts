@@ -190,6 +190,8 @@ export async function POST(req: NextRequest) {
 
     const result = await agentExecutor.invoke({ input: message });
 
+
+
     const updatedHistory = await memory.chatHistory.getMessages();
     const serializableHistory = updatedHistory.map((msg) => ({
       type: msg._getType() === 'human' ? 'user' : 'ai',
