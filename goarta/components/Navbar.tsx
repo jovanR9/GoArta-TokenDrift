@@ -3,21 +3,29 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthContext";
+import UserIcon from "@/components/UserIcon"; // Adjust the import path as needed
 
 export default function Navbar() {
     const { user, logout } = useAuth();
 
     const handleLogout = async () => {
         await logout();
-        // Optionally redirect to home page or login page
+        // Redirect to home page or login page
         window.location.href = "/";
+    };
+
+    // Extract initials from user object
+    const getInitials = () => {
+        if (user && user.first_name && user.last_name) {
+            return `${user.first_name.charAt(0).toUpperCase()}${user.last_name.charAt(0).toUpperCase()}`;
+        }
+        return user?.email?.charAt(0).toUpperCase() || ""; 
     };
 
     return (
         <>
             <header className="navbar px-4 sm:px-6 lg:px-8 py-4">
                 <div className="mx-auto flex h-16 max-w-screen-xl items-center justify-between">
-
                     {/* Logo */}
                     <a className="block text-teal-600" href="#">
                         <Image
@@ -30,7 +38,6 @@ export default function Navbar() {
                 sm:w-[90px] sm:h-[90px] 
                 md:w-[110px] md:h-[110px] md:mt-10
                 lg:w-[100px] lg:h-[100px] lg:mt-8
-              
               "
                         />
                     </a>
@@ -46,6 +53,7 @@ export default function Navbar() {
 
                         {user ? (
                             <div className="flex items-center gap-2">
+                                <UserIcon initials={getInitials()} /> {/* Display UserIcon with initials */}
                                 <span className="text-sm text-gray-700 hidden sm:inline">
                                     Hi, {user.first_name || user.email}
                                 </span>
@@ -57,14 +65,14 @@ export default function Navbar() {
                                 </button>
                             </div>
                         ) : (
-                            <Link href="/login"
+                            <Link
+                                href="/login"
                                 className="block rounded-md bg-blue-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-blue-800"
                             >
                                 Log in
                             </Link>
                         )}
                     </div>
-
                 </div>
             </header>
         </>

@@ -41,7 +41,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             .select('first_name, last_name')
             .eq('id', id)
             .single();
-            
           setUser({
             id,
             email: email || '',
@@ -68,7 +67,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             .select('first_name, last_name')
             .eq('id', id)
             .single();
-            
           setUser({
             id,
             email: email || '',
@@ -95,7 +93,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       if (error) {
-        // Provide a more user-friendly error message for unconfirmed emails
         if (error.message.includes("Email not confirmed")) {
           return { 
             success: false, 
@@ -112,17 +109,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           .select('first_name, last_name')
           .eq('id', id)
           .single();
-          
         setUser({
           id,
           email: userEmail || '',
           first_name: profile?.first_name || '',
           last_name: profile?.last_name || ''
         });
-        
         return { success: true };
       }
-      
       return { success: false, error: 'Login failed' };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
@@ -149,25 +143,31 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       if (data?.user) {
-        // Check if user needs to confirm their email
+        // Insert profile data even if email confirmation is pending
+        await supabaseClient.from('profiles').insert({
+          id: data.user.id,
+          email,
+          first_name: firstName,
+          last_name: lastName,
+        });
+
+        // Update user state immediately after signup
+        setUser({
+          id: data.user.id,
+          email,
+          first_name: firstName,
+          last_name: lastName,
+        });
+
         if (data.user.identities && data.user.identities.length === 0) {
-          // This means the user already exists and is confirmed
-          setUser({
-            id: data.user.id,
-            email,
-            first_name: firstName,
-            last_name: lastName
-          });
           return { success: true };
         } else {
-          // New user, needs to confirm email
           return { 
             success: true, 
             message: "Please check your email to confirm your account before logging in." 
           };
         }
       }
-      
       return { success: false, error: 'Signup failed' };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
@@ -192,7 +192,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           redirectTo: `${window.location.origin}/`
         }
       });
-      
       if (error) {
         console.error('Social login error:', error);
       }
@@ -211,11 +210,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           emailRedirectTo: `${window.location.origin}/login`
         }
       });
-      
       if (error) {
         return { success: false, error: error.message };
       }
-      
       return { success: true, message: "Confirmation email has been resent. Please check your inbox." };
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';

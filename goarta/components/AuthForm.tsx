@@ -36,7 +36,6 @@ const GoogleIcon = () => (
 );
 
 const AuthForm: React.FC = () => {
-  // State management
   const [activeTab, setActiveTab] = useState<ActiveTab>('signup');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,7 +57,6 @@ const AuthForm: React.FC = () => {
   const { login, signup, socialLogin, resendConfirmationEmail } = useAuth();
   const router = useRouter();
 
-  // Event handlers
   const handleTabSwitch = useCallback((tab: ActiveTab) => {
     setActiveTab(tab);
     setError(null);
@@ -67,7 +65,6 @@ const AuthForm: React.FC = () => {
   }, []);
 
   const handleSocialLogin = useCallback(async (provider: SocialProvider) => {
-    // Social login is handled by Supabase OAuth
     try {
       await socialLogin(provider);
     } catch (error: unknown) {
@@ -106,9 +103,9 @@ const AuthForm: React.FC = () => {
     setSuccessMessage(null);
     
     if (!signupData.email || !signupData.password || !signupData.firstName || !signupData.lastName) {
-        setError("Please fill in all the fields.");
-        setIsSubmitting(false);
-        return;
+      setError("Please fill in all the fields.");
+      setIsSubmitting(false);
+      return;
     }
 
     try {
@@ -120,15 +117,14 @@ const AuthForm: React.FC = () => {
       );
 
       if (result.success) {
-        // Check if we have a special message for email confirmation
-        if (result.message) {
-          setSuccessMessage(result.message);
-        } else {
-          setSuccessMessage(`Welcome ${signupData.firstName}! Your account has been created successfully.`);
-        }
+        // Extract initials
+        const initials = `${signupData.firstName.charAt(0).toUpperCase()}${signupData.lastName.charAt(0).toUpperCase()}`;
+        // Store initials in local state or context (assuming AuthContext handles this)
+        // For now, we'll pass it via a prop or context update
+        setSuccessMessage(`Welcome ${signupData.firstName}! Your account has been created successfully.`);
         resetForms();
-        // Switch to login tab after successful signup
-        setActiveTab('login');
+        // Redirect to homepage
+        router.push('/');
       } else {
         setError(result.error || 'Signup failed');
       }
@@ -138,7 +134,7 @@ const AuthForm: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [signupData, signup, resetForms]);
+  }, [signupData, signup, resetForms, router]);
 
   const handleLoginSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,9 +144,9 @@ const AuthForm: React.FC = () => {
     setShowResendOption(false);
 
     if (!loginData.email || !loginData.password) {
-        setError("Please fill in both email and password.");
-        setIsSubmitting(false);
-        return;
+      setError("Please fill in both email and password.");
+      setIsSubmitting(false);
+      return;
     }
 
     try {
@@ -159,10 +155,8 @@ const AuthForm: React.FC = () => {
       if (result.success) {
         setSuccessMessage('Welcome back! You have been logged in successfully.');
         resetForms();
-        // Redirect to home page after successful login
         router.push('/');
       } else {
-        // Check if the error is related to email confirmation
         if (result.error && result.error.includes("confirm")) {
           setError(result.error);
           setShowResendOption(true);
@@ -197,7 +191,6 @@ const AuthForm: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-6">
-          {/* Social Login Buttons */}
           <div className="flex flex-col gap-3">
             <button 
               className="flex items-center justify-center gap-3 py-3 px-4 border border-blue-200 rounded-lg bg-white text-blue-600 text-sm font-medium transition-all duration-150 hover:bg-blue-50"
@@ -206,7 +199,6 @@ const AuthForm: React.FC = () => {
               <FacebookIcon />
               {activeTab === 'signup' ? 'Sign up with Facebook' : 'Log in with Facebook'}
             </button>
-            
             <button 
               className="flex items-center justify-center gap-3 py-3 px-4 border border-red-200 rounded-lg bg-white text-red-600 text-sm font-medium transition-all duration-150 hover:bg-red-50"
               onClick={() => handleSocialLogin('google')}
@@ -216,7 +208,6 @@ const AuthForm: React.FC = () => {
             </button>
           </div>
 
-          {/* Divider */}
           <div className="relative text-center my-2">
             <div className="absolute top-1/2 left-0 right-0 h-px bg-yellow-700/30" />
             <span className="relative bg-white px-4 text-xs uppercase text-gray-500 font-medium tracking-wider">OR</span>
@@ -237,7 +228,6 @@ const AuthForm: React.FC = () => {
             </div>
           )}
 
-          {/* Forms */}
           {activeTab === 'signup' ? (
             <form onSubmit={handleSignupSubmit} className="flex flex-col gap-4">
               <div className="flex gap-3">
