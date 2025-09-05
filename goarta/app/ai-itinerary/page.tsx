@@ -155,6 +155,71 @@ export default function AIItineraryPage() {
     }
   }, [typingMessage]);
 
+  // Music note effect on mouse click
+  useEffect(() => {
+    let noteIndex = 0;
+    const musicNotes = ['♪', '♩', '♫', '♬', '♭', '♮', '♯'];
+    
+    const handleClick = (e: MouseEvent) => {
+      // Create music note animation on click
+      createMusicNote(e.clientX, e.clientY, noteIndex);
+      // Cycle to next note
+      noteIndex = (noteIndex + 1) % musicNotes.length;
+    };
+
+    // Create music note animation
+    const createMusicNote = (x: number, y: number, index: number) => {
+      const note = document.createElement('div');
+      note.innerHTML = musicNotes[index];
+      note.style.position = 'fixed';
+      note.style.left = `${x}px`;
+      note.style.top = `${y}px`;
+      note.style.fontSize = '24px';
+      note.style.color = 'white';
+      note.style.pointerEvents = 'none';
+      note.style.zIndex = '9999';
+      note.style.transform = 'translate(-50%, -50%)';
+      note.style.opacity = '1';
+      
+      // Add keyframe animation
+      const style = document.createElement('style');
+      style.id = 'music-note-animation';
+      style.innerHTML = `
+        @keyframes float-up {
+          0% {
+            transform: translate(-50%, -50%);
+            opacity: 1;
+          }
+          100% {
+            transform: translate(-50%, -100px);
+            opacity: 0;
+          }
+        }
+      `;
+      
+      // Only add style if it doesn't already exist
+      if (!document.getElementById('music-note-animation')) {
+        document.head.appendChild(style);
+      }
+      
+      note.style.animation = 'float-up 1s forwards';
+      document.body.appendChild(note);
+      
+      // Remove note after animation completes
+      setTimeout(() => {
+        if (note.parentNode) {
+          note.parentNode.removeChild(note);
+        }
+      }, 1000);
+    };
+
+    document.addEventListener('click', handleClick);
+
+    return () => {
+      document.removeEventListener('click', handleClick);
+    };
+  }, []);
+
   return (
     <div className="relative min-h-screen">
       <div className="fixed top-6 right-6 z-30">
