@@ -2,8 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { auth } from "@/app/api/firebaselogin/firebase";
-import { GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
+import { supabaseClient } from "@/app/api/supabaselogin/supabase";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -11,36 +10,42 @@ export default function Login() {
     const [error, setError] = useState<string | null>(null);
 
     const handleGoogleLogin = async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            const result = await signInWithPopup(auth, provider);
-            // You can access the user's information from the result object
-            console.log(result.user);
-            setError(null);
-        } catch (error: any) {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+        });
+        if (error) {
             setError(error.message);
+        } else {
+            setError(null);
         }
     };
 
     const handleFacebookLogin = async () => {
-        const provider = new FacebookAuthProvider();
-        try {
-            const result = await signInWithPopup(auth, provider);
-            console.log(result.user);
-            setError(null);
-        } catch (error: any) {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'facebook',
+        });
+        if (error) {
             setError(error.message);
+        } else {
+            setError(null);
         }
     };
 
-    const handleEmailLogin = (e: React.FormEvent) => {
+    const handleEmailLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email || !password) {
             setError("Please fill in both email and password.");
             return;
         }
-        setError("Email login functionality not implemented yet.");
-        console.log("Email login attempted with:", { email, password });
+        const { error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) {
+            setError(error.message);
+        } else {
+            setError(null);
+        }
     };
 
     return (

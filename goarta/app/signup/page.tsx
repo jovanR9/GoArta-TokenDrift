@@ -1,10 +1,9 @@
 "use client"
 import { useState } from "react";
 import Image from "next/image";
-import { auth } from "@/app/api/firebaselogin/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { supabaseClient } from "@/app/api/supabaselogin/supabase";
 
-export default function Login() {
+export default function SignUp() {
     const [fname, setFName] = useState("");
     const [lname, setLName] = useState("");
     const [email, setEmail] = useState("");
@@ -12,25 +11,38 @@ export default function Login() {
     const [error, setError] = useState<string | null>(null);
 
     const handleGoogleLogin = async () => {
-        const provider = new GoogleAuthProvider();
-        try {
-            const result = await signInWithPopup(auth, provider);
-            // You can access the user's information from the result object
-            console.log(result.user);
-            setError(null);
-        } catch (error: any) {
+        const { error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+        });
+        if (error) {
             setError(error.message);
+        } else {
+            setError(null);
         }
     };
 
-    const handleEmailLogin = (e: React.FormEvent) => {
+    const handleSignUp = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email || !password || !fname || !lname) {
             setError("Please fill in all the fields.");
             return;
         }
-        setError("Email login functionality not implemented yet.");
-        console.log("Email login attempted with:", { email, password });
+        const { error } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    first_name: fname,
+                    last_name: lname,
+                },
+            },
+        });
+        if (error) {
+            setError(error.message);
+        } else {
+            setError(null);
+            // Optionally, redirect to a confirmation page or login page
+        }
     };
 
     return (
@@ -52,7 +64,7 @@ export default function Login() {
                             <div className="flex flex-col items-center">
 
                                 <div className="mx-auto max-w-xs">
-                                    <form onSubmit={handleEmailLogin}>
+                                    <form onSubmit={handleSignUp}>
                                         <input
                                             type="text"
                                             value={fname}
@@ -102,8 +114,7 @@ export default function Login() {
                                                     />
                                                     <path
                                                         d="M272.1 107.7c38.8-.6 76.3 14 104.4 40.8l77.7-77.7C405 24.6 339.7-.8 272.1 0 169.2 0 75.1 58 28.9 150l90.4 70.1c21.5-64.5 81.8-112.4 152.8-112.4z"
-                                                        fill="#ea4335"
-                                                    />
+                                                        fill="#ea4335"/>
                                                 </svg>
                                             </div>
                                             <span className="ml-4">Sign Up with Google</span>
@@ -124,7 +135,7 @@ export default function Login() {
                                                 <circle cx="8.5" cy="7" r="4" />
                                                 <path d="M20 8v6M23 11h-6" />
                                             </svg>
-                                            <span className="ml-3">Sign In</span>
+                                            <span className="ml-3">Sign Up</span>
                                         </button>
                                         {error && <p className="mt-5 text-red-500 text-center">{error}</p>}
                                     </form>

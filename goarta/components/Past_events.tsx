@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { supabaseClient } from "@/lib/supabaseClient";
+import { supabaseClient } from "@/app/api/supabaselogin/supabase";
 import Link from "next/link";
 
 type Event = {
