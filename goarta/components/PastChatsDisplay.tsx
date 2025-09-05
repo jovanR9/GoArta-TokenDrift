@@ -112,11 +112,8 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
   }, [isMounted]);
 
   return (
-    <div className={`fixed inset-0 z-40 flex items-center justify-center ${className}`}>
-      {/* This container now holds both the canvas and the chat list,
-          making the chat list positioned relative to the canvas area. It's
-          aligned to the left with padding. */}
-      <div className="relative w-[110vw] h-[110vh] flex items-center justify-start pl-[25vw]">
+    <div className="fixed inset-0 z-40 flex items-center justify-center">
+      <div className="relative w-full h-full flex items-center justify-center">
         {isMounted && (
           <canvas
             ref={canvasRef}
@@ -124,10 +121,12 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
           />
         )}
         {/* Past Chats List */}
-        <div className="relative z-10 w-2/5 max-w-xl p-6 -translate-y-4">
-          <h2 className="text-2xl font-bold text-[#663620] text-center mb-4">Past Conversations</h2>
+        <div className="relative z-10 w-full max-w-[18rem] p-4 md:max-w-xs lg:max-w-sm md:p-6 -translate-x-[10vw]">
+          <h2 className="text-xl md:text-2xl font-bold text-[#663620] text-center mb-4">
+            Past Conversations
+          </h2>
           <div
-            className="max-h-96 overflow-y-auto space-y-4"
+            className="max-h-96 overflow-y-auto space-y-4 pr-2"
             onMouseLeave={() => setHoveredId(null)}
           >
             {pastChats.map(chat => (
@@ -150,13 +149,18 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
                 >
                   {chat.title}
                 </h3>
-                <p className={`relative text-sm text-[#663620] transition-all duration-200 ${hoveredId === chat.id ? 'font-medium' : ''}`}>{chat.date}</p>
+                <p
+                  className={`relative text-sm text-[#663620] transition-all duration-200 ${
+                    hoveredId === chat.id ? 'font-medium' : ''
+                  }`}
+                >
+                  {chat.date}
+                </p>
               </motion.div>
             ))}
           </div>
         </div>
       </div>
-
       <CloseButton onClick={onClose} />
     </div>
   );
