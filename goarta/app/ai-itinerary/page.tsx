@@ -180,7 +180,7 @@ export default function AIItineraryPage() {
         </div>
       )}
       
-      <Background className="fixed inset-0" />
+      <Background className="fixed inset-0" darken={showChatInterface} />
       
       {showPastChats && <PastChatsDisplay key={`past-${pastChatsKey}`} onClose={handleClosePastChats} onLoadConversation={loadConversation} />}
 

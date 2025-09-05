@@ -17,9 +17,10 @@ declare global {
 interface BackgroundProps {
   className?: string;
   isBlurred?: boolean;
+  darken?: boolean;
 }
 
-const Background: React.FC<BackgroundProps> = ({ className = '', isBlurred = false }) => {
+const Background: React.FC<BackgroundProps> = ({ className = '', isBlurred = false, darken = false }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<RiveInstance | null>(null);
   const [isMounted, setIsMounted] = useState(false);
@@ -132,6 +133,12 @@ const Background: React.FC<BackgroundProps> = ({ className = '', isBlurred = fal
             width: '100%',
             height: '100%',
           }}
+        />
+      )}
+      {darken && (
+        <div 
+          className="absolute inset-0 bg-black transition-opacity duration-500"
+          style={{ opacity: 0.5 }}
         />
       )}
     </div>

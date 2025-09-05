@@ -53,7 +53,7 @@ const LeftChatBubble: React.FC<ChatBubbleProps> = ({ text }) => {
 
       {/* Bubble Text */}
       <div className="text-lg leading-relaxed text-left">
-        <ReactMarkdown>{text ?? ""}</ReactMarkdown>
+        <ReactMarkdown>{text || ""}</ReactMarkdown>
       </div>
     </div>
   );
