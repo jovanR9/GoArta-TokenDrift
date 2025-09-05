@@ -1,6 +1,8 @@
 "use client"
 import { useState } from "react";
 import Image from "next/image";
+import { auth } from "@/app/api/firebaselogin/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function Login() {
     const [fname, setFName] = useState("");
@@ -9,10 +11,16 @@ export default function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
 
-    const handleGoogleLogin = () => {
-        // Placeholder for Google login logic
-        setError("Google login functionality not implemented yet.");
-        console.log("Google login clicked");
+    const handleGoogleLogin = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            // You can access the user's information from the result object
+            console.log(result.user);
+            setError(null);
+        } catch (error: any) {
+            setError(error.message);
+        }
     };
 
     const handleEmailLogin = (e: React.FormEvent) => {
@@ -73,8 +81,9 @@ export default function Login() {
                                             placeholder="Password"
                                             className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
                                         />
-                                        {/* <button
+                                        <button
                                             onClick={handleGoogleLogin}
+                                            type="button"
                                             className="mt-5 w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                                         >
                                             <div className="bg-white p-2 rounded-full">
@@ -97,9 +106,8 @@ export default function Login() {
                                                     />
                                                 </svg>
                                             </div>
-                                            <span className="ml-4">Sign In with Google</span>
-                                        // </button> */}  
-                                        {/* I guess not required for signup */}
+                                            <span className="ml-4">Sign Up with Google</span>
+                                        </button>
                                         <button
                                             type="submit"
                                             className="mt-5 tracking-wide font-semibold bg-indigo-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 transition-all duration-300 ease-in-out flex items-center justify-center focus:shadow-outline focus:outline-none"

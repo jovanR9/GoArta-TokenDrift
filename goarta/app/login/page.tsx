@@ -1,18 +1,25 @@
 "use client"
 import { useState } from "react";
 import Image from "next/image";
-// import { Link } from "redoc/typings/common-elements";
 import Link from "next/link";
+import { auth } from "@/app/api/firebaselogin/firebase";
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState<string | null>(null);
 
-    const handleGoogleLogin = () => {
-        // Placeholder for Google login logic
-        setError("Google login functionality not implemented yet.");
-        console.log("Google login clicked");
+    const handleGoogleLogin = async () => {
+        const provider = new GoogleAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
+            // You can access the user's information from the result object
+            console.log(result.user);
+            setError(null);
+        } catch (error: any) {
+            setError(error.message);
+        }
     };
 
     const handleEmailLogin = (e: React.FormEvent) => {
@@ -62,6 +69,7 @@ export default function Login() {
                                         />
                                         <button
                                             onClick={handleGoogleLogin}
+                                            type="button"
                                             className=" mt-6 w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-indigo-100 text-gray-800 flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
                                         >
                                             <div className="bg-white p-2 rounded-full">

@@ -36,7 +36,7 @@ export default function Navbar() {
                         <Link href = "/login"
                             className="block rounded-md bg-blue-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-blue-800"
                         >
-                            Sign in
+                            Log in
                         </Link>
                     </div>
 
