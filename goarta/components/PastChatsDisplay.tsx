@@ -163,7 +163,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConv
             <div className="text-center py-4 text-[#663620]">Loading conversations...</div>
           ) : (
             <div
-              className="max-h-96 md:max-h-72 lg:max-h-96 overflow-y-auto space-y-4 pr-2"
+              className="max-h-96 md:max-h-72 lg:max-h-96 overflow-y-auto space-y-4 pr-2 custom-scrollbar"
               onMouseLeave={() => setHoveredId(null)}
             >
               {pastChats.map(chat => (
@@ -206,6 +206,24 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConv
         </div>
       </div>
       <CloseButton onClick={onClose} />
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #663620;
+          border-radius: 4px;
+        }
+        
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #8a5a3d;
+        }
+      `}</style>
     </div>
   );
 };
