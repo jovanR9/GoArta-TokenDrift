@@ -186,37 +186,58 @@ export default function AIItineraryPage() {
 
     // Get the actual caret position in an input/textarea
     const getCaretPosition = (element: HTMLInputElement | HTMLTextAreaElement) => {
-      // Create a dummy span to measure text dimensions
-      const span = document.createElement('span');
+      const selectionStart = element.selectionStart || 0;
+      
+      // Create a mirror div to calculate the caret position
+      const mirror = document.createElement('div');
       const computedStyle = window.getComputedStyle(element);
       
-      // Copy the element's styles to the span
-      span.style.fontFamily = computedStyle.fontFamily;
-      span.style.fontSize = computedStyle.fontSize;
-      span.style.fontWeight = computedStyle.fontWeight;
-      span.style.letterSpacing = computedStyle.letterSpacing;
-      span.style.position = 'absolute';
-      span.style.visibility = 'hidden';
-      span.style.whiteSpace = 'pre';
+      // Copy styles to mirror
+      mirror.style.position = 'absolute';
+      mirror.style.left = '-9999px';
+      mirror.style.top = '-9999px';
+      mirror.style.visibility = 'hidden';
+      mirror.style.whiteSpace = computedStyle.whiteSpace;
+      mirror.style.wordWrap = computedStyle.wordWrap;
+      mirror.style.overflow = 'hidden';
+      mirror.style.fontFamily = computedStyle.fontFamily;
+      mirror.style.fontSize = computedStyle.fontSize;
+      mirror.style.fontWeight = computedStyle.fontWeight;
+      mirror.style.letterSpacing = computedStyle.letterSpacing;
+      mirror.style.lineHeight = computedStyle.lineHeight;
+      mirror.style.padding = computedStyle.padding;
+      mirror.style.border = computedStyle.border;
+      mirror.style.width = computedStyle.width;
+      mirror.style.height = computedStyle.height;
+      mirror.style.boxSizing = computedStyle.boxSizing;
       
-      document.body.appendChild(span);
+      document.body.appendChild(mirror);
       
       try {
-        // Get the text before the caret
-        const textBeforeCaret = element.value.substring(0, element.selectionStart || 0);
+        // Insert the element's text up to the caret position
+        const text = element.value.substring(0, selectionStart);
         
-        // Set the text content to measure its width
-        span.textContent = textBeforeCaret;
+        // Handle line breaks properly
+        mirror.textContent = text;
         
-        // Calculate the position
+        // Add a zero-width space span to measure the caret position
+        const caretSpan = document.createElement('span');
+        caretSpan.textContent = '\u200B'; // Zero-width space
+        mirror.appendChild(caretSpan);
+        
+        // Get the element's position on screen
         const rect = element.getBoundingClientRect();
-        const x = rect.left + parseFloat(computedStyle.paddingLeft) + span.offsetWidth + (parseFloat(computedStyle.fontSize) / 2);
-        const y = rect.top + parseFloat(computedStyle.paddingTop) + (rect.height - parseFloat(computedStyle.paddingTop) - parseFloat(computedStyle.paddingBottom)) / 2;
+        const caretRect = caretSpan.getBoundingClientRect();
+        const mirrorRect = mirror.getBoundingClientRect();
+        
+        // Calculate the actual position
+        const x = rect.left + (caretRect.left - mirrorRect.left) + window.scrollX;
+        const y = rect.top + (caretRect.top - mirrorRect.top) + window.scrollY + (caretRect.height / 2);
         
         return { x, y };
       } finally {
         // Clean up
-        document.body.removeChild(span);
+        document.body.removeChild(mirror);
       }
     };
 
