@@ -3,6 +3,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import CloseButton from '@/components/CloseButton';
 
+interface RiveInstance {
+  cleanup: () => void;
+  resizeDrawingSurfaceToCanvas: () => void;
+}
+
+declare global {
+  interface Window {
+    Rive: {
+      Rive: new (args: object) => RiveInstance;
+      Layout: new (args: object) => object;
+      Fit: { [key: string]: string };
+      Alignment: { [key: string]: string };
+    };
+  }
+}
+
 interface PastChatsDisplayProps {
   className?: string;
   onClose: () => void;
@@ -12,6 +28,16 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<RiveInstance | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+
+  // Dummy data for past chats
+  const pastChats = [
+    { id: 1, title: 'Trip to Goa', date: '2023-10-26' },
+    { id: 2, title: 'Weekend in the mountains', date: '2023-10-25' },
+    { id: 3, title: 'Beach vacation planning', date: '2023-10-24' },
+    { id: 4, title: 'Another Goa Trip', date: '2023-10-23' },
+    { id: 5, title: 'Exploring North India', date: '2023-10-22' },
+    { id: 6, title: 'South India Temple Tour', date: '2023-10-21' },
+  ];
 
   useEffect(() => {
     setIsMounted(true);
@@ -58,7 +84,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
           }),
           onLoad: () => {
             console.log("PastChatsDisplay Rive loaded successfully!");
-            (riveInstanceRef.current as { resizeDrawingSurfaceToCanvas: () => void }).resizeDrawingSurfaceToCanvas();
+            riveInstanceRef.current?.resizeDrawingSurfaceToCanvas();
           },
           onError: (error: Error) => {
             console.error("PastChatsDisplay Rive Error:", error);
@@ -85,15 +111,30 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
 
   return (
     <div className={`fixed inset-0 z-40 flex items-center justify-center ${className}`}>
-      {isMounted && (
-        <canvas
-          ref={canvasRef}
-          className="w-[110vw] h-[110vh]"
-          style={{
-            position: 'relative',
-          }}
-        />
-      )}
+      {/* This container now holds both the canvas and the chat list,
+          making the chat list positioned relative to the canvas area. It's
+          aligned to the left with padding. */}
+      <div className="relative w-[110vw] h-[110vh] flex items-center justify-start pl-[30vw]">
+        {isMounted && (
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full"
+          />
+        )}
+        {/* Past Chats List */}
+        <div className="relative z-10 w-1/3 max-w-lg p-6 -translate-y-12">
+          <h2 className="text-2xl font-bold text-[#663620] text-center mb-4">Past Conversations</h2>
+          <div className="max-h-96 overflow-y-auto space-y-4">
+            {pastChats.map(chat => (
+              <div key={chat.id} className="p-4 border border-[#663620] rounded-lg transition-colors cursor-pointer">
+                <h3 className="font-semibold text-[#663620]">{chat.title}</h3>
+                <p className="text-sm text-[#663620]">{chat.date}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <CloseButton onClick={onClose} />
     </div>
   );
