@@ -41,6 +41,7 @@ const AuthForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [showResendOption, setShowResendOption] = useState(false);
   
   const [signupData, setSignupData] = useState<SignupFormData>({
     firstName: '',
@@ -54,7 +55,7 @@ const AuthForm: React.FC = () => {
     password: ''
   });
 
-  const { login, signup, socialLogin } = useAuth();
+  const { login, signup, socialLogin, resendConfirmationEmail } = useAuth();
   const router = useRouter();
 
   // Event handlers
@@ -62,6 +63,7 @@ const AuthForm: React.FC = () => {
     setActiveTab(tab);
     setError(null);
     setSuccessMessage(null);
+    setShowResendOption(false);
   }, []);
 
   const handleSocialLogin = useCallback(async (provider: SocialProvider) => {
@@ -72,6 +74,23 @@ const AuthForm: React.FC = () => {
       setError(error.message || 'An error occurred during social login');
     }
   }, [socialLogin]);
+
+  const handleResendEmail = useCallback(async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await resendConfirmationEmail(loginData.email);
+      if (result.success) {
+        setSuccessMessage(result.message || "Confirmation email has been resent.");
+        setShowResendOption(false);
+      } else {
+        setError(result.error || "Failed to resend confirmation email.");
+      }
+    } catch (error: any) {
+      setError(error.message || 'An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }, [loginData.email, resendConfirmationEmail]);
 
   const resetForms = useCallback(() => {
     setSignupData({ firstName: '', lastName: '', email: '', password: '' });
@@ -99,7 +118,12 @@ const AuthForm: React.FC = () => {
       );
 
       if (result.success) {
-        setSuccessMessage(`Welcome ${signupData.firstName}! Your account has been created successfully.`);
+        // Check if we have a special message for email confirmation
+        if (result.message) {
+          setSuccessMessage(result.message);
+        } else {
+          setSuccessMessage(`Welcome ${signupData.firstName}! Your account has been created successfully.`);
+        }
         resetForms();
         // Switch to login tab after successful signup
         setActiveTab('login');
@@ -118,6 +142,7 @@ const AuthForm: React.FC = () => {
     setIsSubmitting(true);
     setError(null);
     setSuccessMessage(null);
+    setShowResendOption(false);
 
     if (!loginData.email || !loginData.password) {
         setError("Please fill in both email and password.");
@@ -134,7 +159,13 @@ const AuthForm: React.FC = () => {
         // Redirect to home page after successful login
         router.push('/');
       } else {
-        setError(result.error || 'Login failed');
+        // Check if the error is related to email confirmation
+        if (result.error && result.error.includes("confirm")) {
+          setError(result.error);
+          setShowResendOption(true);
+        } else {
+          setError(result.error || 'Login failed');
+        }
       }
     } catch (error: any) {
       setError(error.message || 'An unexpected error occurred');
@@ -189,6 +220,18 @@ const AuthForm: React.FC = () => {
 
           {error && <p className="text-red-500 text-center text-sm">{error}</p>}
           {successMessage && <p className="text-green-600 text-center text-sm">{successMessage}</p>}
+          
+          {showResendOption && (
+            <div className="text-center">
+              <button
+                onClick={handleResendEmail}
+                disabled={isSubmitting}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium disabled:opacity-50"
+              >
+                {isSubmitting ? 'Sending...' : 'Resend confirmation email'}
+              </button>
+            </div>
+          )}
 
           {/* Forms */}
           {activeTab === 'signup' ? (

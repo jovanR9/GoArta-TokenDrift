@@ -14,9 +14,10 @@ interface User {
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string }>;
+  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   logout: () => Promise<void>;
   socialLogin: (provider: 'google' | 'facebook') => Promise<void>;
+  resendConfirmationEmail: (email: string) => Promise<{ success: boolean; message?: string; error?: string }>;
   isLoading: boolean;
 }
 
@@ -94,6 +95,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       });
 
       if (error) {
+        // Provide a more user-friendly error message for unconfirmed emails
+        if (error.message.includes("Email not confirmed")) {
+          return { 
+            success: false, 
+            error: "Please check your email and confirm your account before logging in." 
+          };
+        }
         return { success: false, error: error.message };
       }
 
@@ -131,6 +139,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             first_name: firstName,
             last_name: lastName,
           },
+          emailRedirectTo: `${window.location.origin}/login`
         },
       });
 
@@ -139,15 +148,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       if (data?.user) {
-        // Set user data in state
-        setUser({
-          id: data.user.id,
-          email,
-          first_name: firstName,
-          last_name: lastName
-        });
-        
-        return { success: true };
+        // Check if user needs to confirm their email
+        if (data.user.identities && data.user.identities.length === 0) {
+          // This means the user already exists and is confirmed
+          setUser({
+            id: data.user.id,
+            email,
+            first_name: firstName,
+            last_name: lastName
+          });
+          return { success: true };
+        } else {
+          // New user, needs to confirm email
+          return { 
+            success: true, 
+            message: "Please check your email to confirm your account before logging in." 
+          };
+        }
       }
       
       return { success: false, error: 'Signup failed' };
@@ -182,8 +199,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      const { error } = await supabaseClient.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
+      });
+      
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      
+      return { success: true, message: "Confirmation email has been resent. Please check your inbox." };
+    } catch (error: any) {
+      return { success: false, error: error.message || 'An unexpected error occurred' };
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, socialLogin, isLoading }}>
+    <AuthContext.Provider value={{ user, login, signup, logout, socialLogin, resendConfirmationEmail, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
