@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 import CloseButton from '@/components/CloseButton';
 
 interface RiveInstance {
@@ -27,6 +28,7 @@ interface PastChatsDisplayProps {
 const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onClose }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<RiveInstance | null>(null);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
   // Dummy data for past chats
@@ -124,12 +126,26 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
         {/* Past Chats List */}
         <div className="relative z-10 w-1/3 max-w-lg p-6 -translate-y-12">
           <h2 className="text-2xl font-bold text-[#663620] text-center mb-4">Past Conversations</h2>
-          <div className="max-h-96 overflow-y-auto space-y-4">
+          <div
+            className="max-h-96 overflow-y-auto space-y-4"
+            onMouseLeave={() => setHoveredId(null)}
+          >
             {pastChats.map(chat => (
-              <div key={chat.id} className="p-4 border border-[#663620] rounded-lg transition-colors cursor-pointer">
-                <h3 className="font-semibold text-[#663620]">{chat.title}</h3>
-                <p className="text-sm text-[#663620]">{chat.date}</p>
-              </div>
+              <motion.div
+                key={chat.id}
+                className="relative p-4 border border-[#663620] rounded-lg cursor-pointer"
+                onMouseEnter={() => setHoveredId(chat.id)}
+              >
+                {hoveredId === chat.id && (
+                  <motion.div
+                    className="absolute inset-0 border-2 border-[#a56a43] rounded-lg"
+                    layoutId="hover-box"
+                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <h3 className="font-semibold text-[#663620] relative">{chat.title}</h3>
+                <p className="text-sm text-[#663620] relative">{chat.date}</p>
+              </motion.div>
             ))}
           </div>
         </div>
