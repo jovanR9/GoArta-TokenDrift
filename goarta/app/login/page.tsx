@@ -1,7 +1,7 @@
 'use client'
 
-import LoginModal from '@/components/LoginModal';
+import AuthForm from '@/components/AuthForm';
 
 export default function LoginPage() {
-  return <LoginModal />;
+  return <AuthForm />;
 }
