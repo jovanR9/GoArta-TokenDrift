@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useCallback } from 'react';
-import { supabaseClient } from "@/app/api/supabaselogin/supabase";
+import { useAuth } from "@/components/AuthContext";
+import { useRouter } from "next/navigation";
 
 // Types
 interface SignupFormData {
@@ -39,6 +40,7 @@ const AuthForm: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('signup');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
   const [signupData, setSignupData] = useState<SignupFormData>({
     firstName: '',
@@ -52,22 +54,24 @@ const AuthForm: React.FC = () => {
     password: ''
   });
 
+  const { login, signup, socialLogin } = useAuth();
+  const router = useRouter();
+
   // Event handlers
   const handleTabSwitch = useCallback((tab: ActiveTab) => {
     setActiveTab(tab);
     setError(null);
+    setSuccessMessage(null);
   }, []);
 
   const handleSocialLogin = useCallback(async (provider: SocialProvider) => {
-    const { error } = await supabaseClient.auth.signInWithOAuth({
-        provider,
-    });
-    if (error) {
-        setError(error.message);
-    } else {
-        setError(null);
+    // Social login is handled by Supabase OAuth
+    try {
+      await socialLogin(provider);
+    } catch (error: any) {
+      setError(error.message || 'An error occurred during social login');
     }
-  }, []);
+  }, [socialLogin]);
 
   const resetForms = useCallback(() => {
     setSignupData({ firstName: '', lastName: '', email: '', password: '' });
@@ -78,6 +82,7 @@ const AuthForm: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    setSuccessMessage(null);
     
     if (!signupData.email || !signupData.password || !signupData.firstName || !signupData.lastName) {
         setError("Please fill in all the fields.");
@@ -85,30 +90,34 @@ const AuthForm: React.FC = () => {
         return;
     }
 
-    const { error } = await supabaseClient.auth.signUp({
-        email: signupData.email,
-        password: signupData.password,
-        options: {
-            data: {
-                first_name: signupData.firstName,
-                last_name: signupData.lastName,
-            },
-        },
-    });
+    try {
+      const result = await signup(
+        signupData.email,
+        signupData.password,
+        signupData.firstName,
+        signupData.lastName
+      );
 
-    if (error) {
-        setError(error.message);
-    } else {
-        alert(`Welcome ${signupData.firstName}! Your account has been created successfully.`);
+      if (result.success) {
+        setSuccessMessage(`Welcome ${signupData.firstName}! Your account has been created successfully.`);
         resetForms();
+        // Switch to login tab after successful signup
+        setActiveTab('login');
+      } else {
+        setError(result.error || 'Signup failed');
+      }
+    } catch (error: any) {
+      setError(error.message || 'An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
-  }, [signupData, resetForms]);
+  }, [signupData, signup, resetForms]);
 
   const handleLoginSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+    setSuccessMessage(null);
 
     if (!loginData.email || !loginData.password) {
         setError("Please fill in both email and password.");
@@ -116,19 +125,23 @@ const AuthForm: React.FC = () => {
         return;
     }
 
-    const { error } = await supabaseClient.auth.signInWithPassword({
-        email: loginData.email,
-        password: loginData.password,
-    });
+    try {
+      const result = await login(loginData.email, loginData.password);
 
-    if (error) {
-        setError(error.message);
-    } else {
-        alert('Welcome back! You have been logged in successfully.');
+      if (result.success) {
+        setSuccessMessage('Welcome back! You have been logged in successfully.');
         resetForms();
+        // Redirect to home page after successful login
+        router.push('/');
+      } else {
+        setError(result.error || 'Login failed');
+      }
+    } catch (error: any) {
+      setError(error.message || 'An unexpected error occurred');
+    } finally {
+      setIsSubmitting(false);
     }
-    setIsSubmitting(false);
-  }, [loginData, resetForms]);
+  }, [loginData, login, resetForms, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-500/90 via-cyan-800/95 to-yellow-700/90 font-sans">
@@ -175,6 +188,7 @@ const AuthForm: React.FC = () => {
           </div>
 
           {error && <p className="text-red-500 text-center text-sm">{error}</p>}
+          {successMessage && <p className="text-green-600 text-center text-sm">{successMessage}</p>}
 
           {/* Forms */}
           {activeTab === 'signup' ? (

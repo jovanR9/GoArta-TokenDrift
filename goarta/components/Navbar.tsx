@@ -1,7 +1,18 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useAuth } from "@/components/AuthContext";
 
 export default function Navbar() {
+    const { user, logout } = useAuth();
+
+    const handleLogout = async () => {
+        await logout();
+        // Optionally redirect to home page or login page
+        window.location.href = "/";
+    };
+
     return (
         <>
             <header className="navbar px-4 sm:px-6 lg:px-8 py-4">
@@ -33,11 +44,25 @@ export default function Navbar() {
                             About us
                         </Link>
 
-                        <Link href = "/login"
-                            className="block rounded-md bg-blue-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-blue-800"
-                        >
-                            Log in
-                        </Link>
+                        {user ? (
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-700 hidden sm:inline">
+                                    Hi, {user.first_name || user.email}
+                                </span>
+                                <button
+                                    onClick={handleLogout}
+                                    className="block rounded-md bg-red-600 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-red-700"
+                                >
+                                    Log out
+                                </button>
+                            </div>
+                        ) : (
+                            <Link href="/login"
+                                className="block rounded-md bg-blue-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-blue-800"
+                            >
+                                Log in
+                            </Link>
+                        )}
                     </div>
 
                 </div>
