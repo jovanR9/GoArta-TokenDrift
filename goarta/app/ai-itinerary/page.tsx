@@ -155,16 +155,69 @@ export default function AIItineraryPage() {
     }
   }, [typingMessage]);
 
-  // Music note effect on mouse click
+  // Music note effect on mouse click and spacebar press
   useEffect(() => {
     let noteIndex = 0;
     const musicNotes = ['♪', '♩', '♫', '♬', '♭', '♮', '♯'];
-    
+
     const handleClick = (e: MouseEvent) => {
       // Create music note animation on click
       createMusicNote(e.clientX, e.clientY, noteIndex);
       // Cycle to next note
       noteIndex = (noteIndex + 1) % musicNotes.length;
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if spacebar is pressed
+      if (e.key === ' ') {
+        // Get the position of the currently focused element
+        const activeElement = document.activeElement;
+        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+          // Get the actual caret position
+          const caretPosition = getCaretPosition(activeElement as HTMLInputElement | HTMLTextAreaElement);
+          if (caretPosition) {
+            createMusicNote(caretPosition.x, caretPosition.y, noteIndex);
+            // Cycle to next note
+            noteIndex = (noteIndex + 1) % musicNotes.length;
+          }
+        }
+      }
+    };
+
+    // Get the actual caret position in an input/textarea
+    const getCaretPosition = (element: HTMLInputElement | HTMLTextAreaElement) => {
+      // Create a dummy span to measure text dimensions
+      const span = document.createElement('span');
+      const computedStyle = window.getComputedStyle(element);
+      
+      // Copy the element's styles to the span
+      span.style.fontFamily = computedStyle.fontFamily;
+      span.style.fontSize = computedStyle.fontSize;
+      span.style.fontWeight = computedStyle.fontWeight;
+      span.style.letterSpacing = computedStyle.letterSpacing;
+      span.style.position = 'absolute';
+      span.style.visibility = 'hidden';
+      span.style.whiteSpace = 'pre';
+      
+      document.body.appendChild(span);
+      
+      try {
+        // Get the text before the caret
+        const textBeforeCaret = element.value.substring(0, element.selectionStart || 0);
+        
+        // Set the text content to measure its width
+        span.textContent = textBeforeCaret;
+        
+        // Calculate the position
+        const rect = element.getBoundingClientRect();
+        const x = rect.left + parseFloat(computedStyle.paddingLeft) + span.offsetWidth + (parseFloat(computedStyle.fontSize) / 2);
+        const y = rect.top + parseFloat(computedStyle.paddingTop) + (rect.height - parseFloat(computedStyle.paddingTop) - parseFloat(computedStyle.paddingBottom)) / 2;
+        
+        return { x, y };
+      } finally {
+        // Clean up
+        document.body.removeChild(span);
+      }
     };
 
     // Create music note animation
@@ -214,9 +267,11 @@ export default function AIItineraryPage() {
     };
 
     document.addEventListener('click', handleClick);
+    document.addEventListener('keydown', handleKeyDown);
 
     return () => {
       document.removeEventListener('click', handleClick);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
