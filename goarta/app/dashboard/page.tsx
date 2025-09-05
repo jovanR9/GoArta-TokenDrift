@@ -23,25 +23,10 @@ export default function Navbar() {
               "
                         />
                     </a>
-
-                    {/* Navigation Buttons */}
-                    <div className="flex items-center gap-2 md:mt-5">
-                        <Link
-                            className="block rounded-md bg-green-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-green-800"
-                            href="/dashboard"
-                        >
-                            About us
-                        </Link>
-
-                        <Link href = "/login"
-                            className="block rounded-md bg-blue-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-blue-800"
-                        >
-                            Log in
-                        </Link>
-                    </div>
-
                 </div>
             </header>
+
+            
         </>
     );
 }
