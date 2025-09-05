@@ -116,7 +116,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
       {/* This container now holds both the canvas and the chat list,
           making the chat list positioned relative to the canvas area. It's
           aligned to the left with padding. */}
-      <div className="relative w-[110vw] h-[110vh] flex items-center justify-start pl-[30vw]">
+      <div className="relative w-[110vw] h-[110vh] flex items-center justify-start pl-[25vw]">
         {isMounted && (
           <canvas
             ref={canvasRef}
@@ -124,7 +124,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
           />
         )}
         {/* Past Chats List */}
-        <div className="relative z-10 w-1/3 max-w-lg p-6 -translate-y-12">
+        <div className="relative z-10 w-2/5 max-w-xl p-6 -translate-y-4">
           <h2 className="text-2xl font-bold text-[#663620] text-center mb-4">Past Conversations</h2>
           <div
             className="max-h-96 overflow-y-auto space-y-4"
@@ -138,13 +138,19 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
               >
                 {hoveredId === chat.id && (
                   <motion.div
-                    className="absolute inset-0 border-2 border-[#a56a43] rounded-lg"
+                    className="absolute inset-0 border-4 border-[#a56a43] bg-[#a56a43]/20 rounded-lg"
                     layoutId="hover-box"
                     transition={{ type: 'spring', stiffness: 400, damping: 30 }}
                   />
                 )}
-                <h3 className="font-semibold text-[#663620] relative">{chat.title}</h3>
-                <p className="text-sm text-[#663620] relative">{chat.date}</p>
+                <h3
+                  className={`relative text-[#663620] transition-all duration-200 ${
+                    hoveredId === chat.id ? 'font-bold' : 'font-semibold'
+                  }`}
+                >
+                  {chat.title}
+                </h3>
+                <p className={`relative text-sm text-[#663620] transition-all duration-200 ${hoveredId === chat.id ? 'font-medium' : ''}`}>{chat.date}</p>
               </motion.div>
             ))}
           </div>
