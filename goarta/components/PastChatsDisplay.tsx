@@ -10,6 +10,12 @@ interface Conversation {
   created_at: string;
 }
 
+interface FormattedChat {
+  id: string;
+  title: string;
+  date: string;
+}
+
 interface RiveInstance {
   cleanup: () => void;
   resizeDrawingSurfaceToCanvas: () => void;
@@ -17,19 +23,18 @@ interface RiveInstance {
 
 declare global {
   interface Window {
-    Rive: {
+    rive: {
       Rive: new (args: object) => RiveInstance;
       Layout: new (args: object) => object;
       Fit: { [key: string]: string };
       Alignment: { [key: string]: string };
-    };
+    } | undefined;
   }
 }
 
 interface PastChatsDisplayProps {
-  className?: string;
   onClose: () => void;
-  onLoadConversation?: (id: string) => void; // Add this prop
+  onLoadConversation?: (id: string) => void;
 }
 
 const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConversation }) => {
@@ -38,7 +43,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConv
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-    const [pastChats, setPastChats] = useState<{ id: string; title: string; date: string }[]>([]);
+    const [pastChats, setPastChats] = useState<FormattedChat[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -48,19 +53,17 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConv
   useEffect(() => {
     const fetchConversations = async () => {
       try {
-        // For now, we'll create a simple API endpoint to fetch conversations
-        // In a real implementation, this would fetch from your database
-        const dummyConversations: Conversation[] = [
-          { id: '1', title: 'Trip to Goa', created_at: '2023-10-26' },
-          { id: '2', title: 'Weekend in the mountains', created_at: '2023-10-25' },
-          { id: '3', title: 'Beach vacation planning', created_at: '2023-10-24' },
-          { id: '4', title: 'Another Goa Trip', created_at: '2023-10-23' },
-          { id: '5', title: 'Exploring North India', created_at: '2023-10-22' },
-          { id: '6', title: 'South India Temple Tour', created_at: '2023-10-21' },
-        ];
+        // Fetch actual conversations from the API
+        const response = await fetch('/api/conversations');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch conversations');
+        }
+        
+        const data: Conversation[] = await response.json();
         
         // Format the data for display
-        const formattedChats = dummyConversations.map(conv => ({
+        const formattedChats: FormattedChat[] = data.map((conv) => ({
           id: conv.id,
           title: conv.title,
           date: new Date(conv.created_at).toLocaleDateString()
@@ -70,6 +73,16 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConv
         setLoading(false);
       } catch (error) {
         console.error('Error fetching conversations:', error);
+        // Fallback to dummy data if API fails
+        const dummyConversations: FormattedChat[] = [
+          { id: '1', title: 'Trip to Goa', date: '10/26/2023' },
+          { id: '2', title: 'Weekend in the mountains', date: '10/25/2023' },
+          { id: '3', title: 'Beach vacation planning', date: '10/24/2023' },
+          { id: '4', title: 'Another Goa Trip', date: '10/23/2023' },
+          { id: '5', title: 'Exploring North India', date: '10/22/2023' },
+          { id: '6', title: 'South India Temple Tour', date: '10/21/2023' },
+        ];
+        setPastChats(dummyConversations);
         setLoading(false);
       }
     };

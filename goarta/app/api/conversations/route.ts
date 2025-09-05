@@ -1,12 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConversation, getMessages, createConversation } from '@/lib/services/conversationService';
+import { getConversation, getMessages, createConversation, getAllConversations } from '@/lib/services/conversationService';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const conversationId = searchParams.get('id');
 
+  // If no conversation ID is provided, return list of all conversations
   if (!conversationId) {
-    return NextResponse.json({ error: 'Conversation ID is required' }, { status: 400 });
+    try {
+      const conversations = await getAllConversations();
+      return NextResponse.json(conversations);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      return NextResponse.json({ error: 'Failed to fetch conversations' }, { status: 500 });
+    }
   }
 
   try {

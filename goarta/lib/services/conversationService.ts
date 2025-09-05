@@ -70,6 +70,28 @@ export async function getConversation(id: string): Promise<Conversation | null> 
 }
 
 /**
+ * Gets all conversations
+ */
+export async function getAllConversations(): Promise<Conversation[]> {
+  try {
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching conversations:', error);
+      return [];
+    }
+
+    return data as Conversation[];
+  } catch (error) {
+    console.error('Exception fetching conversations:', error);
+    return [];
+  }
+}
+
+/**
  * Updates a conversation's title or timestamp
  */
 export async function updateConversation(
