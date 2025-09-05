@@ -133,7 +133,7 @@ export async function updateConversation(
 ): Promise<Conversation | null> {
   try {
     // Map interface property names to database column names
-    const dbUpdates: any = {};
+    const dbUpdates: { title?: string; updated_at?: string } = {};
     if (updates.title !== undefined) dbUpdates.title = updates.title;
     if (updates.updatedAt !== undefined) dbUpdates.updated_at = updates.updatedAt;
 

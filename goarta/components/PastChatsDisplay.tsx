@@ -21,17 +21,6 @@ interface RiveInstance {
   resizeDrawingSurfaceToCanvas: () => void;
 }
 
-declare global {
-  interface Window {
-    rive: {
-      Rive: new (args: object) => RiveInstance;
-      Layout: new (args: object) => object;
-      Fit: { [key: string]: string };
-      Alignment: { [key: string]: string };
-    } | undefined;
-  }
-}
-
 interface PastChatsDisplayProps {
   onClose: () => void;
   onLoadConversation?: (id: string) => void;
