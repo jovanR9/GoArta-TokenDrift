@@ -171,7 +171,12 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConv
                   key={chat.id}
                   className="relative p-4 border border-[#663620] rounded-lg cursor-pointer"
                   onMouseEnter={() => setHoveredId(chat.id)}
-                  onClick={() => onLoadConversation && onLoadConversation(chat.id)} // Add click handler
+                  onClick={() => {
+                    if (onLoadConversation) {
+                      onLoadConversation(chat.id);
+                    }
+                    onClose(); // Close the PastChatsDisplay when a conversation is clicked
+                  }}
                 >
                   {hoveredId === chat.id && (
                     <motion.div
