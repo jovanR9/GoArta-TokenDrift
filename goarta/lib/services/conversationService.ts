@@ -39,7 +39,19 @@ export async function createConversation(title: string, userId: string | null = 
       return null;
     }
 
-    return data as Conversation;
+    // Map database column names to interface property names
+    if (data) {
+      const mappedData: Conversation = {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      };
+      return mappedData;
+    }
+
+    return null;
   } catch (error) {
     console.error('Exception creating conversation:', error);
     return null;
@@ -62,7 +74,19 @@ export async function getConversation(id: string): Promise<Conversation | null> 
       return null;
     }
 
-    return data as Conversation;
+    // Map database column names to interface property names
+    if (data) {
+      const mappedData: Conversation = {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      };
+      return mappedData;
+    }
+
+    return null;
   } catch (error) {
     console.error('Exception fetching conversation:', error);
     return null;
@@ -84,7 +108,16 @@ export async function getAllConversations(): Promise<Conversation[]> {
       return [];
     }
 
-    return data as Conversation[];
+    // Map database column names to interface property names
+    const mappedData: Conversation[] = data.map(conv => ({
+      id: conv.id,
+      userId: conv.user_id,
+      title: conv.title,
+      createdAt: conv.created_at,
+      updatedAt: conv.updated_at,
+    }));
+
+    return mappedData;
   } catch (error) {
     console.error('Exception fetching conversations:', error);
     return [];
@@ -99,9 +132,14 @@ export async function updateConversation(
   updates: Partial<Pick<Conversation, 'title' | 'updatedAt'>>
 ): Promise<Conversation | null> {
   try {
+    // Map interface property names to database column names
+    const dbUpdates: any = {};
+    if (updates.title !== undefined) dbUpdates.title = updates.title;
+    if (updates.updatedAt !== undefined) dbUpdates.updated_at = updates.updatedAt;
+
     const { data, error } = await supabase
       .from('conversations')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', id)
       .select()
       .single();
@@ -111,7 +149,19 @@ export async function updateConversation(
       return null;
     }
 
-    return data as Conversation;
+    // Map database column names to interface property names
+    if (data) {
+      const mappedData: Conversation = {
+        id: data.id,
+        userId: data.user_id,
+        title: data.title,
+        createdAt: data.created_at,
+        updatedAt: data.updated_at,
+      };
+      return mappedData;
+    }
+
+    return null;
   } catch (error) {
     console.error('Exception updating conversation:', error);
     return null;
@@ -145,7 +195,19 @@ export async function addMessage(
       return null;
     }
 
-    return data as Message;
+    // Map database column names to interface property names
+    if (data) {
+      const mappedData: Message = {
+        id: data.id,
+        conversationId: data.conversation_id,
+        senderType: data.sender_type,
+        content: data.content,
+        createdAt: data.created_at,
+      };
+      return mappedData;
+    }
+
+    return null;
   } catch (error) {
     console.error('Exception adding message:', error);
     return null;
@@ -168,7 +230,16 @@ export async function getMessages(conversationId: string): Promise<Message[]> {
       return [];
     }
 
-    return data as Message[];
+    // Map database column names to interface property names
+    const mappedData: Message[] = data.map(msg => ({
+      id: msg.id,
+      conversationId: msg.conversation_id,
+      senderType: msg.sender_type,
+      content: msg.content,
+      createdAt: msg.created_at,
+    }));
+
+    return mappedData;
   } catch (error) {
     console.error('Exception fetching messages:', error);
     return [];
