@@ -121,12 +121,12 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
           />
         )}
         {/* Past Chats List */}
-        <div className="relative z-10 w-full max-w-[18rem] p-4 md:max-w-xs lg:max-w-sm md:p-6 -translate-x-[10vw] md:-translate-x-[14vw] lg:-translate-x-[10vw] md:-translate-y-0 lg:-translate-y-5">
+        <div className="relative z-10 w-full max-w-[18rem] p-4 md:max-w-xs lg:max-w-sm md:p-6 -translate-x-[10vw] md:-translate-x-[14vw] lg:-translate-x-[10vw] md:translate-y-0 lg:-translate-y-5">
           <h2 className="text-xl md:text-2xl font-bold text-[#663620] text-center mb-4">
             Past Conversations
           </h2>
           <div
-            className="max-h-96 overflow-y-auto space-y-4 pr-2"
+            className="max-h-96 md:max-h-72 lg:max-h-96 overflow-y-auto space-y-4 pr-2"
             onMouseLeave={() => setHoveredId(null)}
           >
             {pastChats.map(chat => (
