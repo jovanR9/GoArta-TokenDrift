@@ -7,7 +7,7 @@ import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabaseClient';
 import { BufferWindowMemory } from 'langchain/memory';
-import { createConversation, addMessage, updateConversation } from '@/lib/services/conversationService';
+import { createConversation, addMessage, updateConversation, getConversation } from '@/lib/services/conversationService';
 
 interface Event {
   title: string;
@@ -210,11 +210,24 @@ export async function POST(req: NextRequest) {
     if (currentConversationId) {
       await addMessage(currentConversationId, 'ai', result.output);
       
-      // Update conversation title if it's the first message and still has the default title
-      // Use the first few words of the user's message as the title
-      if (rawHistory && Array.isArray(rawHistory) && rawHistory.length === 0) {
-        const title = message.length > 50 ? message.substring(0, 50) + '...' : message;
-        await updateConversation(currentConversationId, { title });
+      // Update conversation title if it still has the default title
+      // We check this by retrieving the current conversation and seeing if the title is "New Conversation"
+      try {
+        const conversation = await getConversation(currentConversationId);
+        if (conversation && conversation.title === 'New Conversation') {
+          // Create a meaningful title from the user's first message
+          let title = message.trim();
+          // Remove extra whitespace and limit length
+          title = title.replace(/\s+/g, ' ');
+          title = title.length > 60 ? title.substring(0, 60) + '...' : title;
+          // If the message is too short or empty, use a default
+          if (title.length < 3) {
+            title = "Chat Conversation";
+          }
+          await updateConversation(currentConversationId, { title });
+        }
+      } catch (error) {
+        console.error('Error updating conversation title:', error);
       }
     }
 

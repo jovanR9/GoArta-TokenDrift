@@ -7,7 +7,7 @@ import CloseButton from '@/components/CloseButton';
 interface Conversation {
   id: string;
   title: string;
-  created_at: string;
+  createdAt: string;
 }
 
 interface FormattedChat {
@@ -55,7 +55,7 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConv
         const formattedChats: FormattedChat[] = data.map((conv) => ({
           id: conv.id,
           title: conv.title,
-          date: new Date(conv.created_at).toLocaleDateString()
+          date: new Date(conv.createdAt).toLocaleDateString()
         }));
         
         setPastChats(formattedChats);
