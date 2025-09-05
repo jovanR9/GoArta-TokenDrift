@@ -103,7 +103,8 @@ export default function AIItineraryPage() {
       
       const data = await response.json();
       
-      const formattedMessages = data.messages.map((msg: { type: 'user' | 'ai'; text: string }) => ({
+      // Ensure message types are correctly set
+      const formattedMessages: Message[] = data.messages.map((msg: { type: string; text: string }) => ({
         type: msg.type === 'user' ? 'user' : 'ai',
         text: msg.text
       }));
