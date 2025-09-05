@@ -70,8 +70,9 @@ const AuthForm: React.FC = () => {
     // Social login is handled by Supabase OAuth
     try {
       await socialLogin(provider);
-    } catch (error: any) {
-      setError(error.message || 'An error occurred during social login');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred during social login';
+      setError(errorMessage);
     }
   }, [socialLogin]);
 
@@ -85,8 +86,9 @@ const AuthForm: React.FC = () => {
       } else {
         setError(result.error || "Failed to resend confirmation email.");
       }
-    } catch (error: any) {
-      setError(error.message || 'An unexpected error occurred');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -130,8 +132,9 @@ const AuthForm: React.FC = () => {
       } else {
         setError(result.error || 'Signup failed');
       }
-    } catch (error: any) {
-      setError(error.message || 'An unexpected error occurred');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -167,8 +170,9 @@ const AuthForm: React.FC = () => {
           setError(result.error || 'Login failed');
         }
       }
-    } catch (error: any) {
-      setError(error.message || 'An unexpected error occurred');
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      setError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

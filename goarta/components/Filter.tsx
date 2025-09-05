@@ -1,11 +1,22 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-export default function FilterBar() {
+interface FilterBarProps {
+  onFilterChange?: (filters: {
+    search: string;
+    month: string;
+    year: string;
+    location: string;
+    category: string;
+  }) => void;
+}
+
+export default function FilterBar({ onFilterChange }: FilterBarProps) {
   const [search, setSearch] = useState("");
   const [month, setMonth] = useState("");
   const [year, setYear] = useState("");
   const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("");
 
   const months = [
     "January", "February", "March", "April", "May", "June",
@@ -18,12 +29,14 @@ export default function FilterBar() {
   // Placeholder locations (later fetch from DB)
   const locations = ["Goa", "Mumbai", "Delhi", "Bangalore"];
 
-  const category = ["Cultural", "Heritage", "Musical"];
+  const categories = ["Cultural", "Heritage", "Musical"];
 
-  const handleFilter = () => {
-    console.log({ search, month, year, location });
-    // TODO: Pass filters to parent / fetch filtered data
-  };
+  // Handle filter changes
+  useEffect(() => {
+    if (onFilterChange) {
+      onFilterChange({ search, month, year, location, category });
+    }
+  }, [search, month, year, location, category, onFilterChange]);
 
   return (
     <div className="bg-gray-100 p-4 rounded-2xl shadow-md flex flex-col md:flex-row gap-4 items-center">
@@ -62,13 +75,13 @@ export default function FilterBar() {
 
       {/* Category Dropdown */}
       <select
-        value={location}
-        onChange={(e) => setLocation(e.target.value)}
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
         className="p-2 border rounded-lg w-full md:w-1/5"
       >
-        <option value="">Categoty</option>
-        {category.map((loc, idx) => (
-          <option key={idx} value={loc}>{loc}</option>
+        <option value="">Category</option>
+        {categories.map((cat, idx) => (
+          <option key={idx} value={cat}>{cat}</option>
         ))}
       </select>
 
@@ -86,7 +99,11 @@ export default function FilterBar() {
 
       {/* Apply Button */}
       <button
-        onClick={handleFilter}
+        onClick={() => {
+          if (onFilterChange) {
+            onFilterChange({ search, month, year, location, category });
+          }
+        }}
         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
       >
         Search

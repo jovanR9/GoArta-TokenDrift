@@ -30,7 +30,6 @@ const formatDate = (dateStr: string): string => {
 export default function PastEvents() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [eventsData, setEventsData] = useState<Event[]>([]);
-  const [isHovered, setIsHovered] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {

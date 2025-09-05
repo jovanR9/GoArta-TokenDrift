@@ -124,8 +124,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       return { success: false, error: 'Login failed' };
-    } catch (error: any) {
-      return { success: false, error: error.message || 'An unexpected error occurred' };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -168,8 +169,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       return { success: false, error: 'Signup failed' };
-    } catch (error: any) {
-      return { success: false, error: error.message || 'An unexpected error occurred' };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -194,8 +196,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (error) {
         console.error('Social login error:', error);
       }
-    } catch (error) {
-      console.error('Social login error:', error);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      console.error('Social login error:', errorMessage);
     }
   };
 
@@ -214,8 +217,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       
       return { success: true, message: "Confirmation email has been resent. Please check your inbox." };
-    } catch (error: any) {
-      return { success: false, error: error.message || 'An unexpected error occurred' };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      return { success: false, error: errorMessage };
     }
   };
 

@@ -1,11 +1,10 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import FilterBar from "@/components/Filter"; // Updated import
-import React, { useRef, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabaseClient } from "@/lib/supabaseClient";
-import Link from "next/link";
-import Modal from "@/components/LoginModel"; // Update if incorrect
+import Modal from "@/components/Modal"; // Updated import
 
 type Event = {
   id: number;
@@ -31,7 +30,6 @@ const formatDate = (dateStr: string): string => {
 };
 
 export default function PastEvents() {
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [eventsData, setEventsData] = useState<Event[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

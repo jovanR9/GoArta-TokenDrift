@@ -8,27 +8,10 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-// Define the event data shape from Supabase
-interface EventData {
-  id: number;
-  title: string;
-  description: string;
-  date: string;
-  location: string;
-  gallery: string[] | null;
-  youtube_link: string | null;
-}
 
-// Use a type that allows for async resolution of params
-interface PastEventPageProps {
-  params: { id: string };
-  searchParams?: { [key: string]: string | string[] | undefined };
-}
-
-
-export default async function EventPage(props:any) {
+export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
   // Await the params if necessary (though Next.js resolves it automatically)
-  const { id } = await (props as PastEventPageProps).params;
+  const { id } = await params;
 
   // Fetch event data with type safety, converting string id to number
   const { data, error } = await supabase
@@ -100,7 +83,7 @@ export default async function EventPage(props:any) {
             Start your Journey with{" "}
             <span className="text-[#6D74FF]">GoArta</span>
             <br />
-            so that you don’t miss such Events
+            so that you don&apos;t miss such Events
           </h3>
           <Link
             href="/past_events"
