@@ -4,6 +4,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import CloseButton from '@/components/CloseButton';
 
+interface Conversation {
+  id: string;
+  title: string;
+  created_at: string;
+}
+
 interface RiveInstance {
   cleanup: () => void;
   resizeDrawingSurfaceToCanvas: () => void;
@@ -23,26 +29,52 @@ declare global {
 interface PastChatsDisplayProps {
   className?: string;
   onClose: () => void;
+  onLoadConversation?: (id: string) => void; // Add this prop
 }
 
-const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onClose }) => {
+const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ onClose, onLoadConversation }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const riveInstanceRef = useRef<RiveInstance | null>(null);
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
 
-  // Dummy data for past chats
-  const pastChats = [
-    { id: 1, title: 'Trip to Goa', date: '2023-10-26' },
-    { id: 2, title: 'Weekend in the mountains', date: '2023-10-25' },
-    { id: 3, title: 'Beach vacation planning', date: '2023-10-24' },
-    { id: 4, title: 'Another Goa Trip', date: '2023-10-23' },
-    { id: 5, title: 'Exploring North India', date: '2023-10-22' },
-    { id: 6, title: 'South India Temple Tour', date: '2023-10-21' },
-  ];
+    const [pastChats, setPastChats] = useState<{ id: string; title: string; date: string }[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const fetchConversations = async () => {
+      try {
+        // For now, we'll create a simple API endpoint to fetch conversations
+        // In a real implementation, this would fetch from your database
+        const dummyConversations: Conversation[] = [
+          { id: '1', title: 'Trip to Goa', created_at: '2023-10-26' },
+          { id: '2', title: 'Weekend in the mountains', created_at: '2023-10-25' },
+          { id: '3', title: 'Beach vacation planning', created_at: '2023-10-24' },
+          { id: '4', title: 'Another Goa Trip', created_at: '2023-10-23' },
+          { id: '5', title: 'Exploring North India', created_at: '2023-10-22' },
+          { id: '6', title: 'South India Temple Tour', created_at: '2023-10-21' },
+        ];
+        
+        // Format the data for display
+        const formattedChats = dummyConversations.map(conv => ({
+          id: conv.id,
+          title: conv.title,
+          date: new Date(conv.created_at).toLocaleDateString()
+        }));
+        
+        setPastChats(formattedChats);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching conversations:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchConversations();
   }, []);
 
   useEffect(() => {
@@ -125,40 +157,45 @@ const PastChatsDisplay: React.FC<PastChatsDisplayProps> = ({ className = '', onC
           <h2 className="text-xl md:text-2xl font-bold text-[#663620] text-center mb-4">
             Past Conversations
           </h2>
-          <div
-            className="max-h-96 md:max-h-72 lg:max-h-96 overflow-y-auto space-y-4 pr-2"
-            onMouseLeave={() => setHoveredId(null)}
-          >
-            {pastChats.map(chat => (
-              <motion.div
-                key={chat.id}
-                className="relative p-4 border border-[#663620] rounded-lg cursor-pointer"
-                onMouseEnter={() => setHoveredId(chat.id)}
-              >
-                {hoveredId === chat.id && (
-                  <motion.div
-                    className="absolute inset-0 border-4 border-[#a56a43] bg-[#a56a43]/20 rounded-lg"
-                    layoutId="hover-box"
-                    transition={{ type: 'spring', stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <h3
-                  className={`relative text-[#663620] transition-all duration-200 ${
-                    hoveredId === chat.id ? 'font-bold' : 'font-semibold'
-                  }`}
+          {loading ? (
+            <div className="text-center py-4 text-[#663620]">Loading conversations...</div>
+          ) : (
+            <div
+              className="max-h-96 md:max-h-72 lg:max-h-96 overflow-y-auto space-y-4 pr-2"
+              onMouseLeave={() => setHoveredId(null)}
+            >
+              {pastChats.map(chat => (
+                <motion.div
+                  key={chat.id}
+                  className="relative p-4 border border-[#663620] rounded-lg cursor-pointer"
+                  onMouseEnter={() => setHoveredId(chat.id)}
+                  onClick={() => onLoadConversation && onLoadConversation(chat.id)} // Add click handler
                 >
-                  {chat.title}
-                </h3>
-                <p
-                  className={`relative text-sm text-[#663620] transition-all duration-200 ${
-                    hoveredId === chat.id ? 'font-medium' : ''
-                  }`}
-                >
-                  {chat.date}
-                </p>
-              </motion.div>
-            ))}
-          </div>
+                  {hoveredId === chat.id && (
+                    <motion.div
+                      className="absolute inset-0 border-4 border-[#a56a43] bg-[#a56a43]/20 rounded-lg"
+                      layoutId="hover-box"
+                      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+                    />
+                  )}
+                  <h3
+                    className={`relative text-[#663620] transition-all duration-200 ${
+                      hoveredId === chat.id ? 'font-bold' : 'font-semibold'
+                    }`}
+                  >
+                    {chat.title}
+                  </h3>
+                  <p
+                    className={`relative text-sm text-[#663620] transition-all duration-200 ${
+                      hoveredId === chat.id ? 'font-medium' : ''
+                    }`}
+                  >
+                    {chat.date}
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       <CloseButton onClick={onClose} />

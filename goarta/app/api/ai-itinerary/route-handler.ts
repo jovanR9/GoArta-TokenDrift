@@ -7,6 +7,7 @@ import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import { z } from 'zod';
 import { supabase } from '@/lib/supabaseClient';
 import { BufferWindowMemory } from 'langchain/memory';
+import { createConversation, addMessage, updateConversation } from '@/lib/services/conversationService';
 
 interface Event {
   title: string;
@@ -116,7 +117,7 @@ const fetchEventsTool = new FetchEventsTool();
 // ------------------ API Route ------------------
 export async function POST(req: NextRequest) {
   try {
-    const { message, history: rawHistory, currentDateTime } = await req.json();
+    const { message, history: rawHistory, currentDateTime, conversationId } = await req.json();
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -137,6 +138,16 @@ export async function POST(req: NextRequest) {
       inputKey: 'input',
       outputKey: 'output',
     });
+
+    // Handle conversation creation or retrieval
+    let currentConversationId = conversationId;
+    if (!currentConversationId) {
+      // Create a new conversation with a default title (will be updated later)
+      const conversation = await createConversation('New Conversation');
+      if (conversation) {
+        currentConversationId = conversation.id;
+      }
+    }
 
     // Restore history if provided
     if (rawHistory && Array.isArray(rawHistory)) {
@@ -188,9 +199,24 @@ export async function POST(req: NextRequest) {
       returnIntermediateSteps: true,
     });
 
+    // Save user message to database if conversation exists
+    if (currentConversationId) {
+      await addMessage(currentConversationId, 'user', message);
+    }
+
     const result = await agentExecutor.invoke({ input: message });
 
-
+    // Save AI response to database if conversation exists
+    if (currentConversationId) {
+      await addMessage(currentConversationId, 'ai', result.output);
+      
+      // Update conversation title if it's the first message and still has the default title
+      // Use the first few words of the user's message as the title
+      if (rawHistory && Array.isArray(rawHistory) && rawHistory.length === 0) {
+        const title = message.length > 50 ? message.substring(0, 50) + '...' : message;
+        await updateConversation(currentConversationId, { title });
+      }
+    }
 
     const updatedHistory = await memory.chatHistory.getMessages();
     const serializableHistory = updatedHistory.map((msg) => ({
@@ -201,6 +227,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       aiResponse: result.output,
       history: serializableHistory,
+      conversationId: currentConversationId,
     });
   } catch (error) {
     console.error('Langchain API error:', error);

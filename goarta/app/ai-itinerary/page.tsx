@@ -20,7 +20,6 @@ import HeroItinerary from '@/components/ai-itenarary com/HeroItinerary';
 
 export default function AIItineraryPage() {
   const router = useRouter();
-  // const router = useRouter();
   const [messages, setMessages] = useState<Message[]>([
     { type: 'ai', text: 'Hello! How can I help you plan your trip?' }
   ]);
@@ -33,7 +32,8 @@ export default function AIItineraryPage() {
   const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
   const [pastChatsKey, setPastChatsKey] = useState(0);
   const [pastHistoryButtonKey, setPastHistoryButtonKey] = useState(0);
-  const [conversationHistory, setConversationHistory] = useState<{ type: string, text: string }[]>([]); // New state for Langchain history
+  const [conversationHistory, setConversationHistory] = useState<{ type: string, text: string }[]>([]);
+  const [conversationId, setConversationId] = useState<string | null>(null);
 
   const handleBack = () => {
     router.push('/');
@@ -57,15 +57,19 @@ export default function AIItineraryPage() {
     }
     setConversationHistory(newHistory);
 
-
     try {
-      const currentDateTime = new Date().toISOString(); // Get current date and time
+      const currentDateTime = new Date().toISOString();
       const response = await fetch('/api/ai-itinerary', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: text, history: newHistory, currentDateTime }), // Send current history and date/time
+        body: JSON.stringify({ 
+          message: text, 
+          history: newHistory, 
+          currentDateTime,
+          conversationId
+        }),
       });
 
       if (!response.ok) {
@@ -73,17 +77,44 @@ export default function AIItineraryPage() {
       }
 
       const data = await response.json();
-      setTypingMessage(data.aiResponse); // Set the message to be typed
-      setConversationHistory(data.history); // Update history from the API response
+      setTypingMessage(data.aiResponse);
+      setConversationHistory(data.history);
+      
+      if (data.conversationId && !conversationId) {
+        setConversationId(data.conversationId);
+      }
     } catch (error) {
       console.error('Error sending message to AI:', error);
-      setTypingMessage('Sorry, I could not get a response from the AI.'); // Display error with typing effect
+      setTypingMessage('Sorry, I could not get a response from the AI.');
     }
   };
 
   const handleShowChat = () => {
     setShowChatInterface(true);
-    setConversationHistory([]); // Clear history when switching to chat view
+    setConversationHistory([]);
+  };
+
+  const loadConversation = async (id: string) => {
+    try {
+      const response = await fetch(`/api/conversations?id=${id}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const data = await response.json();
+      
+      const formattedMessages = data.messages.map((msg: { type: 'user' | 'ai'; text: string }) => ({
+        type: msg.type === 'user' ? 'user' : 'ai',
+        text: msg.text
+      }));
+      
+      setConversationId(id);
+      setConversationHistory(data.messages);
+      setMessages(formattedMessages);
+      setShowChatInterface(true);
+    } catch (error) {
+      console.error('Error loading conversation:', error);
+    }
   };
 
   const handlePastChatsButtonClick = () => {
@@ -98,16 +129,14 @@ export default function AIItineraryPage() {
     setPastHistoryButtonKey(prevKey => prevKey + 1);
   };
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typingMessage]);
 
-  // Typing effect for AI messages
   useEffect(() => {
     if (typingMessage) {
       let i = 0;
-      setDisplayedTypingMessage(''); // Clear previous typing message
+      setDisplayedTypingMessage('');
       const typingInterval = setInterval(() => {
         setDisplayedTypingMessage((prev) => prev + typingMessage[i]);
         i++;
@@ -117,17 +146,16 @@ export default function AIItineraryPage() {
             ...prevMessages,
             { type: 'ai', text: typingMessage },
           ]);
-          setTypingMessage(null); // Clear typing message after completion
+          setTypingMessage(null);
         }
-      }, 1); // Adjust typing speed here (e.g., 1ms for snappy)
+      }, 1);
 
-      return () => clearInterval(typingInterval); // Cleanup on unmount or typingMessage change
+      return () => clearInterval(typingInterval);
     }
   }, [typingMessage]);
 
   return (
     <div className="relative min-h-screen">
-      {/* Back to Home Button - Top Right */}
       <div className="fixed top-6 right-6 z-30">
         <button
           onClick={handleBack}
@@ -142,7 +170,6 @@ export default function AIItineraryPage() {
       
       <PastHistoryButton onAnimationComplete={handlePastChatsButtonClick} key={`history-${pastHistoryButtonKey}`} />
       
-      {/* Hero Section - Only show when chat interface is not visible */}
       {!showChatInterface && (
         <div className="animate-in fade-in duration-500">
           <HeroItinerary 
@@ -152,12 +179,10 @@ export default function AIItineraryPage() {
         </div>
       )}
       
-      {/* Background Animation */}
       <Background className="fixed inset-0" />
       
-      {showPastChats && <PastChatsDisplay key={`past-${pastChatsKey}`} onClose={handleClosePastChats} />}
+      {showPastChats && <PastChatsDisplay key={`past-${pastChatsKey}`} onClose={handleClosePastChats} onLoadConversation={loadConversation} />}
 
-      {/* Chat Interface */}
       {showChatInterface && (
         <div className="relative z-20 min-h-screen flex flex-col justify-end px-6 pb-4 pt-24 animate-in fade-in duration-500 overflow-x-hidden">
           <div className="w-full max-w-4xl mx-auto space-y-4 flex flex-col overflow-y-auto flex-grow">
@@ -172,7 +197,7 @@ export default function AIItineraryPage() {
                       </div>
                   )
               ))}
-              {typingMessage && ( // Display typing message if available
+              {typingMessage && (
                 <div key="typing-message" className="max-w-2xl self-start">
                   <LeftChatBubble text={displayedTypingMessage} />
                 </div>
@@ -194,4 +219,4 @@ export default function AIItineraryPage() {
       `}</style>
     </div>
   );
-};
+}
