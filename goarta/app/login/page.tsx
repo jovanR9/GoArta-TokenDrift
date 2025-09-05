@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { auth } from "@/app/api/firebaselogin/firebase";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } from "firebase/auth";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -15,6 +15,17 @@ export default function Login() {
         try {
             const result = await signInWithPopup(auth, provider);
             // You can access the user's information from the result object
+            console.log(result.user);
+            setError(null);
+        } catch (error: any) {
+            setError(error.message);
+        }
+    };
+
+    const handleFacebookLogin = async () => {
+        const provider = new FacebookAuthProvider();
+        try {
+            const result = await signInWithPopup(auth, provider);
             console.log(result.user);
             setError(null);
         } catch (error: any) {
@@ -93,6 +104,18 @@ export default function Login() {
                                                 </svg>
                                             </div>
                                             <span className="ml-4">Sign In with Google</span>
+                                        </button>
+                                        <button
+                                            onClick={handleFacebookLogin}
+                                            type="button"
+                                            className="mt-5 w-full max-w-xs font-bold shadow-sm rounded-lg py-3 bg-blue-600 text-white flex items-center justify-center transition-all duration-300 ease-in-out focus:outline-none hover:shadow focus:shadow-sm focus:shadow-outline"
+                                        >
+                                            <div className="bg-white p-2 rounded-full">
+                                                <svg className="w-4" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm3.622 7.622h-2.04v1.96h2.04v2.04h-2.04v4.378h-2.04v-4.378h-1.96v-2.04h1.96v-1.96c0-1.622.98-2.52 2.45-2.52h1.59v2.04h-1.59c-.37 0-.41.18-.41.41v1.07z" />
+                                                </svg>
+                                            </div>
+                                            <span className="ml-4">Sign In with Facebook</span>
                                         </button>
                                         <button
                                             type="submit"
