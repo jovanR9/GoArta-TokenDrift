@@ -16,7 +16,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
   // Fetch event data with type safety, converting string id to number
   const { data, error } = await supabase
     .from("past_events")
-    .select("id, title, description, date, location, gallery, youtube_link")
+    .select("id, title, description, event_date, location, gallery, youtube_link")
     .eq("id", parseInt(id)) // Ensure id matches database type (number)
     .single();
 
@@ -69,7 +69,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
         <div className="mt-8 flex flex-col sm:flex-row justify-between text-gray-900 font-medium">
           <div>
             <p className="uppercase text-sm">Date</p>
-            <p>{data.date || "Not specified"}</p>
+            <p>{data.event_date || "Not specified"}</p>
           </div>
           <div className="sm:text-right mt-2 sm:mt-0">
             <p className="uppercase text-sm">Location</p>
