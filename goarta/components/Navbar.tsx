@@ -46,7 +46,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2 md:mt-5">
             <Link
               className="block rounded-md bg-green-900 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-green-800"
-              href="/dashboard"
+              href="/past_events"
             >
               About us
             </Link>
