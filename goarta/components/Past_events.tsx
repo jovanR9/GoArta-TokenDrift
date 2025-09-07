@@ -7,7 +7,7 @@ import Link from "next/link";
 type Event = {
   id: number;
   title: string;
-  date: string;
+  event_date: string;
   location: string;
   thumbnail: string;
 };
@@ -36,7 +36,7 @@ export default function PastEvents() {
     const fetchEvents = async () => {
       const { data, error } = await supabaseClient
         .from("past_events")
-        .select("id, title, date, location, thumbnail");
+        .select("id, title, event_date, location, thumbnail");
 
       if (error) {
         console.error("Supabase error:", error.message);
@@ -139,7 +139,7 @@ export default function PastEvents() {
                 <div className="p-5">
                   <h3 className="text-xl font-bold text-gray-900">{event.title}</h3>
                   <div className="mt-2 space-y-1 text-gray-700">
-                    <p className="text-sm">Date : {formatDate(event.date)}</p>
+                    <p className="text-sm">Date : {formatDate(event.event_date)}</p>
                     <p className="text-sm">Location : {event.location}</p>
                   </div>
 
