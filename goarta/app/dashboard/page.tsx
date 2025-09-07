@@ -1,20 +1,40 @@
 "use client";
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Camera, Edit, LogOut } from 'lucide-react';
-import Image from 'next/image';
+import { useAuth } from '@/components/AuthContext';
 import DashboardCards from '@/components/DashboardCard';
+import { useRouter } from 'next/navigation';
 
 const ProfileDashboard = () => {
+  const { user, logout, updateProfile, isLoading } = useAuth();
+  const router = useRouter();
+  
   const [profileData, setProfileData] = useState({
-    fname: 'Priya',
-    lname: 'Sharma',
-    phnumber: '8857990312',
+    fname: '',
+    lname: '',
+    phnumber: '',
     countryCode: '+91',
-    email: 'priya.sharma@email.com',
-    bio: 'Cultural enthusiast from Mumbai, passionate about exploring Goa\'s rich heritage, traditional cuisine, and vibrant festivals. Love discovering hidden gems and authentic local experiences.'
+    short_bio: ''
   });
+  
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
+  // Populate form with user data on load
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        fname: user.fname || '',
+        lname: user.lname || '',
+        phnumber: user.phnumber || '',
+        countryCode: user.countryCode || '+91',
+        short_bio: user.short_bio || ''
+      });
+    }
+  }, [user]);
+  
   const handleInputChange = (field: keyof typeof profileData, value: string) => {
     setProfileData(prev => ({
       ...prev,
@@ -22,41 +42,58 @@ const ProfileDashboard = () => {
     }));
   };
 
-  const handleSave = () => {
-    setIsEditing(false);
-    console.log('Profile saved:', profileData);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setError(null);
+    const updates = {
+      fname: profileData.fname,
+      lname: profileData.lname,
+      phnumber: profileData.phnumber,
+      countryCode: profileData.countryCode,
+      short_bio: profileData.short_bio,
+    };
+    const { success, error } = await updateProfile(updates);
+    if (success) {
+      setIsEditing(false);
+      console.log('Profile saved successfully!');
+    } else {
+      setError(error || 'Failed to save profile. Please try again.');
+    }
+    setIsSaving(false);
   };
 
   const handleCancel = () => {
     setIsEditing(false);
+    if (user) {
+      setProfileData({
+        fname: user.first_name || '',
+        lname: user.last_name || '',
+        phnumber: user.phnumber || '',
+        countryCode: user.countryCode || '+91',
+        short_bio: user.short_bio || ''
+      });
+    }
   };
 
+  const handleLogout = async () => {
+    await logout();
+    router.push('/');
+  };
+
+  if (isLoading) {
+    return <div className="flex justify-center items-center min-h-screen text-gray-500">Loading profile...</div>;
+  }
+  
+  if (!user) {
+    return <div className="flex justify-center items-center min-h-screen text-red-500">Please log in to view this page.</div>;
+  }
+
   const getInitials = () => {
-    return `${profileData.fname.charAt(0)}${profileData.lname.charAt(0)}`;
+    return `${user.first_name?.charAt(0) || ''}${user.last_name?.charAt(0) || ''}`;
   };
 
   return (
     <>
-      <header className="navbar px-4 sm:px-6 lg:px-8 py-4">
-        <div className="mx-auto flex h-16 max-w-screen-xl items-center justify-between">
-          {/* Logo */}
-          <a className="block text-teal-600" href="#">
-            <Image
-              src="/Logo.png"
-              alt="Logo"
-              width={95}
-              height={95}
-              className="
-                w-[70px] h-[70px]   /* default (mobile ~375px like iPhone SE) */
-                sm:w-[90px] sm:h-[90px] 
-                md:w-[110px] md:h-[110px] md:mt-10
-                lg:w-[100px] lg:h-[100px] lg:mt-8
-              "
-            />
-          </a>
-        </div>
-      </header>
-
       <div className="mt-12 min-h-screen p-6 relative">
         {/* Background Image with Opacity */}
         <div
@@ -76,7 +113,7 @@ const ProfileDashboard = () => {
               <div className="absolute -bottom-16 left-8">
                 <div className="relative">
                   <div className="w-32 h-32 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white shadow-xl">
-                    PS
+                    {getInitials()}
                   </div>
                   <div className="absolute bottom-1 right-1 w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center border-3 border-white shadow-lg cursor-pointer hover:bg-orange-600 transition-colors">
                     <Camera className="w-5 h-5 text-white" />
@@ -95,7 +132,10 @@ const ProfileDashboard = () => {
                       <Edit className="w-4 h-4" />
                       Edit Profile
                     </button>
-                    <button className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2 border border-white/30">
+                    <button
+                      onClick={handleLogout}
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 flex items-center gap-2 border border-white/30"
+                    >
                       <LogOut className="w-4 h-4" />
                       Logout
                     </button>
@@ -104,13 +144,15 @@ const ProfileDashboard = () => {
                   <>
                     <button
                       onClick={handleSave}
-                      className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-colors shadow-lg"
+                      disabled={isSaving}
+                      className="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-colors shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Save
+                      {isSaving ? 'Saving...' : 'Save'}
                     </button>
                     <button
                       onClick={handleCancel}
-                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-colors border border-white/30"
+                      disabled={isSaving}
+                      className="bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-5 py-2.5 rounded-full text-sm font-semibold transition-colors border border-white/30 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Cancel
                     </button>
@@ -121,7 +163,7 @@ const ProfileDashboard = () => {
 
             {/* Profile Content */}
             <div className="pt-20 px-8 pb-8">
-
+              {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
               {/* Name Fields */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-8">
                 <div>
@@ -207,7 +249,7 @@ const ProfileDashboard = () => {
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Email
                 </label>
-                <div className="text-lg text-gray-500 py-2 border-b border-gray-100">{profileData.email}</div>
+                <div className="text-lg text-gray-500 py-2 border-b border-gray-100">{user.email}</div>
               </div>
 
               {/* Bio Field */}
@@ -217,13 +259,13 @@ const ProfileDashboard = () => {
                 </label>
                 {isEditing ? (
                   <textarea
-                    value={profileData.bio}
-                    onChange={(e) => handleInputChange('bio', e.target.value)}
+                    value={profileData.short_bio}
+                    onChange={(e) => handleInputChange('short_bio', e.target.value)}
                     rows={4}
                     className="w-full text-gray-800 bg-gray-50 border-2 border-gray-200 rounded-lg px-4 py-3 focus:outline-none focus:border-orange-500 focus:bg-white transition-all resize-none leading-relaxed"
                   />
                 ) : (
-                  <div className="text-gray-600 leading-relaxed py-3">{profileData.bio}</div>
+                  <div className="text-gray-600 leading-relaxed py-3">{profileData.short_bio}</div>
                 )}
               </div>
             </div>
