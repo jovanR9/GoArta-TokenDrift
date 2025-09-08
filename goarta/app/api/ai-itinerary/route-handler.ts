@@ -5,7 +5,7 @@ import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts
 import { StructuredTool } from '@langchain/core/tools';
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents';
 import { z } from 'zod';
-import { supabase } from '@/lib/supabaseClient';
+import { supabaseClient as supabase } from '@/lib/supabaseClient';
 import { BufferWindowMemory } from 'langchain/memory';
 import { createConversation, addMessage, updateConversation, getConversation } from '@/lib/services/conversationService';
 
