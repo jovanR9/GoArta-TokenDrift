@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/components/AuthContext";
-import UserIcon from "@/components/UserIcon"; // Adjust the import path as needed
+import UserIcon from "@/components/UserIcon"; // Adjust the import path if needed
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -16,10 +16,10 @@ export default function Navbar() {
 
   // Extract initials from user object
   const getInitials = () => {
-    if (user && user.first_name && user.last_name) {
-      return `${user.first_name.charAt(0).toUpperCase()}${user.last_name.charAt(0).toUpperCase()}`;
+    if (user && user.fname && user.lname) {
+      return `${user.fname.charAt(0).toUpperCase()}${user.lname.charAt(0).toUpperCase()}`;
     }
-    return user?.email?.charAt(0).toUpperCase() || ""; // Fallback to email initial
+    return user?.email?.charAt(0).toUpperCase() || ""; // fallback to email initial
   };
 
   return (
@@ -53,9 +53,10 @@ export default function Navbar() {
 
             {user ? (
               <div className="flex items-center gap-2">
-                <UserIcon initials={getInitials()} /> {/* Display UserIcon with initials */}
+                {/* Show UserIcon with initials */}
+                <UserIcon initials={getInitials()} />
                 <span className="text-sm text-gray-700 hidden sm:inline">
-                  {/* Hi, {user.first_name || user.email} */}
+                  {/* Hi, {user.fname || user.email} */}
                 </span>
                 <button
                   onClick={handleLogout}

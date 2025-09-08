@@ -14,7 +14,7 @@ const ProfileDashboard = () => {
     fname: '',
     lname: '',
     phnumber: '',
-    countryCode: '+91',
+    countrycode: '+91',
     short_bio: ''
   });
   
@@ -29,7 +29,7 @@ const ProfileDashboard = () => {
         fname: user.fname || '',
         lname: user.lname || '',
         phnumber: user.phnumber || '',
-        countryCode: user.countryCode || '+91',
+        countrycode: user.countrycode || '+91',
         short_bio: user.short_bio || ''
       });
     }
@@ -41,35 +41,37 @@ const ProfileDashboard = () => {
       [field]: value
     }));
   };
+const handleSave = async () => {
+  setIsSaving(true);
+  setError(null);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    setError(null);
-    const updates = {
-      fname: profileData.fname,
-      lname: profileData.lname,
-      phnumber: profileData.phnumber,
-      countryCode: profileData.countryCode,
-      short_bio: profileData.short_bio,
-    };
-    const { success, error } = await updateProfile(updates);
-    if (success) {
-      setIsEditing(false);
-      console.log('Profile saved successfully!');
-    } else {
-      setError(error || 'Failed to save profile. Please try again.');
-    }
-    setIsSaving(false);
+  const updates = {
+    fname: profileData.fname,
+    lname: profileData.lname,
+    phnumber: profileData.phnumber,   // only number
+    countrycode: profileData.countrycode, // only code
+    short_bio: profileData.short_bio,
   };
+
+  const { success, error } = await updateProfile(updates);
+  if (success) {
+    setIsEditing(false);
+    console.log("Profile saved successfully!");
+  } else {
+    setError(error || "Failed to save profile. Please try again.");
+  }
+  setIsSaving(false);
+};
+
 
   const handleCancel = () => {
     setIsEditing(false);
     if (user) {
       setProfileData({
-        fname: user.first_name || '',
-        lname: user.last_name || '',
+        fname: user.fname || '',
+        lname: user.lname || '',
         phnumber: user.phnumber || '',
-        countryCode: user.countryCode || '+91',
+        countrycode: user.countrycode || '+91',
         short_bio: user.short_bio || ''
       });
     }
@@ -89,7 +91,7 @@ const ProfileDashboard = () => {
   }
 
   const getInitials = () => {
-    return `${user.first_name?.charAt(0) || ''}${user.last_name?.charAt(0) || ''}`;
+    return `${user.fname?.charAt(0) || ''}${user.lname?.charAt(0) || ''}`;
   };
 
   return (
@@ -206,8 +208,8 @@ const ProfileDashboard = () => {
                     <div className="flex gap-3">
                       {/* Country Code Dropdown */}
                       <select
-                        value={profileData.countryCode}
-                        onChange={(e) => handleInputChange('countryCode', e.target.value)}
+                        value={profileData.countrycode}
+                        onChange={(e) => handleInputChange('countrycode', e.target.value)}
                         className="w-20 text-lg text-gray-800 bg-gray-50 border-0 border-b-2 border-gray-200 px-0 py-2 focus:outline-none focus:border-orange-500 focus:bg-transparent transition-colors"
                       >
                         <option value="+91">+91</option>
@@ -238,7 +240,7 @@ const ProfileDashboard = () => {
                     </div>
                   ) : (
                     <div className="text-lg text-gray-600 py-2 border-b border-gray-100">
-                      {profileData.countryCode} {profileData.phnumber}
+                      {profileData.countrycode} {profileData.phnumber}
                     </div>
                   )}
                 </div>
