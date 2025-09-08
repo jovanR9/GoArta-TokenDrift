@@ -1,61 +1,41 @@
 import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
-import EventGallery from "@/components/EventGallery";
-import { supabaseClient } from "@/lib/supabaseClient"; // Use the same client as PastEvents
+import EventGallery from "@/components/EventGallery"; // Import the Client Component
 
-// Shared formatDate function to match PastEvents
-const formatDate = (dateStr: string): string => {
-  if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return "Not specified";
-  const [year, month, day] = dateStr.split("-").map(Number);
-  const date = new Date(year, month - 1, day);
-  if (isNaN(date.getTime())) return "Invalid date";
-  const months = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-  ];
-  const dayNum = date.getDate();
-  const suffix = (dayNum % 10 === 1 && dayNum !== 11) ? "st" :
-    (dayNum % 10 === 2 && dayNum !== 12) ? "nd" :
-      (dayNum % 10 === 3 && dayNum !== 13) ? "rd" : "th";
-  return `${dayNum}${suffix} ${months[date.getMonth()]} ${year}`;
-};
+// Initialize Supabase client with proper fallbacks
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing Supabase environment variables.");
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
+  // Await the params if necessary (though Next.js resolves it automatically)
   const { id } = await params;
 
-  // Validate id
-  const eventId = parseInt(id);
-  if (isNaN(eventId)) {
-    console.error("Invalid event ID:", id);
-    return (
-      <div className="p-6 text-center text-red-500">
-        Invalid event ID.
-      </div>
-    );
-  }
-
-  // Fetch event data
-  const { data, error } = await supabaseClient
+  // Fetch event data with type safety, converting string id to number
+  const { data, error } = await supabase
     .from("past_events")
     .select("id, title, description, event_date, location, gallery, youtube_link")
-    .eq("id", eventId)
+    .eq("id", parseInt(id)) // Ensure id matches database type (number)
     .single();
-
-  console.log("Supabase response for event:", { data, error });
 
   // Handle fetch errors
   if (error) {
     console.error("Error fetching event:", error.message);
     return (
       <div className="p-6 text-center text-red-500">
-        Error fetching event: {error.message}
+        Error fetching event. Please try again later.
       </div>
     );
   }
 
   // Handle case where no data is found
   if (!data) {
-    console.warn("No event found for ID:", eventId);
     return (
       <div className="p-6 text-center text-gray-500">
         Event not found. Check the event ID or try again.
@@ -63,45 +43,52 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const gallery: string[] = Array.isArray(data.gallery) ? data.gallery : [];
+  // Ensure gallery is an array
+  let gallery: string[] = [];
+  if (Array.isArray(data.gallery)) {
+    gallery = data.gallery;
+  } else if (typeof data.gallery === 'string') {
+    try {
+      gallery = JSON.parse(data.gallery);
+    } catch {
+      // If parsing fails, treat as a single item array or empty array
+      gallery = data.gallery ? [data.gallery] : [];
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white text-black">
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {/* Gallery Section */}
-        <EventGallery gallery={gallery} title={data.title ?? "Untitled Event"} />
+        {/* Gallery Section (now a Client Component) */}
+        <EventGallery gallery={gallery} title={data.title} />
 
         {/* About */}
         <div className="mt-6 text-center">
-          <h2 className="text-2xl font-bold">{data.title ?? "Untitled Event"}</h2>
-          {data.description ? (
-            data.description
-              .split("\n")
-              .filter((paragraph) => paragraph.trim())
-              .map((paragraph, index) => (
-                <p
-                  key={index}
-                  className="mt-4 text-gray-700 leading-relaxed text-justify"
-                >
-                  {paragraph}
-                </p>
-              ))
-          ) : (
-            <p className="mt-4 text-gray-700 leading-relaxed text-justify">
-              No description available.
-            </p>
-          )}
+          <h2 className="text-2xl font-bold">{data.title}</h2>
+          {data.description
+            ? data.description
+                .split("\n")
+                .filter((paragraph: string) => paragraph.trim())
+                .map((paragraph: string, index: number) => (
+                  <p
+                    key={index}
+                    className="mt-4 text-gray-700 leading-relaxed text-justify"
+                  >
+                    {paragraph}
+                  </p>
+                ))
+            : <p className="mt-4 text-gray-700 leading-relaxed text-justify">No description available.</p>}
         </div>
 
         {/* Date & Location */}
         <div className="mt-8 flex flex-col sm:flex-row justify-between text-gray-900 font-medium">
           <div>
             <p className="uppercase text-sm">Date</p>
-            <p>{formatDate(data.event_date)}</p>
+            <p>{data.event_date || "Not specified"}</p>
           </div>
           <div className="sm:text-right mt-2 sm:mt-0">
             <p className="uppercase text-sm">Location</p>
-            <p>{data.location ?? "Not specified"}</p>
+            <p>{data.location || "Not specified"}</p>
           </div>
         </div>
 
@@ -128,7 +115,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
               <iframe
                 className="w-full h-full"
                 src={data.youtube_link.replace("watch?v=", "embed/")}
-                title={`${data.title ?? "Event"} Video`}
+                title={`${data.title} Video`}
                 frameBorder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowFullScreen
@@ -142,20 +129,18 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 }
 
 export async function generateStaticParams() {
-  const { data, error } = await supabaseClient
-    .from("past_events")
-    .select("id");
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
 
-  if (error) {
-    console.error("Error fetching event IDs for static params:", error.message);
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error("Missing Supabase environment variables for generateStaticParams");
     return [];
   }
 
-  if (!data || !Array.isArray(data)) {
-    console.warn("No valid event IDs returned:", data);
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+  const { data } = await supabase.from("past_events").select("id");
+  if (!data) {
     return [];
   }
-
-  console.log("Static params generated:", data);
   return data.map((event) => ({ id: event.id.toString() }));
 }
