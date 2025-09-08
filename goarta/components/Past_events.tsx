@@ -12,6 +12,14 @@ type Event = {
   thumbnail: string;
 };
 
+type SupabaseEvent = {
+  id: number;
+  title: string;
+  event_date: string;
+  location: string;
+  thumbnail: string;
+};
+
 const formatDate = (dateStr: string): string => {
   if (!dateStr) return "Not specified";
   const [year, month, day] = dateStr.split("-");
@@ -36,14 +44,22 @@ export default function PastEvents() {
     const fetchEvents = async () => {
       const { data, error } = await supabaseClient
         .from("past_events")
-        .select("id, title, date, location, thumbnail");
+        .select("id, title, event_date, location, thumbnail");
 
       if (error) {
         console.error("Supabase error:", error.message);
         setError("Failed to load past events. Please try again later.");
       } else {
         console.log("Fetched events:", data);
-        setEventsData(data as Event[]);
+        // Map the event_date to date property to maintain compatibility with existing code
+        const mappedData: Event[] = data?.map((event: SupabaseEvent) => ({
+          id: event.id,
+          title: event.title,
+          date: event.event_date,
+          location: event.location,
+          thumbnail: event.thumbnail
+        })) || [];
+        setEventsData(mappedData);
       }
     };
 
