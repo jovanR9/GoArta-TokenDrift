@@ -22,7 +22,6 @@ export const AnimatedTestimonials = ({
   autoplay?: boolean;
 }) => {
   const [active, setActive] = useState(0);
-  const [mounted, setMounted] = useState(false);
   const [imageRotations, setImageRotations] = useState<number[]>([]); // New state for image rotations
 
   const handleNext = useCallback(() => {
@@ -38,7 +37,6 @@ export const AnimatedTestimonials = ({
   };
 
   useEffect(() => {
-    setMounted(true);
     // Generate random rotations for each image only on the client side
     setImageRotations(testimonials.map(() => Math.floor(Math.random() * 21) - 10));
 
@@ -56,7 +54,7 @@ export const AnimatedTestimonials = ({
             <AnimatePresence>
               {testimonials.map((testimonial, index) => (
                 <motion.div
-                  key={testimonial.src + (mounted ? "mounted" : "server")} // Add key to force re-evaluation on client
+                  key={testimonial.src} // Keep keys stable across renders
                   initial={{
                     opacity: 0,
                     scale: 0.9,

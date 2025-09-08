@@ -1,0 +1,176 @@
+'use client';
+
+import React, { useEffect, useRef, useImperativeHandle, forwardRef, useState } from 'react';
+
+declare global {
+  interface Window {
+    rive: {
+      Rive: new (args: object) => RiveInstance;
+      Layout: new (args: object) => object;
+      Fit: { [key: string]: string };
+      Alignment: { [key: string]: string };
+    };
+  }
+}
+
+interface RiveInput {
+  name: string;
+  type: string;
+  value: number;
+}
+
+interface PastHistoryButtonProps {
+  onAnimationComplete: () => void;
+}
+
+export interface PastHistoryButtonRef {
+  resetAnimation: () => void;
+}
+
+const PastHistoryButton: React.FC<PastHistoryButtonProps> = forwardRef<PastHistoryButtonRef, PastHistoryButtonProps>(({ onAnimationComplete }, ref) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const riveRef = useRef<RiveInstance | null>(null);
+  const numberInputRef = useRef<RiveInput | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+    
+    let handleResize: () => void;
+
+    const loadRiveScript = () => {
+      if (typeof window === 'undefined') return;
+      if (window.rive) {
+        initializeRive();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/@rive-app/canvas@2.7.0';
+      script.onload = () => {
+        console.log('Rive script loaded (version 2.7.0)');
+        initializeRive();
+      };
+      document.head.appendChild(script);
+    };
+
+    const initializeRive = () => {
+      if (!canvasRef.current || !window.rive) return;
+
+      const newRiveInstance = new window.rive.Rive({
+        src: '/animations/bottle_hover.riv',
+        canvas: canvasRef.current,
+        artboard: 'Desktop - 1',
+        stateMachines: ['bottle hover'],
+        autoplay: true,
+        layout: new window.rive.Layout({
+          fit: window.rive.Fit.Contain,
+          alignment: window.rive.Alignment.BottomCenter
+        }),
+        onLoad: () => {
+          console.log('Rive loaded');
+          newRiveInstance.resizeDrawingSurfaceToCanvas();
+          try {
+            const inputs = newRiveInstance.stateMachineInputs('bottle hover');
+            console.log("Inputs found:", inputs.map((i: RiveInput) => ({ name: i.name, type: i.type })));
+            numberInputRef.current = inputs.find((i: RiveInput) => i.name === 'Number 1') || null;
+            
+            if (numberInputRef.current) {
+              console.log("✅ Found Number 1 input");
+            } else {
+              console.error("❌ Could not find 'Number 1'");
+            }
+          } catch (e: unknown) {
+            console.error("Error getting state machine inputs:", e);
+          }
+        },
+      });
+
+      riveRef.current = newRiveInstance;
+
+      handleResize = () => newRiveInstance.resizeDrawingSurfaceToCanvas();
+      window.addEventListener('resize', handleResize);
+    };
+
+    loadRiveScript();
+
+    return () => {
+      if (riveRef.current) {
+        riveRef.current.cleanup();
+        riveRef.current = null; // Explicitly nullify the ref
+      }
+      if (handleResize) {
+        window.removeEventListener('resize', handleResize);
+      }
+    };
+  }, [isMounted]);
+
+  const resetAnimation = () => {
+    if (riveRef.current) {
+      try {
+        riveRef.current.reset({ stateMachines: ['bottle hover'] });
+        console.log("PastHistoryButton animation reset");
+      } catch (e: unknown) {
+        console.error("Error resetting Rive animation:", e);
+        // Fallback if reset fails
+        if (numberInputRef.current) {
+          numberInputRef.current.value = 1;
+          console.log("PastHistoryButton animation reset to 1 (fallback)");
+        }
+      }
+    } else if (numberInputRef.current) {
+      numberInputRef.current.value = 1;
+      console.log("PastHistoryButton animation reset to 1 (fallback)");
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    resetAnimation: resetAnimation,
+  }));
+
+  const handleClick = () => {
+    if (numberInputRef.current) {
+      if (numberInputRef.current.value === 1) {
+        numberInputRef.current.value = 2;
+      } else {
+        numberInputRef.current.value = 1;
+      }
+      console.log("Number 1 toggled to:", numberInputRef.current.value);
+      
+      // Call onAnimationComplete after 500ms
+      setTimeout(() => {
+        onAnimationComplete();
+      }, 500);
+    }
+  };
+
+  return (
+    <>
+      {isMounted && (
+        <canvas
+          ref={canvasRef}
+          width="97"
+          height="71"
+          onClick={handleClick}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: '20px',
+            width: '110px',
+            height: '80px',
+            cursor: 'pointer',
+            zIndex: 31
+          }}
+          className=""
+        />
+      )}
+    </>
+  );
+});
+
+PastHistoryButton.displayName = 'PastHistoryButton';
+
+export default PastHistoryButton;
