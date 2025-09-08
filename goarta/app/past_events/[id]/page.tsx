@@ -2,11 +2,15 @@ import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import EventGallery from "@/components/EventGallery"; // Import the Client Component
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Initialize Supabase client with proper fallbacks
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing Supabase environment variables.");
+}
+
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
@@ -39,7 +43,18 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     );
   }
 
-  const gallery: string[] = data.gallery || [];
+  // Ensure gallery is an array
+  let gallery: string[] = [];
+  if (Array.isArray(data.gallery)) {
+    gallery = data.gallery;
+  } else if (typeof data.gallery === 'string') {
+    try {
+      gallery = JSON.parse(data.gallery);
+    } catch {
+      // If parsing fails, treat as a single item array or empty array
+      gallery = data.gallery ? [data.gallery] : [];
+    }
+  }
 
   return (
     <div className="min-h-screen bg-white text-black">
@@ -114,6 +129,15 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 }
 
 export async function generateStaticParams() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "";
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY || "";
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error("Missing Supabase environment variables for generateStaticParams");
+    return [];
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
   const { data } = await supabase.from("past_events").select("id");
   if (!data) {
     return [];
