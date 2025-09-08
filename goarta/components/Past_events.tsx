@@ -144,11 +144,14 @@ export default function PastEvents() {
               >
                 <div className="h-44 w-full overflow-hidden">
                   <motion.img
-                    src={event.thumbnail || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
+                    src={event.thumbnail && !event.thumbnail.includes('example.com') ? event.thumbnail : "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
                     alt={event.title}
                     className="w-full h-full object-cover"
                     whileHover={{ scale: 1.04 }}
                     transition={{ duration: 0.6 }}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop";
+                    }}
                   />
                 </div>
 

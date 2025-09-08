@@ -1,7 +1,7 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import FilterBar from "@/components/Filter"; // Updated import
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { supabaseClient } from "@/lib/supabaseClient";
 import Modal from "@/components/Modal"; // Updated import
@@ -10,6 +10,14 @@ type Event = {
   id: number;
   title: string;
   date: string;
+  location: string;
+  thumbnail: string;
+};
+
+type SupabaseEvent = {
+  id: number;
+  title: string;
+  event_date: string;
   location: string;
   thumbnail: string;
 };
@@ -42,18 +50,30 @@ export default function PastEvents() {
     category: "",
   });
 
+  const handleFilterChange = useCallback((newFilters: typeof filters) => {
+    setFilters(newFilters);
+  }, []);
+
   useEffect(() => {
     const fetchEvents = async () => {
       const { data, error } = await supabaseClient
         .from("past_events")
-        .select("id, title, date, location, thumbnail");
+        .select("id, title, event_date, location, thumbnail");
 
       if (error) {
         console.error("Error fetching events:", error.message);
         setError("Failed to load past events. Please try again later.");
       } else {
         console.log("Fetched events:", data);
-        let filteredData = data as Event[];
+        // Map the event_date to date property to maintain compatibility with existing code
+        const mappedData: Event[] = data?.map((event: SupabaseEvent) => ({
+          id: event.id,
+          title: event.title,
+          date: event.event_date,
+          location: event.location,
+          thumbnail: event.thumbnail
+        })) || [];
+        let filteredData = mappedData;
         if (filters.search || filters.month || filters.year || filters.location || filters.category) {
           filteredData = filteredData.filter((event) => {
             const formattedDate = formatDate(event.date).toLowerCase();
@@ -105,7 +125,7 @@ export default function PastEvents() {
 
       <div className="mt-16">
         <FilterBar
-          onFilterChange={(newFilters) => setFilters(newFilters)}
+          onFilterChange={handleFilterChange}
         />
       </div>
 
@@ -136,11 +156,14 @@ export default function PastEvents() {
               >
                 <div className="h-44 w-full overflow-hidden">
                   <motion.img
-                    src={event.thumbnail || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
+                    src={event.thumbnail && !event.thumbnail.includes('example.com') ? event.thumbnail : "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
                     alt={event.title}
                     className="w-full h-full object-cover"
                     whileHover={{ scale: 1.04 }}
                     transition={{ duration: 0.6 }}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop";
+                    }}
                   />
                 </div>
 
@@ -196,12 +219,15 @@ export default function PastEvents() {
           <div className="space-y-4">
             <div className="relative w-full h-64">
               <motion.img
-                src={selectedEvent.thumbnail || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
+                src={selectedEvent.thumbnail && !selectedEvent.thumbnail.includes('example.com') ? selectedEvent.thumbnail : "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
                 alt={selectedEvent.title}
                 className="w-full h-full object-cover rounded-lg"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
+                onError={(e) => {
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop";
+                }}
               />
             </div>
             <p><strong>Date:</strong> {formatDate(selectedEvent.date)}</p>
