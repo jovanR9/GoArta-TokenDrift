@@ -16,7 +16,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   logout: () => Promise<void>;
-  socialLogin: (provider: 'google' | 'facebook') => Promise<void>;
+  socialLogin: (provider: 'google') => Promise<void>;
   resendConfirmationEmail: (email: string) => Promise<{ success: boolean; message?: string; error?: string }>;
   isLoading: boolean;
 }
@@ -184,7 +184,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const socialLogin = async (provider: 'google' | 'facebook') => {
+  const socialLogin = async (provider: 'google') => {
     try {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider,
