@@ -7,7 +7,7 @@ import AIGeneratedItineraryCard from "@/components/AIGeneratedItineraryCard";
 import AnimatedTestimonialsDemo from "@/components/animated-testimonials-demo";
 import Footer from "@/components/Footer";
 import VideoSection from "@/components/Video";
-import TravelCarousel from "@/components/TravelCarousel";
+import UpcomingEventsCarousel from "@/components/TravelCarousel";
 
 import EventCard from "@/components/EventCard";
 
@@ -48,9 +48,9 @@ export default function Home() {
           <Info />
         </div>
 
-        {/* Adding the TravelCarousel component here */}
+        {/* Adding the UpcomingEventsCarousel component here */}
         <div className="flex justify-center items-center min-h-screen">
-          <TravelCarousel />
+          <UpcomingEventsCarousel />
         </div>
 
         <div className="flex justify-center items-center min-h-screen  ">

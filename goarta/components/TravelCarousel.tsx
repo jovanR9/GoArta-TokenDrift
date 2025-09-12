@@ -4,12 +4,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 
 // TypeScript interfaces
-interface TravelData {
-  place: string;
+interface EventData {
+  id: number;
   title: string;
-  title2: string;
+  date: string;
+  places: string;
   description: string;
   image: string;
+  alt: string;
 }
 
 interface CarouselProps {
@@ -17,61 +19,18 @@ interface CarouselProps {
   loopDelay?: number;
 }
 
-const TravelCarousel: React.FC<CarouselProps> = ({ 
+const UpcomingEventsCarousel: React.FC<CarouselProps> = ({ 
   autoLoop = true, 
-  loopDelay = 3000 
+  loopDelay = 5000 
 }) => {
-  // Data
-  const data: TravelData[] = [
-    {
-      place: 'Switzerland Alps',
-      title: 'SAINT',
-      title2: 'ANTONIEN',
-      description: "Tucked away in the Switzerland Alps, Saint Antönien offers an idyllic retreat for those seeking tranquility and adventure alike. It's a hidden gem for backcountry skiing in winter and boasts lush trails for hiking and mountain biking during the warmer months.",
-      image: 'https://assets.codepen.io/3685267/timed-cards-1.jpg'
-    },
-    {
-      place: 'Japan Alps',
-      title: 'NANGANO',
-      title2: 'PREFECTURE',
-      description: "Nagano Prefecture, set within the majestic Japan Alps, is a cultural treasure trove with its historic shrines and temples, particularly the famous Zenkō-ji. The region is also a hotspot for skiing and snowboarding, offering some of the country's best powder.",
-      image: 'https://assets.codepen.io/3685267/timed-cards-2.jpg'
-    },
-    {
-      place: 'Sahara Desert - Morocco',
-      title: 'MARRAKECH',
-      title2: 'MEROUGA',
-      description: 'The journey from the vibrant souks and palaces of Marrakech to the tranquil, starlit sands of Merzouga showcases the diverse splendor of Morocco. Camel treks and desert camps offer an unforgettable immersion into the nomadic way of life.',
-      image: 'https://assets.codepen.io/3685267/timed-cards-3.jpg'
-    },
-    {
-      place: 'Sierra Nevada - USA',
-      title: 'YOSEMITE',
-      title2: 'NATIONAL PARK',
-      description: 'Yosemite National Park is a showcase of the American wilderness, revered for its towering granite monoliths, ancient giant sequoias, and thundering waterfalls. The park offers year-round recreational activities, from rock climbing to serene valley walks.',
-      image: 'https://assets.codepen.io/3685267/timed-cards-4.jpg'
-    },
-    {
-      place: 'Tarifa - Spain',
-      title: 'LOS LANCES',
-      title2: 'BEACH',
-      description: "Los Lances Beach in Tarifa is a coastal paradise known for its consistent winds, making it a world-renowned spot for kitesurfing and windsurfing. The beach's long, sandy shores provide ample space for relaxation and sunbathing, with a vibrant atmosphere of beach bars and cafes.",
-      image: 'https://assets.codepen.io/3685267/timed-cards-5.jpg'
-    },
-    {
-      place: 'Cappadocia - Turkey',
-      title: 'Göreme',
-      title2: 'Valley',
-      description: 'Göreme Valley in Cappadocia is a historical marvel set against a unique geological backdrop, where centuries of wind and water have sculpted the landscape into whimsical formations. The valley is also famous for its open-air museums, underground cities, and the enchanting experience of hot air ballooning.',
-      image: 'https://assets.codepen.io/3685267/timed-cards-6.jpg'
-    },
-  ];
-
   // State
-  const [order, setOrder] = useState<number[]>([0, 1, 2, 3, 4, 5]);
+  const [events, setEvents] = useState<EventData[]>([]);
+  const [order, setOrder] = useState<number[]>([]);
   const [detailsEven, setDetailsEven] = useState<boolean>(true);
   const [isAnimating, setIsAnimating] = useState<boolean>(false);
   const [imagesLoaded, setImagesLoaded] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -94,9 +53,31 @@ const TravelCarousel: React.FC<CarouselProps> = ({
   const numberSize = 50;
   const ease = "sine.inOut";
 
+  // Fetch events data
+  const fetchEvents = async () => {
+    try {
+      const response = await fetch('/api/events');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data: EventData[] = await response.json();
+      setEvents(data);
+      setOrder(data.map((_, index) => index));
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Load images
   const loadImages = async () => {
-    const promises = data.map(({ image }) => 
+    if (events.length === 0) {
+      setImagesLoaded(true);
+      return;
+    }
+    
+    const promises = events.map(({ image }) => 
       new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
@@ -116,6 +97,8 @@ const TravelCarousel: React.FC<CarouselProps> = ({
 
   // Initialize animation
   const init = () => {
+    if (events.length === 0) return;
+    
     const [active, ...rest] = order;
     const detailsActive = detailsEven ? detailsEvenRef.current : detailsOddRef.current;
     const detailsInactive = detailsEven ? detailsOddRef.current : detailsEvenRef.current;
@@ -213,7 +196,7 @@ const TravelCarousel: React.FC<CarouselProps> = ({
   // Step function for carousel progression
   const step = (): Promise<void> => {
     return new Promise((resolve) => {
-      if (isAnimating) return resolve();
+      if (isAnimating || events.length === 0) return resolve();
       
       setIsAnimating(true);
       
@@ -227,16 +210,16 @@ const TravelCarousel: React.FC<CarouselProps> = ({
       const detailsInactive = newDetailsEven ? detailsOddRef.current : detailsEvenRef.current;
       
       // Update content
-      const activeData = data[newOrder[0]];
+      const activeData = events[newOrder[0]];
       if (detailsActive) {
         const textEl = detailsActive.querySelector('.text');
         const title1El = detailsActive.querySelector('.title-1');
         const title2El = detailsActive.querySelector('.title-2');
         const descEl = detailsActive.querySelector('.desc');
         
-        if (textEl) textEl.textContent = activeData.place;
+        if (textEl) textEl.textContent = activeData.date;
         if (title1El) title1El.textContent = activeData.title;
-        if (title2El) title2El.textContent = activeData.title2;
+        if (title2El) title2El.textContent = activeData.places;
         if (descEl) descEl.textContent = activeData.description;
       }
 
@@ -366,7 +349,7 @@ const TravelCarousel: React.FC<CarouselProps> = ({
 
   // Manual navigation
   const handlePrevious = () => {
-    if (!isAnimating) {
+    if (!isAnimating && events.length > 0) {
       const newOrder = [order[order.length - 1], ...order.slice(0, -1)];
       setOrder(newOrder);
       step();
@@ -374,14 +357,14 @@ const TravelCarousel: React.FC<CarouselProps> = ({
   };
 
   const handleNext = () => {
-    if (!isAnimating) {
+    if (!isAnimating && events.length > 0) {
       step();
     }
   };
 
   // Effects
   useEffect(() => {
-    loadImages();
+    fetchEvents();
     
     return () => {
       if (loopTimeoutRef.current) {
@@ -391,10 +374,16 @@ const TravelCarousel: React.FC<CarouselProps> = ({
   }, []);
 
   useEffect(() => {
-    if (imagesLoaded) {
+    if (!loading && !error && events.length > 0) {
+      loadImages();
+    }
+  }, [loading, error, events]);
+
+  useEffect(() => {
+    if (imagesLoaded && events.length > 0) {
       init();
     }
-  }, [imagesLoaded]);
+  }, [imagesLoaded, events]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -407,6 +396,7 @@ const TravelCarousel: React.FC<CarouselProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Styles
   const styles = {
     container: {
       margin: 0,
@@ -583,19 +573,43 @@ const TravelCarousel: React.FC<CarouselProps> = ({
     },
   };
 
+  if (loading) {
+    return (
+      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{color: 'white', fontSize: '24px'}}>Loading upcoming events...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{color: 'red', fontSize: '24px'}}>Error: {error}</div>
+      </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{color: 'white', fontSize: '24px'}}>No upcoming events at the moment.</div>
+      </div>
+    );
+  }
+
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500&display=swap" rel="stylesheet" />
       <div ref={containerRef} style={styles.container}>
         
         {/* Cards */}
-        {data.map((item, index) => (
-          <div key={index}>
+        {events.map((event, index) => (
+          <div key={event.id}>
             <div
               ref={el => cardRefs.current[index] = el!}
               style={{
                 ...styles.card,
-                backgroundImage: `url(${item.image})`,
+                backgroundImage: `url(${event.image})`,
               }}
             />
             <div
@@ -603,9 +617,9 @@ const TravelCarousel: React.FC<CarouselProps> = ({
               style={styles.cardContent}
             >
               <div style={styles.contentStart}></div>
-              <div style={styles.contentPlace}>{item.place}</div>
-              <div style={styles.contentTitle}>{item.title}</div>
-              <div style={styles.contentTitle}>{item.title2}</div>
+              <div style={styles.contentPlace}>{event.date}</div>
+              <div style={styles.contentTitle}>{event.title}</div>
+              <div style={styles.contentTitle}>{event.places}</div>
             </div>
           </div>
         ))}
@@ -615,25 +629,25 @@ const TravelCarousel: React.FC<CarouselProps> = ({
           <div style={styles.placeBox}>
             <div className="text" style={styles.placeBoxText}>
               <div style={styles.placeBoxTextBefore}></div>
-              {data[0].place}
+              {events.length > 0 ? events[0].date : ''}
             </div>
           </div>
           <div style={styles.titleBox}>
-            <div className="title-1" style={styles.title}>{data[0].title}</div>
+            <div className="title-1" style={styles.title}>{events.length > 0 ? events[0].title : ''}</div>
           </div>
           <div style={styles.titleBox}>
-            <div className="title-2" style={styles.title}>{data[0].title2}</div>
+            <div className="title-2" style={styles.title}>{events.length > 0 ? events[0].places : ''}</div>
           </div>
           <div className="desc" style={styles.desc}>
-            {data[0].description}
+            {events.length > 0 ? events[0].description : ''}
           </div>
           <div className="cta" style={styles.cta}>
             <button style={styles.bookmark}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={styles.svg}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '20px', height: '20px'}}>
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
-            <button style={styles.discover}>Discover Location</button>
+            <button style={styles.discover}>View Event Details</button>
           </div>
         </div>
 
@@ -641,37 +655,37 @@ const TravelCarousel: React.FC<CarouselProps> = ({
           <div style={styles.placeBox}>
             <div className="text" style={styles.placeBoxText}>
               <div style={styles.placeBoxTextBefore}></div>
-              {data[0].place}
+              {events.length > 1 ? events[1].date : (events.length > 0 ? events[0].date : '')}
             </div>
           </div>
           <div style={styles.titleBox}>
-            <div className="title-1" style={styles.title}>{data[0].title}</div>
+            <div className="title-1" style={styles.title}>{events.length > 1 ? events[1].title : (events.length > 0 ? events[0].title : '')}</div>
           </div>
           <div style={styles.titleBox}>
-            <div className="title-2" style={styles.title}>{data[0].title2}</div>
+            <div className="title-2" style={styles.title}>{events.length > 1 ? events[1].places : (events.length > 0 ? events[0].places : '')}</div>
           </div>
           <div className="desc" style={styles.desc}>
-            {data[0].description}
+            {events.length > 1 ? events[1].description : (events.length > 0 ? events[0].description : '')}
           </div>
           <div className="cta" style={styles.cta}>
             <button style={styles.bookmark}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={styles.svg}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '20px', height: '20px'}}>
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
-            <button style={styles.discover}>Discover Location</button>
+            <button style={styles.discover}>View Event Details</button>
           </div>
         </div>
 
         {/* Pagination */}
         <div ref={paginationRef} style={styles.pagination}>
           <div style={styles.arrow} onClick={handlePrevious}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={styles.svg}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{width: '20px', height: '20px'}}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           </div>
           <div style={{...styles.arrow, ...styles.arrowRight}} onClick={handleNext}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={styles.svg}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{width: '20px', height: '20px'}}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </div>
@@ -681,7 +695,7 @@ const TravelCarousel: React.FC<CarouselProps> = ({
             </div>
           </div>
           <div style={styles.slideNumbers}>
-            {data.map((_, index) => (
+            {events.map((_, index) => (
               <div
                 key={index}
                 ref={el => slideItemRefs.current[index] = el!}
@@ -699,4 +713,4 @@ const TravelCarousel: React.FC<CarouselProps> = ({
   );
 };
 
-export default TravelCarousel;
+export default UpcomingEventsCarousel;
