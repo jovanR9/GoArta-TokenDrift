@@ -75,7 +75,6 @@ const TravelCarousel: React.FC<CarouselProps> = ({
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
-  const indicatorRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
   const detailsEvenRef = useRef<HTMLDivElement>(null);
   const detailsOddRef = useRef<HTMLDivElement>(null);
@@ -177,8 +176,6 @@ const TravelCarousel: React.FC<CarouselProps> = ({
 
       gsap.set(slideItemRefs.current[i], { x: (index + 1) * numberSize });
     });
-
-    gsap.set(indicatorRef.current, { x: -window.innerWidth });
 
     // Start animation sequence
     const startDelay = 0.6;
@@ -362,24 +359,6 @@ const TravelCarousel: React.FC<CarouselProps> = ({
   const loop = async () => {
     if (!autoLoop) return;
     
-    await new Promise(resolve => {
-      gsap.to(indicatorRef.current, {
-        x: 0,
-        duration: 2,
-        onComplete: resolve
-      });
-    });
-    
-    await new Promise(resolve => {
-      gsap.to(indicatorRef.current, {
-        x: window.innerWidth,
-        duration: 0.8,
-        delay: 0.3,
-        onComplete: resolve
-      });
-    });
-    
-    gsap.set(indicatorRef.current, { x: -window.innerWidth });
     await step();
     
     loopTimeoutRef.current = setTimeout(loop, loopDelay);
@@ -438,15 +417,6 @@ const TravelCarousel: React.FC<CarouselProps> = ({
       fontFamily: '"Inter", sans-serif',
       width: '100vw',
       height: '100vh',
-    },
-    indicator: {
-      position: 'fixed' as const,
-      left: 0,
-      right: 0,
-      top: 0,
-      height: '5px',
-      zIndex: 60,
-      backgroundColor: '#ecad29',
     },
     card: {
       position: 'absolute' as const,
@@ -617,7 +587,6 @@ const TravelCarousel: React.FC<CarouselProps> = ({
     <>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500&display=swap" rel="stylesheet" />
       <div ref={containerRef} style={styles.container}>
-        <div ref={indicatorRef} style={styles.indicator}></div>
         
         {/* Cards */}
         {data.map((item, index) => (
