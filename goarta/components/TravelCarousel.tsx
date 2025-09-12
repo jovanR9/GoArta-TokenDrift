@@ -42,7 +42,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   const cardContentRefs = useRef<HTMLDivElement[]>([]);
   const slideItemRefs = useRef<HTMLDivElement[]>([]);
   const progressRef = useRef<HTMLDivElement>(null);
-  const loopTimeoutRef = useRef<NodeJS.Timeout>();
+  const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Animation variables
   const offsetTopRef = useRef<number>(200);
@@ -61,8 +61,23 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: EventData[] = await response.json();
-      setEvents(data);
-      setOrder(data.map((_, index) => index));
+      
+      // Add fallback images for events that don't have images
+      const eventsWithImages = data.map((event, index) => {
+        // If event doesn't have an image, use a fallback image
+        if (!event.image || event.image.trim() === '') {
+          // Use a fallback image URL
+          return {
+            ...event,
+            image: `https://picsum.photos/800/600?random=${index + 1}`,
+            alt: `Image for ${event.title}`
+          };
+        }
+        return event;
+      });
+      
+      setEvents(eventsWithImages);
+      setOrder(eventsWithImages.map((_, index) => index));
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'An unknown error occurred');
     } finally {
@@ -344,6 +359,9 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     
     await step();
     
+    if (loopTimeoutRef.current) {
+      clearTimeout(loopTimeoutRef.current);
+    }
     loopTimeoutRef.current = setTimeout(loop, loopDelay);
   };
 
@@ -571,6 +589,26 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       backgroundColor: '#fff',
       zIndex: 100,
     },
+    // New styles for "Upcoming Events" text on the left
+    upcomingEventsText: {
+      position: 'absolute' as const,
+      top: '100px',
+      left: '60px',
+      zIndex: 30,
+      color: 'white',
+    },
+    upcomingEventsTitle: {
+      fontSize: '24px',
+      fontWeight: 600,
+      marginBottom: '10px',
+      color: '#ecad29',
+    },
+    upcomingEventsSubtitle: {
+      fontSize: '48px',
+      fontWeight: 700,
+      fontFamily: '"Oswald", sans-serif',
+      lineHeight: '1.2',
+    },
   };
 
   if (loading) {
@@ -597,23 +635,41 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     );
   }
 
+  // Helper function to safely set refs
+  const setCardRef = (index: number) => (el: HTMLDivElement | null) => {
+    if (el) cardRefs.current[index] = el;
+  };
+  
+  const setCardContentRef = (index: number) => (el: HTMLDivElement | null) => {
+    if (el) cardContentRefs.current[index] = el;
+  };
+  
+  const setSlideItemRef = (index: number) => (el: HTMLDivElement | null) => {
+    if (el) slideItemRefs.current[index] = el;
+  };
+
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500&display=swap" rel="stylesheet" />
       <div ref={containerRef} style={styles.container}>
+        {/* "Upcoming Events" text on the left side */}
+        <div style={styles.upcomingEventsText}>
+          <div style={styles.upcomingEventsTitle}>UPCOMING</div>
+          <div style={styles.upcomingEventsSubtitle}>Events</div>
+        </div>
         
         {/* Cards */}
         {events.map((event, index) => (
           <div key={event.id}>
             <div
-              ref={el => cardRefs.current[index] = el!}
+              ref={setCardRef(index)}
               style={{
                 ...styles.card,
                 backgroundImage: `url(${event.image})`,
               }}
             />
             <div
-              ref={el => cardContentRefs.current[index] = el!}
+              ref={setCardContentRef(index)}
               style={styles.cardContent}
             >
               <div style={styles.contentStart}></div>
@@ -698,7 +754,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
             {events.map((_, index) => (
               <div
                 key={index}
-                ref={el => slideItemRefs.current[index] = el!}
+                ref={setSlideItemRef(index)}
                 style={styles.slideItem}
               >
                 {index + 1}
