@@ -1,88 +1,80 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { supabaseClient } from "@/app/api/supabaselogin/supabase";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { supabaseClient } from '@/app/api/supabaselogin/supabase';
 
-// User type (matches your users table)
+// Types
 interface User {
-  id: string; // Supabase Auth UID
-  fname?: string;
-  lname?: string;
+  id: string;
   email: string;
-  short_bio?: string;
-  profile_pic?: string;
-  phnumber?: string;
-  countrycode?: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
-  signup: (
-    email: string,
-    password: string,
-    fname: string,
-    lname: string,
-    phnumber?: string
-  ) => Promise<{ success: boolean; error?: string; message?: string }>;
+  signup: (email: string, password: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string; message?: string }>;
   logout: () => Promise<void>;
-  socialLogin: (provider: "google" | "facebook") => Promise<void>;
-  updateProfile: (updates: Partial<User>) => Promise<{ success: boolean; error?: string }>;
+  socialLogin: (provider: 'google') => Promise<void>;
+  resendConfirmationEmail: (email: string) => Promise<{ success: boolean; message?: string; error?: string }>;
   isLoading: boolean;
 }
 
+// Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Provider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch profile by auth_id
-  const fetchUserProfile = async (auth_id: string, email: string) => {
-    const { data, error } = await supabaseClient
-      .from("users")
-      .select("*")
-      .eq("auth_id", auth_id)
-      .single();
-
-    if (error) {
-      console.error("Error fetching profile:", error.message);
-      return null;
-    }
-
-    return {
-      id: auth_id,
-      email,
-      fname: data.fname,
-      lname: data.lname,
-      short_bio: data.short_bio,
-      profile_pic: data.profile_pic,
-      phnumber: data.phnumber,
-      countrycode: data.countrycode,
-    } as User;
-  };
-
-  // Check session on mount
+  // Check active session on mount
   useEffect(() => {
     const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabaseClient.auth.getSession();
-
-      if (session?.user) {
-        const profile = await fetchUserProfile(session.user.id, session.user.email || "");
-        if (profile) setUser(profile);
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session?.user) {
+          const { id, email } = session.user;
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', id)
+            .single();
+            
+          setUser({
+            id,
+            email: email || '',
+            first_name: profile?.first_name || '',
+            last_name: profile?.last_name || ''
+          });
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     checkSession();
 
-    const { data: listener } = supabaseClient.auth.onAuthStateChange(
-      async (_event, session) => {
+    // Listen for auth changes
+    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+      async (event, session) => {
         if (session?.user) {
-          const profile = await fetchUserProfile(session.user.id, session.user.email || "");
-          if (profile) setUser(profile);
+          const { id, email } = session.user;
+          const { data: profile } = await supabaseClient
+            .from('profiles')
+            .select('first_name, last_name')
+            .eq('id', id)
+            .single();
+            
+          setUser({
+            id,
+            email: email || '',
+            first_name: profile?.first_name || '',
+            last_name: profile?.last_name || ''
+          });
         } else {
           setUser(null);
         }
@@ -91,11 +83,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     return () => {
-      listener?.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
-  // Login
   const login = async (email: string, password: string) => {
     try {
       const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -103,108 +94,147 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         password,
       });
 
-      if (error) return { success: false, error: error.message };
+      if (error) {
+        // Provide a more user-friendly error message for unconfirmed emails
+        if (error.message.includes("Email not confirmed")) {
+          return { 
+            success: false, 
+            error: "Please check your email and confirm your account before logging in." 
+          };
+        }
+        return { success: false, error: error.message };
+      }
 
       if (data?.user) {
-        const profile = await fetchUserProfile(data.user.id, data.user.email || "");
-        if (profile) setUser(profile);
+        const { id, email: userEmail } = data.user;
+        const { data: profile } = await supabaseClient
+          .from('profiles')
+          .select('first_name, last_name')
+          .eq('id', id)
+          .single();
+          
+        setUser({
+          id,
+          email: userEmail || '',
+          first_name: profile?.first_name || '',
+          last_name: profile?.last_name || ''
+        });
+        
         return { success: true };
       }
-      return { success: false, error: "Login failed" };
-    } catch (err: any) {
-      return { success: false, error: err.message };
+      
+      return { success: false, error: 'Login failed' };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      return { success: false, error: errorMessage };
     }
   };
 
-  // Signup
-  const signup = async (
-    email: string,
-    password: string,
-    fname: string,
-    lname: string,
-    phnumber?: string
-  ) => {
+  const signup = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
       const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
-        options: { emailRedirectTo: `${window.location.origin}/login` },
+        options: {
+          data: {
+            first_name: firstName,
+            last_name: lastName,
+          },
+          emailRedirectTo: `${window.location.origin}/login`
+        },
       });
 
-      if (error) return { success: false, error: error.message };
-
-      if (data?.user) {
-        // Insert into users table
-        await supabaseClient.from("users").insert({
-          auth_id: data.user.id,
-          email,
-          fname,
-          lname,
-          phnumber: phnumber || "",
-        });
-
-        setUser({
-          id: data.user.id,
-          email,
-          fname,
-          lname,
-          phnumber,
-        });
-
-        return { success: true, message: "Please confirm your email before logging in." };
+      if (error) {
+        return { success: false, error: error.message };
       }
 
-      return { success: false, error: "Signup failed" };
-    } catch (err: any) {
-      return { success: false, error: err.message };
+      if (data?.user) {
+        // Check if user needs to confirm their email
+        if (data.user.identities && data.user.identities.length === 0) {
+          // This means the user already exists and is confirmed
+          setUser({
+            id: data.user.id,
+            email,
+            first_name: firstName,
+            last_name: lastName
+          });
+          return { success: true };
+        } else {
+          // New user, needs to confirm email
+          return { 
+            success: true, 
+            message: "Please check your email to confirm your account before logging in." 
+          };
+        }
+      }
+      
+      return { success: false, error: 'Signup failed' };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      return { success: false, error: errorMessage };
     }
   };
 
-  // Social login (Google, Facebook)
-  const socialLogin = async (provider: "google" | "facebook") => {
+  const logout = async () => {
+    try {
+      await supabaseClient.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
+
+  const socialLogin = async (provider: 'google') => {
     try {
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider,
-        options: { redirectTo: `${window.location.origin}/` },
+        options: {
+          redirectTo: `${window.location.origin}/`
+        }
       });
-      if (error) console.error("Social login error:", error.message);
-    } catch (err: any) {
-      console.error("Social login error:", err.message);
+      
+      if (error) {
+        console.error('Social login error:', error);
+      }
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      console.error('Social login error:', errorMessage);
     }
   };
 
-  // Update profile
-  const updateProfile = async (updates: Partial<User>) => {
-    if (!user) return { success: false, error: "No user logged in" };
-
-    const { error } = await supabaseClient
-      .from("users")
-      .update(updates)
-      .eq("auth_id", user.id);
-
-    if (error) return { success: false, error: error.message };
-
-    setUser({ ...user, ...updates });
-    return { success: true };
-  };
-
-  // Logout
-  const logout = async () => {
-    await supabaseClient.auth.signOut();
-    setUser(null);
+  const resendConfirmationEmail = async (email: string) => {
+    try {
+      const { error } = await supabaseClient.auth.resend({
+        type: 'signup',
+        email: email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`
+        }
+      });
+      
+      if (error) {
+        return { success: false, error: error.message };
+      }
+      
+      return { success: true, message: "Confirmation email has been resent. Please check your inbox." };
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      return { success: false, error: errorMessage };
+    }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, login, signup, logout, socialLogin, updateProfile, isLoading }}
-    >
+    <AuthContext.Provider value={{ user, login, signup, logout, socialLogin, resendConfirmationEmail, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// Custom hook to use the auth context
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider");
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
   return context;
 };
