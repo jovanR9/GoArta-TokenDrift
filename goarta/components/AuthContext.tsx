@@ -24,6 +24,17 @@ interface AuthContextType {
 // Create context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to get the correct redirect URL
+const getRedirectURL = () => {
+  // Check if we're in development
+  if (process.env.NODE_ENV === 'development') {
+    return 'http://localhost:3000';
+  }
+  
+  // In production, use the origin
+  return window.location.origin;
+};
+
 // Provider component
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -132,6 +143,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signup = async (email: string, password: string, firstName: string, lastName: string) => {
     try {
+      const redirectURL = getRedirectURL();
+      
       const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
@@ -140,7 +153,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             first_name: firstName,
             last_name: lastName,
           },
-          emailRedirectTo: `${window.location.origin}/login`
+          emailRedirectTo: `${redirectURL}/login`
         },
       });
 
@@ -186,10 +199,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const socialLogin = async (provider: 'google') => {
     try {
+      const redirectURL = getRedirectURL();
+      
       const { error } = await supabaseClient.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: redirectURL
         }
       });
       
@@ -204,11 +219,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const resendConfirmationEmail = async (email: string) => {
     try {
+      const redirectURL = getRedirectURL();
+      
       const { error } = await supabaseClient.auth.resend({
         type: 'signup',
         email: email,
         options: {
-          emailRedirectTo: `${window.location.origin}/login`
+          emailRedirectTo: `${redirectURL}/login`
         }
       });
       
