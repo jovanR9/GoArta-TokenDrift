@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
 
 // TypeScript interfaces
@@ -86,7 +86,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   };
 
   // Load images
-  const loadImages = async () => {
+  const loadImages = useCallback(async () => {
     if (events.length === 0) {
       setImagesLoaded(true);
       return;
@@ -108,108 +108,10 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       console.error("One or more images failed to load", error);
       setImagesLoaded(true); // Continue anyway
     }
-  };
-
-  // Initialize animation
-  const init = () => {
-    if (events.length === 0) return;
-    
-    const [active, ...rest] = order;
-    const detailsActive = detailsEven ? detailsEvenRef.current : detailsOddRef.current;
-    const detailsInactive = detailsEven ? detailsOddRef.current : detailsEvenRef.current;
-    const { innerHeight: height, innerWidth: width } = window;
-    
-    offsetTopRef.current = height - 430;
-    offsetLeftRef.current = width - 830;
-
-    // Set initial positions
-    gsap.set(paginationRef.current, {
-      top: offsetTopRef.current + 330,
-      left: offsetLeftRef.current,
-      y: 200,
-      opacity: 0,
-      zIndex: 60,
-    });
-
-    gsap.set(cardRefs.current[active], {
-      x: 0,
-      y: 0,
-      width: window.innerWidth,
-      height: window.innerHeight,
-    });
-
-    gsap.set(cardContentRefs.current[active], { x: 0, y: 0, opacity: 0 });
-    gsap.set(detailsActive, { opacity: 0, zIndex: 22, x: -200 });
-    gsap.set(detailsInactive, { opacity: 0, zIndex: 12 });
-
-    // Set inactive details
-    const inactiveSelectors = ['.text', '.title-1', '.title-2', '.desc', '.cta'];
-    inactiveSelectors.forEach((selector, index) => {
-      const element = detailsInactive?.querySelector(selector);
-      if (element) {
-        gsap.set(element, { y: index < 3 ? 100 : index === 3 ? 50 : 60 });
-      }
-    });
-
-    gsap.set(progressRef.current, {
-      width: 500 * (1 / order.length) * (active + 1),
-    });
-
-    // Position other cards
-    rest.forEach((i, index) => {
-      gsap.set(cardRefs.current[i], {
-        x: offsetLeftRef.current + 400 + index * (cardWidth + gap),
-        y: offsetTopRef.current,
-        width: cardWidth,
-        height: cardHeight,
-        zIndex: 30,
-        borderRadius: 10,
-      });
-
-      gsap.set(cardContentRefs.current[i], {
-        x: offsetLeftRef.current + 400 + index * (cardWidth + gap),
-        zIndex: 40,
-        y: offsetTopRef.current + cardHeight - 100,
-      });
-
-      gsap.set(slideItemRefs.current[i], { x: (index + 1) * numberSize });
-    });
-
-    // Start animation sequence
-    const startDelay = 0.6;
-    gsap.to(coverRef.current, {
-      x: width + 400,
-      delay: 0.5,
-      ease,
-      onComplete: () => {
-        setTimeout(() => {
-          if (autoLoop) loop();
-        }, 500);
-      },
-    });
-
-    // Animate cards into position
-    rest.forEach((i, index) => {
-      gsap.to(cardRefs.current[i], {
-        x: offsetLeftRef.current + index * (cardWidth + gap),
-        zIndex: 30,
-        delay: startDelay + 0.05 * index,
-        ease,
-      });
-      gsap.to(cardContentRefs.current[i], {
-        x: offsetLeftRef.current + index * (cardWidth + gap),
-        zIndex: 40,
-        delay: startDelay + 0.05 * index,
-        ease,
-      });
-    });
-
-    gsap.to(paginationRef.current, { y: 0, opacity: 1, ease, delay: startDelay });
-    gsap.to(detailsActive, { opacity: 1, x: 0, ease, delay: startDelay });
-  };
+  }, [events]);
 
   // Step function for carousel progression
-  const step = (): Promise<void> => {
+  const step = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
       if (isAnimating || events.length === 0) return resolve();
       
@@ -351,10 +253,10 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         }
       });
     });
-  };
+  }, [detailsEven, events, isAnimating, order]);
 
   // Loop function
-  const loop = async () => {
+  const loop = useCallback(async () => {
     if (!autoLoop) return;
     
     await step();
@@ -363,7 +265,105 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       clearTimeout(loopTimeoutRef.current);
     }
     loopTimeoutRef.current = setTimeout(loop, loopDelay);
-  };
+  }, [autoLoop, loopDelay, step]);
+
+  // Initialize animation
+  const init = useCallback(() => {
+    if (events.length === 0) return;
+    
+    const [active, ...rest] = order;
+    const detailsActive = detailsEven ? detailsEvenRef.current : detailsOddRef.current;
+    const detailsInactive = detailsEven ? detailsOddRef.current : detailsEvenRef.current;
+    const { innerHeight: height, innerWidth: width } = window;
+    
+    offsetTopRef.current = height - 430;
+    offsetLeftRef.current = width - 830;
+
+    // Set initial positions
+    gsap.set(paginationRef.current, {
+      top: offsetTopRef.current + 330,
+      left: offsetLeftRef.current,
+      y: 200,
+      opacity: 0,
+      zIndex: 60,
+    });
+
+    gsap.set(cardRefs.current[active], {
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
+    gsap.set(cardContentRefs.current[active], { x: 0, y: 0, opacity: 0 });
+    gsap.set(detailsActive, { opacity: 0, zIndex: 22, x: -200 });
+    gsap.set(detailsInactive, { opacity: 0, zIndex: 12 });
+
+    // Set inactive details
+    const inactiveSelectors = ['.text', '.title-1', '.title-2', '.desc', '.cta'];
+    inactiveSelectors.forEach((selector, index) => {
+      const element = detailsInactive?.querySelector(selector);
+      if (element) {
+        gsap.set(element, { y: index < 3 ? 100 : index === 3 ? 50 : 60 });
+      }
+    });
+
+    gsap.set(progressRef.current, {
+      width: 500 * (1 / order.length) * (active + 1),
+    });
+
+    // Position other cards
+    rest.forEach((i, index) => {
+      gsap.set(cardRefs.current[i], {
+        x: offsetLeftRef.current + 400 + index * (cardWidth + gap),
+        y: offsetTopRef.current,
+        width: cardWidth,
+        height: cardHeight,
+        zIndex: 30,
+        borderRadius: 10,
+      });
+
+      gsap.set(cardContentRefs.current[i], {
+        x: offsetLeftRef.current + 400 + index * (cardWidth + gap),
+        zIndex: 40,
+        y: offsetTopRef.current + cardHeight - 100,
+      });
+
+      gsap.set(slideItemRefs.current[i], { x: (index + 1) * numberSize });
+    });
+
+    // Start animation sequence
+    const startDelay = 0.6;
+    gsap.to(coverRef.current, {
+      x: width + 400,
+      delay: 0.5,
+      ease,
+      onComplete: () => {
+        setTimeout(() => {
+          if (autoLoop) loop();
+        }, 500);
+      },
+    });
+
+    // Animate cards into position
+    rest.forEach((i, index) => {
+      gsap.to(cardRefs.current[i], {
+        x: offsetLeftRef.current + index * (cardWidth + gap),
+        zIndex: 30,
+        delay: startDelay + 0.05 * index,
+        ease,
+      });
+      gsap.to(cardContentRefs.current[i], {
+        x: offsetLeftRef.current + index * (cardWidth + gap),
+        zIndex: 40,
+        delay: startDelay + 0.05 * index,
+        ease,
+      });
+    });
+
+    gsap.to(paginationRef.current, { y: 0, opacity: 1, ease, delay: startDelay });
+    gsap.to(detailsActive, { opacity: 1, x: 0, ease, delay: startDelay });
+  }, [autoLoop, detailsEven, ease, events.length, loop, order]);
 
   // Manual navigation
   const handlePrevious = () => {
@@ -395,13 +395,13 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     if (!loading && !error && events.length > 0) {
       loadImages();
     }
-  }, [loading, error, events]);
+  }, [loading, error, events, loadImages]);
 
   useEffect(() => {
     if (imagesLoaded && events.length > 0) {
       init();
     }
-  }, [imagesLoaded, events]);
+  }, [imagesLoaded, events, init]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -650,7 +650,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
 
   return (
     <>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500&display=swap" rel="stylesheet" />
+      
       <div ref={containerRef} style={styles.container}>
         {/* "Upcoming Events" text on the left side */}
         <div style={styles.upcomingEventsText}>
