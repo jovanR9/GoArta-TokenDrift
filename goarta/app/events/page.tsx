@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useMemo } from "react";
 import EventPageCard from "@/components/EventPageCard";
+import SearchBar from "@/components/SearchBar";
 
 export default function EventCardGallery() {
   const events = [
@@ -35,11 +36,42 @@ export default function EventCardGallery() {
     }
   ];
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filter, setFilter] = useState("All events");
+
+  const filteredEvents = useMemo(() => {
+    return events.filter(event => {
+      // Apply search filter
+      const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      // Apply status filter
+      let matchesFilter = true;
+      if (filter === "Upcoming") {
+        matchesFilter = event.status === "Upcoming";
+      } else if (filter === "Past") {
+        matchesFilter = event.status === "Past";
+      }
+      // For "All events" and "Online", we show all events (you can modify "Online" logic as needed)
+      
+      return matchesSearch && matchesFilter;
+    });
+  }, [searchQuery, filter]);
+
   return (
     <div className="min-h-screen bg-gray-100 p-8">
       <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Event Card Gallery</h1>
+      
+      {/* Search and Filter Component */}
+      <div className="flex justify-center mb-8">
+        <SearchBar 
+          onSearch={setSearchQuery} 
+          onFilterChange={setFilter} 
+        />
+      </div>
+      
+      {/* Events Grid */}
       <div className="flex flex-wrap justify-center gap-8">
-        {events.map((event, index) => (
+        {filteredEvents.map((event, index) => (
           <EventPageCard
             key={index}
             title={event.title}
