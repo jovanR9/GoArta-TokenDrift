@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import EventPageCard from "@/components/EventPageCard";
 import SearchBar from "@/components/SearchBar";
+import Footer from "@/components/Footer";
 
 export default function EventCardGallery() {
   const events = [
@@ -58,30 +59,39 @@ export default function EventCardGallery() {
   }, [searchQuery, filter]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Event Card Gallery</h1>
-      
-      {/* Search and Filter Component */}
-      <div className="flex justify-center mb-8">
-        <SearchBar 
-          onSearch={setSearchQuery} 
-          onFilterChange={setFilter} 
-        />
+    <div className="min-h-screen bg-gray-100 flex flex-col">
+      <div className="flex-grow p-8">
+        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Event Card Gallery</h1>
+        
+        {/* Container to align search bar with cards */}
+        <div className="max-w-6xl mx-auto">
+          {/* Search and Filter Component - Left aligned */}
+          <div className="mb-8">
+            <SearchBar 
+              onSearch={setSearchQuery} 
+              onFilterChange={setFilter} 
+            />
+          </div>
+          
+          {/* Events Grid - 3 cards per row */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredEvents.map((event, index) => (
+              <div key={index} className="flex justify-center">
+                <EventPageCard
+                  title={event.title}
+                  date={event.date}
+                  image={event.image}
+                  status={event.status}
+                  categories={event.categories}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       
-      {/* Events Grid */}
-      <div className="flex flex-wrap justify-center gap-8">
-        {filteredEvents.map((event, index) => (
-          <EventPageCard
-            key={index}
-            title={event.title}
-            date={event.date}
-            image={event.image}
-            status={event.status}
-            categories={event.categories}
-          />
-        ))}
-      </div>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }

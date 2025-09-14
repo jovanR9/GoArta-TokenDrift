@@ -24,9 +24,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
   };
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 w-full">
       <label className="text-lg font-bold">Browse through events:</label>
-      <div className="flex items-center border rounded-lg px-2 py-1 bg-white shadow-sm w-full max-w-md">
+      <div className="flex items-center border rounded-lg px-4 py-2 bg-white shadow-md w-full">
         {/* Search input */}
         <input
           type="text"
@@ -36,16 +36,16 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
             setSearchTerm(e.target.value);
             onSearch(e.target.value);
           }}
-          className="flex-1 outline-none px-2 py-1 text-sm"
+          className="flex-1 outline-none px-3 py-2 text-base"
         />
 
         {/* Clear button */}
         {searchTerm && (
           <button
             onClick={handleClear}
-            className="mx-1 p-1 rounded-full bg-yellow-300 hover:bg-yellow-400"
+            className="mx-2 p-2 rounded-full bg-yellow-300 hover:bg-yellow-400"
           >
-            <X size={14} />
+            <X size={18} />
           </button>
         )}
 
@@ -53,7 +53,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
         <select
           value={filter}
           onChange={handleFilterChange}
-          className="border-l pl-2 ml-2 text-sm outline-none bg-transparent"
+          className="border-l pl-4 ml-2 text-base outline-none bg-transparent py-2"
         >
           <option value="All events">All events</option>
           <option value="Upcoming">Upcoming</option>
