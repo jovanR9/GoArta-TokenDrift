@@ -1,11 +1,23 @@
 import type { Metadata } from "next";
-import { DM_Sans } from 'next/font/google'
+import { DM_Sans, Inter, Oswald } from 'next/font/google'
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthContext";
 
 const dm_sans = DM_Sans({
   subsets: ['latin'],
   display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-inter',
+})
+
+const oswald = Oswald({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-oswald',
 })
 
 export const metadata: Metadata = {
@@ -23,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={dm_sans.className}>
+      <body className={`${dm_sans.className} ${inter.variable} ${oswald.variable}`}>
         <AuthProvider>
           <div className="relative">
             {/* Background div */}
