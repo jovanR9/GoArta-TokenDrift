@@ -23,7 +23,12 @@ const EventPageCard: React.FC<EventPageCardProps> = ({
   categories,
 }) => {
   // Create a URL-friendly version of the title
-  const formattedTitle = title.toLowerCase().replace(/\s+/g, '-');
+  const formattedTitle = title.toLowerCase()
+    .replace(/\s+/g, '-')           // Replace spaces with -
+    .replace(/[^\w-]+/g, '')       // Remove all non-word chars
+    .replace(/--+/g, '-')         // Replace multiple - with single -
+    .replace(/^-+/, '')            // Trim - from start of text
+    .replace(/-+$/, '');           // Trim - from end of text
   
   return (
     <Link href={`/events/${formattedTitle}`} className="block">
