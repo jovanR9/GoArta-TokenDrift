@@ -32,19 +32,19 @@ export default function EventsHeader() {
           <div className="flex items-center space-x-8">
             {/* Navigation Links */}
             <div className="hidden md:flex items-center space-x-12">
-              <Link href="/events" className="text-gray-800 hover:text-gray-600 transition-colors">
+              <Link href="/events" className="text-xl hover:text-gray-600 transition-colors">
                 Events
               </Link>
-              <Link href="/ai-itinerary" className="text-gray-800 hover:text-gray-600 transition-colors">
+              <Link href="/ai-itinerary" className="text-xl hover:text-gray-600 transition-colors">
                 Itinerary Generator
               </Link>
-              <Link href="/dashboard" className="text-gray-800 hover:text-gray-600 transition-colors">
+              <Link href="/dashboard" className="text-xl hover:text-gray-600 transition-colors">
                 Profile
               </Link>
             </div>
             
             {/* Profile Indicator */}
-            <div className="w-8 h-8 rounded-full bg-red-500"></div>
+            <div className="w-10 h-10 rounded-full bg-red-500"></div>
           </div>
         </nav>
 
@@ -60,7 +60,7 @@ export default function EventsHeader() {
                   Goa comes alive here.
                 </h1>
                 <p className="text-lg md:text-xl lg:text-2xl text-gray-800 mb-8 max-w-2xl">
-                  Discover Goa's rhythm — festivals, parades, concerts, and celebrations, all in one place.
+                  Discover Goa&#39;s rhythm — festivals, parades, concerts, and celebrations, all in one place.
                 </p>
                 <Link 
                   href="/events" 

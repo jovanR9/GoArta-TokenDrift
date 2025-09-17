@@ -57,10 +57,6 @@ export default function Home() {
           <Past_events />
         </div>
 
-        <div>
-          <EventCard />
-        </div>
-
         <div className="flex justify-center items-center min-h-screen">
           <AIGeneratedItineraryCard />
         </div>

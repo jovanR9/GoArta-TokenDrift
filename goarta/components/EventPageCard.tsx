@@ -12,6 +12,8 @@ interface EventPageCardProps {
   categories: string[]; // e.g. ["Festival", "Concert"]
 }
 
+export type { EventPageCardProps };
+
 const EventPageCard: React.FC<EventPageCardProps> = ({
   title,
   date,

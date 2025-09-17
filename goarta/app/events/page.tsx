@@ -5,9 +5,14 @@ import EventsHeader from "@/components/EventsHeader";
 import EventPageCard from "@/components/EventPageCard";
 import SearchBar from "@/components/SearchBar";
 import Footer from "@/components/Footer";
+import { EventPageCardProps } from "@/components/EventPageCard";
+
+type Event = Omit<EventPageCardProps, 'status'> & {
+  status: "Upcoming" | "Past";
+};
 
 export default function EventCardGallery() {
-  const events = [
+  const events: Event[] = [
     {
       title: "SHIGMO",
       date: "10 - 12 FEB 2025",
