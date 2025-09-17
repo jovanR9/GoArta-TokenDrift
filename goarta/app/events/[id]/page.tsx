@@ -5,6 +5,7 @@ import About from "@/components/About";
 import EventHighlights from "@/components/EventHighlights";
 import EntryAndAccess from "@/components/EntryAndAccess";
 import EventsNavbar from "@/components/EventsNavbar";
+import EventPageCard from "@/components/EventPageCard";
 
 // Since this is a server component by default in App Router, we can make it async
 const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -93,6 +94,26 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             </div>
             <div className="mt-8 flex justify-center">
               <EntryAndAccess />
+            </div>
+
+            {/* Related Events Heading */}
+            <div className="mt-8">
+              <h3 className="text-4xl font-playfair font-bold mb-4">Related Events</h3>
+            </div>
+
+            {/* Horizontally Scrollable Event Cards */}
+            <div className="flex overflow-x-auto space-x-4 pb-4">
+              {events.map((event, index) => (
+                <div key={index} className="flex-none w-80">
+                  <EventPageCard
+                    title={event.title}
+                    date={event.date}
+                    image={event.image}
+                    status={event.status}
+                    categories={event.categories}
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </div>
