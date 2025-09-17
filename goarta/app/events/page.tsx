@@ -71,6 +71,7 @@ export default function EventCardGallery() {
         style={{
           background: 'linear-gradient(180deg, #85A8EE70 0%, #2AFF007D 100%)'
         }}
+        className="w-full"
       >
         <EventsNavbar />
         <EventsHero />

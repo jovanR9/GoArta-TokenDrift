@@ -9,8 +9,6 @@ import Footer from "@/components/Footer";
 import VideoSection from "@/components/Video";
 import UpcomingEventsCarousel from "@/components/TravelCarousel";
 
-import EventCard from "@/components/EventCard";
-
 export default function Home() {
   return (
     <div className="relative">
