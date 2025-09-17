@@ -15,12 +15,12 @@ export default function EventsHeader() {
       >
         {/* Left Section - Logo */}
         <div className="flex items-center">
-          <div className="w-32 h-12">
+          <div className="w-40 h-16">
             <Image
               src="/goarta logo.png"
               alt="GoArta Logo"
-              width={128}
-              height={48}
+              width={160}
+              height={64}
               className="w-full h-full object-contain"
             />
           </div>
