@@ -1,4 +1,5 @@
 import React from "react";
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import Link from "next/link";
 import EventCard from "@/components/Event_card_hero";
 import QuickActions from "@/components/QuickActions";
@@ -9,6 +10,7 @@ import EventsNavbar from "@/components/EventsNavbar";
 import EventPageCard from "@/components/EventPageCard";
 import { supabase } from '@/lib/supabaseClient';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type SupabaseEvent = {
   id: string;
   title: string;
