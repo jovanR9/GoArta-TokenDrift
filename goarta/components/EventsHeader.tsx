@@ -13,23 +13,17 @@ export default function EventsHeader() {
           background: 'linear-gradient(90deg, white 70%, rgba(255, 0, 0, 0.1) 100%)'
         }}
       >
-        {/* Left Section - Logo + Brand */}
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-full overflow-hidden">
+        {/* Left Section - Logo */}
+        <div className="flex items-center">
+          <div className="w-32 h-12">
             <Image
-              src="/Logo.png"
+              src="/goarta logo.png"
               alt="GoArta Logo"
-              width={48}
+              width={128}
               height={48}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain"
             />
           </div>
-          <span 
-            className="text-2xl font-bold"
-            style={{ fontFamily: 'Playfair Display, serif' }}
-          >
-            GoArta
-          </span>
         </div>
 
         {/* Right Section - Navigation Links and Profile Indicator */}
