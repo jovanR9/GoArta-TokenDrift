@@ -32,21 +32,24 @@ export default function EventsHeader() {
           </span>
         </div>
 
-        {/* Center Navigation Links */}
-        <div className="hidden md:flex items-center space-x-8">
-          <Link href="/events" className="text-gray-800 hover:text-gray-600 transition-colors">
-            Events
-          </Link>
-          <Link href="/ai-itinerary" className="text-gray-800 hover:text-gray-600 transition-colors">
-            Itinerary Generator
-          </Link>
-          <Link href="/dashboard" className="text-gray-800 hover:text-gray-600 transition-colors">
-            Profile
-          </Link>
+        {/* Right Section - Navigation Links and Profile Indicator */}
+        <div className="flex items-center space-x-8">
+          {/* Navigation Links */}
+          <div className="hidden md:flex items-center space-x-12">
+            <Link href="/events" className="text-gray-800 hover:text-gray-600 transition-colors">
+              Events
+            </Link>
+            <Link href="/ai-itinerary" className="text-gray-800 hover:text-gray-600 transition-colors">
+              Itinerary Generator
+            </Link>
+            <Link href="/dashboard" className="text-gray-800 hover:text-gray-600 transition-colors">
+              Profile
+            </Link>
+          </div>
+          
+          {/* Profile Indicator */}
+          <div className="w-8 h-8 rounded-full bg-red-500"></div>
         </div>
-
-        {/* Right Section - Profile Indicator */}
-        <div className="w-8 h-8 rounded-full bg-red-500"></div>
       </nav>
 
       {/* Hero Section */}
