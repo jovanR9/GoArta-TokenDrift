@@ -17,15 +17,15 @@ type SupabaseEvent = {
   status: "Upcoming" | "Past";
   categories: string[];
   description?: string;
-  dj_lineup?: any;
-  fireworks_countdown?: any;
-  food_beverage_stalls?: any;
+  dj_lineup?: Array<{ name: string; genre: string }>;
+  fireworks_countdown?: Array<{ description: string }>;
+  food_beverage_stalls?: Array<{ name: string; items: string }>;
   entry_type?: string;
-  ticket_options?: any;
+  ticket_options?: Array<{ type: string; price: number; description: string }>;
 };
 
-const EventDetailPage = async ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
   console.log('Fetching event with ID (slug):', id);
 
   const slugify = (text: string) => {

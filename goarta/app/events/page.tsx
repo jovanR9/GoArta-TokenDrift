@@ -6,7 +6,6 @@ import EventsHero from "@/components/EventsHero";
 import EventPageCard from "@/components/EventPageCard";
 import SearchBar from "@/components/SearchBar";
 import Footer from "@/components/Footer";
-import { EventPageCardProps } from "@/components/EventPageCard";
 
 type SupabaseEvent = {
   id: string;
@@ -16,11 +15,11 @@ type SupabaseEvent = {
   status: "Upcoming" | "Past";
   categories: string[];
   description?: string;
-  dj_lineup?: any;
-  fireworks_countdown?: any;
-  food_beverage_stalls?: any;
+  dj_lineup?: Array<{ name: string; genre: string }>;
+  fireworks_countdown?: Array<{ description: string }>;
+  food_beverage_stalls?: Array<{ name: string; items: string }>;
   entry_type?: string;
-  ticket_options?: any;
+  ticket_options?: Array<{ type: string; price: number; description: string }>;
 };
 
 export default function EventCardGallery() {
