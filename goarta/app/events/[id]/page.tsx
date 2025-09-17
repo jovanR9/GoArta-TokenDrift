@@ -4,6 +4,8 @@ import EventCard from "@/components/Event_card_hero";
 import QuickActions from "@/components/QuickActions";
 import About from "@/components/About";
 import EventHighlights from "@/components/EventHighlights";
+import EntryAndAccess from "@/components/EntryAndAccess";
+import EventsNavbar from "@/components/EventsNavbar";
 
 // Since this is a server component by default in App Router, we can make it async
 const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -97,6 +99,9 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
       <div className="relative z-10">
         <div className="min-h-screen p-4 md:p-8">
           <div className="max-w-6xl mx-auto">
+            <EventsNavbar />
+          </div>
+          <div className="max-w-6xl mx-auto">
             {/* Hero Section with EventCard */}
             <div className="flex justify-center">
               <EventCard 
@@ -114,6 +119,9 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             </div>
             <div className="mt-8 flex justify-center">
               <EventHighlights />
+            </div>
+            <div className="mt-8 flex justify-center">
+              <EntryAndAccess />
             </div>
           </div>
         </div>

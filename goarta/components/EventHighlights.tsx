@@ -2,7 +2,7 @@ import React from "react";
 
 const EventHighlights: React.FC = () => {
   return (
-    <div className="w-full p-4 bg-white rounded-xl border border-black mt-8">
+    <div className="w-full p-4 bg-[#FFF7E6] rounded-xl border border-black mt-8">
       <h3 className="text-2xl font-playfair font-bold mb-3">Event Highlights</h3>
 
       <div className="mb-6">
