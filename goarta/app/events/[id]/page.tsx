@@ -1,5 +1,5 @@
 import React from "react";
-import EventCard from "@/components/EventCard";
+import EventCard from "@/components/Event_card_hero";
 
 // Since this is a server component by default in App Router, we can make it async
 const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -44,16 +44,37 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
   const event = events.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === id) || events[1]; // Default to Goa Carnival if not found
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Hero Section with EventCard */}
-        <div className="flex justify-center">
-          <EventCard 
-            title={event.title}
-            image={event.image}
-            status={event.status}
-            categories={event.categories}
-          />
+    <div className="relative">
+      <div
+        className="fixed inset-0 bg-center z-0 bg-repeat"
+        style={{
+          backgroundImage: `url('/grid_bg.jpg')`,
+          opacity: "0.4",
+          backgroundSize: "30%"
+        }}
+      />
+      <div
+        className="fixed inset-0 bg-center z-0"
+        style={{
+          background: "linear-gradient(90deg, #FFFFFF, #F5F5F5, #E0E0E0)",
+          opacity: "0.5",
+        }}
+      />
+
+      {/* Content container */}
+      <div className="relative z-10">
+        <div className="min-h-screen p-4 md:p-8">
+          <div className="max-w-6xl mx-auto">
+            {/* Hero Section with EventCard */}
+            <div className="flex justify-center">
+              <EventCard 
+                title={event.title}
+                image={event.image}
+                status={event.status}
+                categories={event.categories}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
