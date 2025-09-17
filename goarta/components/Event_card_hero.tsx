@@ -1,4 +1,6 @@
 import React from "react";
+import EventPageCardTag from "@/components/EventPageCardTag";
+import { EventPageCardProps } from "@/components/EventPageCard";
 
 interface EventCardProps {
   title: string;
@@ -8,16 +10,13 @@ interface EventCardProps {
 }
 
 const EventCard: React.FC<EventCardProps> = ({ title, image, status, categories }) => {
-  // Determine status color
-  const statusColor = status === "Upcoming" ? "bg-green-500" : "bg-red-500";
-
   return (
     <div className="relative w-full rounded-2xl overflow-hidden shadow-lg">
       {/* Background Image */}
       <img
         src={image}
         alt={title}
-        className="w-full h-[60vh] object-cover"
+        className="w-full h-[70vh] object-cover"
       />
 
       {/* Bottom Overlay Block */}
@@ -31,16 +30,19 @@ const EventCard: React.FC<EventCardProps> = ({ title, image, status, categories 
 
         {/* Tags */}
         <div className="flex gap-2 mt-3 self-end">
-          <span className={`px-3 py-1 text-xs font-semibold text-white ${statusColor} rounded-full`}>
-            {status}
-          </span>
-          {categories.map((category, index) => (
-            <span
-              key={index}
-              className="px-3 py-1 text-xs font-semibold text-white bg-purple-600 rounded-full"
-            >
-              {category}
-            </span>
+          <EventPageCardTag
+            label={status}
+            innerColor={status === "Upcoming" ? "#00FF09" : "#FF1500"}
+            outerColor={status === "Upcoming" ? "#398324" : "#710506"}
+            textColor={status === "Upcoming" ? "#398324" : "#FFFFFF"}
+          />
+          {categories.map((cat, i) => (
+            <EventPageCardTag
+              key={i}
+              label={cat}
+              innerColor="#DD00FF"
+              outerColor="#570065"
+            />
           ))}
         </div>
       </div>
