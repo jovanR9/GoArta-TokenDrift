@@ -1,6 +1,7 @@
 import React from "react";
 import EventCard from "@/components/Event_card_hero";
 import QuickActions from "@/components/QuickActions";
+import About from "@/components/About";
 
 // Since this is a server component by default in App Router, we can make it async
 const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -77,6 +78,9 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             </div>
             <div className="mt-8 flex justify-center">
               <QuickActions />
+            </div>
+            <div className="mt-8 flex justify-center">
+              <About />
             </div>
           </div>
         </div>
