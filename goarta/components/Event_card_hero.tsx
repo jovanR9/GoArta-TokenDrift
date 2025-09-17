@@ -29,7 +29,7 @@ const EventCard: React.FC<EventCardProps> = ({ title, image, status, categories 
         </div>
 
         {/* Tags */}
-        <div className="flex gap-2 mt-3 self-end">
+        <div className="flex flex-wrap gap-2 mt-3 self-end">
           <EventPageCardTag
             label={status}
             innerColor={status === "Upcoming" ? "#00FF09" : "#FF1500"}
