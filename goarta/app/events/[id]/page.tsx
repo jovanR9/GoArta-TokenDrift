@@ -7,82 +7,53 @@ import EventHighlights from "@/components/EventHighlights";
 import EntryAndAccess from "@/components/EntryAndAccess";
 import EventsNavbar from "@/components/EventsNavbar";
 import EventPageCard from "@/components/EventPageCard";
-import { EventPageCardProps } from "@/components/EventPageCard";
+import { supabase } from '@/lib/supabaseClient';
 
-type Event = Omit<EventPageCardProps, 'status'> & {
+type SupabaseEvent = {
+  id: string;
+  title: string;
+  date_range: string;
+  image_url: string;
   status: "Upcoming" | "Past";
-  date: string;
+  categories: string[];
+  description?: string;
+  dj_lineup?: any;
+  fireworks_countdown?: any;
+  food_beverage_stalls?: any;
+  entry_type?: string;
+  ticket_options?: any;
 };
 
-// Since this is a server component by default in App Router, we can make it async
-const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  // Unwrap the params Promise
-  const { id } = await params;
-  
-  // Mock event data - in a real app, you would fetch this based on the ID
-  // For now, I'll use data from the events page
-  const events: Event[] = [
-    {
-      title: "SHIGMO",
-      date: "10 - 12 FEB 2025",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Past",
-      categories: ["Festival"]
-    },
-    {
-      title: "Goa Carnival",
-      date: "20 - 22 DEC 2024",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Upcoming",
-      categories: ["Carnival", "Parade"]
-    },
-    {
-      title: "Sunburn Festival",
-      date: "5 - 7 JAN 2025",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Upcoming",
-      categories: ["Music", "EDM"]
-    },
-    {
-      title: "Tropical Beats",
-      date: "15 - 16 NOV 2024",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Past",
-      categories: ["Music", "Beach"]
-    }
-  ];
-  
-  // Find the event that matches the ID (for demo purposes, we'll match by title)
-  // In a real app, you would match by ID
-  const event = events.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === id) || events[1]; // Default to Goa Carnival if not found
+const EventDetailPage = async ({ params }: { params: { id: string } }) => {
+  const { id } = params;
+  console.log('Fetching event with ID (slug):', id);
 
-  // If no event found, return a 404-like message
-  if (!event) {
-    return (
-      <div className="relative">
-        <div className="fixed inset-0 bg-center z-0 bg-repeat"
-          style={{
-            backgroundImage: `url('/grid_bg.jpg')`,
-            opacity: "0.4",
-            backgroundSize: "30%"
-          }}
-        />
-        <div className="fixed inset-0 bg-center z-0"
-          style={{
-            background: "linear-gradient(90deg, #FFFFFF, #F5F5F5, #E0E0E0)",
-            opacity: "0.5",
-          }}
-        />
-        <div className="relative z-10 min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-800">Event Not Found</h1>
-            <p className="text-gray-600 mt-2">The event you&#39;re looking for doesn&#39;t exist.</p>
-            <Link href="/events" className="mt-4 inline-block text-blue-600 hover:underline">Back to Events</Link>
-          </div>
-        </div>
-      </div>
-    );
+  const slugify = (text: string) => {
+    return text.toLowerCase()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^\w-]+/g, '')       // Remove all non-word chars
+      .replace(/--+/g, '-')         // Replace multiple - with single -
+      .replace(/^-+/, '')            // Trim - from start of text
+      .replace(/-+$/, '');           // Trim - from end of text
+  };
+
+  const { data: allEventsData, error: fetchAllError } = await supabase
+    .from('new_events')
+    .select('*');
+
+  if (fetchAllError) {
+    console.error('Error fetching all events:', fetchAllError.message);
+    return <div>Error loading events.</div>;
   }
+
+  const event = allEventsData?.find(e => slugify(e.title) === id);
+
+  if (!event) {
+    return <div>Event not found.</div>;
+  }
+
+  // Fetch all events for related events, excluding the current one
+  const relatedEvents = allEventsData?.filter(e => e.id !== event.id) || [];
 
   return (
     <div className="relative">
@@ -113,22 +84,33 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             <div className="flex justify-center">
               <EventCard 
                 title={event.title}
-                image={event.image}
+                image={event.image_url}
                 status={event.status}
                 categories={event.categories}
               />
             </div>
+
             <div className="mt-8 flex justify-center">
               <QuickActions />
             </div>
+
             <div className="mt-8 flex justify-center">
-              <About />
+              <About description={event.description} />
             </div>
+
             <div className="mt-8 flex justify-center">
-              <EventHighlights />
+              <EventHighlights 
+                djLineup={event.dj_lineup}
+                fireworksCountdown={event.fireworks_countdown}
+                foodBeverageStalls={event.food_beverage_stalls}
+              />
             </div>
+
             <div className="mt-8 flex justify-center">
-              <EntryAndAccess />
+              <EntryAndAccess 
+                entryType={event.entry_type}
+                ticketOptions={event.ticket_options}
+              />
             </div>
 
             {/* Related Events Heading */}
@@ -138,14 +120,14 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
 
             {/* Horizontally Scrollable Event Cards */}
             <div className="flex overflow-x-auto space-x-4 pb-4">
-              {events.map((event, index) => (
-                <div key={index} className="flex-none w-80">
+              {relatedEvents.map((relatedEvent) => (
+                <div key={relatedEvent.id} className="flex-none w-80">
                   <EventPageCard
-                    title={event.title}
-                    date={event.date}
-                    image={event.image}
-                    status={event.status}
-                    categories={event.categories}
+                    title={relatedEvent.title}
+                    date={relatedEvent.date_range}
+                    image={relatedEvent.image_url}
+                    status={relatedEvent.status}
+                    categories={relatedEvent.categories}
                   />
                 </div>
               ))}
