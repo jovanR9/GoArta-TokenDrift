@@ -3,6 +3,7 @@ import EventCard from "@/components/Event_card_hero";
 import QuickActions from "@/components/QuickActions";
 import About from "@/components/About";
 import EventHighlights from "@/components/EventHighlights";
+import EntryAndAccess from "@/components/EntryAndAccess";
 
 // Since this is a server component by default in App Router, we can make it async
 const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -85,6 +86,9 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             </div>
             <div className="mt-8 flex justify-center">
               <EventHighlights />
+            </div>
+            <div className="mt-8 flex justify-center">
+              <EntryAndAccess />
             </div>
           </div>
         </div>
