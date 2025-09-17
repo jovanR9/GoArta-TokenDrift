@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import EventsNavbar from "@/components/EventsNavbar";
 import EventsHero from "@/components/EventsHero";
 import EventPageCard from "@/components/EventPageCard";
@@ -8,62 +8,67 @@ import SearchBar from "@/components/SearchBar";
 import Footer from "@/components/Footer";
 import { EventPageCardProps } from "@/components/EventPageCard";
 
-type Event = Omit<EventPageCardProps, 'status'> & {
+type SupabaseEvent = {
+  id: string;
+  title: string;
+  date_range: string;
+  image_url: string;
   status: "Upcoming" | "Past";
+  categories: string[];
+  description?: string;
+  dj_lineup?: any;
+  fireworks_countdown?: any;
+  food_beverage_stalls?: any;
+  entry_type?: string;
+  ticket_options?: any;
 };
 
 export default function EventCardGallery() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("All events");
+  const [events, setEvents] = useState<SupabaseEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await fetch("/api/events");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data: SupabaseEvent[] = await response.json();
+        setEvents(data);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const filteredEvents = useMemo(() => {
-    const events: Event[] = [
-      {
-        title: "SHIGMO",
-        date: "10 - 12 FEB 2025",
-        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-        status: "Past",
-        categories: ["Festival"]
-      },
-      {
-        title: "Goa Carnival",
-        date: "20 - 22 DEC 2024",
-        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-        status: "Upcoming",
-        categories: ["Carnival", "Parade"]
-      },
-      {
-        title: "Sunburn Festival",
-        date: "5 - 7 JAN 2025",
-        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-        status: "Upcoming",
-        categories: ["Music", "EDM"]
-      },
-      {
-        title: "Tropical Beats",
-        date: "15 - 16 NOV 2024",
-        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-        status: "Past",
-        categories: ["Music", "Beach"]
-      }
-    ];
-    
+    if (loading) return [];
+    if (error) return [];
+
     return events.filter(event => {
-      // Apply search filter
       const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
       
-      // Apply status filter
       let matchesFilter = true;
       if (filter === "Upcoming") {
         matchesFilter = event.status === "Upcoming";
       } else if (filter === "Past") {
         matchesFilter = event.status === "Past";
       }
-      // For "All events" and "Online", we show all events (you can modify "Online" logic as needed)
       
       return matchesSearch && matchesFilter;
     });
-  }, [searchQuery, filter]);
+  }, [searchQuery, filter, events, loading, error]);
+
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading events...</div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center text-red-500">Error: {error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
@@ -94,8 +99,8 @@ export default function EventCardGallery() {
               <div key={index} className="flex justify-center">
                 <EventPageCard
                   title={event.title}
-                  date={event.date}
-                  image={event.image}
+                  date={event.date_range}
+                  image={event.image_url}
                   status={event.status}
                   categories={event.categories}
                 />
