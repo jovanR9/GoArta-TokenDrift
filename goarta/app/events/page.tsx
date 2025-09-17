@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import EventsNavbar from "@/components/EventsNavbar";
+import EventsHero from "@/components/EventsHero";
 import EventPageCard from "@/components/EventPageCard";
 import SearchBar from "@/components/SearchBar";
 import Footer from "@/components/Footer";
@@ -60,8 +62,9 @@ export default function EventCardGallery() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
+      <EventsNavbar />
+      <EventsHero />
       <div className="flex-grow p-8">
-        <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Event Card Gallery</h1>
         
         {/* Container to align search bar with cards */}
         <div className="max-w-6xl mx-auto">
