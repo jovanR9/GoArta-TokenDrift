@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import EventCard from "@/components/Event_card_hero";
 import QuickActions from "@/components/QuickActions";
 import About from "@/components/About";
@@ -48,6 +49,34 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
   // Find the event that matches the ID (for demo purposes, we'll match by title)
   // In a real app, you would match by ID
   const event = events.find(e => e.title.toLowerCase().replace(/\s+/g, '-') === id) || events[1]; // Default to Goa Carnival if not found
+
+  // If no event found, return a 404-like message
+  if (!event) {
+    return (
+      <div className="relative">
+        <div className="fixed inset-0 bg-center z-0 bg-repeat"
+          style={{
+            backgroundImage: `url('/grid_bg.jpg')`,
+            opacity: "0.4",
+            backgroundSize: "30%"
+          }}
+        />
+        <div className="fixed inset-0 bg-center z-0"
+          style={{
+            background: "linear-gradient(90deg, #FFFFFF, #F5F5F5, #E0E0E0)",
+            opacity: "0.5",
+          }}
+        />
+        <div className="relative z-10 min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-800">Event Not Found</h1>
+            <p className="text-gray-600 mt-2">The event you&#39;re looking for doesn&#39;t exist.</p>
+            <Link href="/events" className="mt-4 inline-block text-blue-600 hover:underline">Back to Events</Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
