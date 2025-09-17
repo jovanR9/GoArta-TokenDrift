@@ -1,6 +1,6 @@
 import React from "react";
+import Image from "next/image";
 import EventPageCardTag from "@/components/EventPageCardTag";
-import { EventPageCardProps } from "@/components/EventPageCard";
 
 interface EventCardProps {
   title: string;
@@ -13,11 +13,14 @@ const EventCard: React.FC<EventCardProps> = ({ title, image, status, categories 
   return (
     <div className="relative w-full rounded-2xl overflow-hidden shadow-lg">
       {/* Background Image */}
-      <img
-        src={image}
-        alt={title}
-        className="w-full h-[70vh] object-cover"
-      />
+      <div className="w-full h-[70vh]">
+        <Image
+          src={image}
+          alt={title}
+          fill
+          className="object-cover"
+        />
+      </div>
 
       {/* Bottom Overlay Block */}
       <div className="absolute bottom-0 left-0 bg-white rounded-tr-2xl px-10 py-8 shadow-md w-2/3 flex flex-col">

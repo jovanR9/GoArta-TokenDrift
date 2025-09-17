@@ -7,6 +7,12 @@ import EventHighlights from "@/components/EventHighlights";
 import EntryAndAccess from "@/components/EntryAndAccess";
 import EventsNavbar from "@/components/EventsNavbar";
 import EventPageCard from "@/components/EventPageCard";
+import { EventPageCardProps } from "@/components/EventPageCard";
+
+type Event = Omit<EventPageCardProps, 'status'> & {
+  status: "Upcoming" | "Past";
+  date: string;
+};
 
 // Since this is a server component by default in App Router, we can make it async
 const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) => {
@@ -15,7 +21,7 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
   
   // Mock event data - in a real app, you would fetch this based on the ID
   // For now, I'll use data from the events page
-  const events = [
+  const events: Event[] = [
     {
       title: "SHIGMO",
       date: "10 - 12 FEB 2025",

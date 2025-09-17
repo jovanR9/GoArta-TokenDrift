@@ -13,41 +13,41 @@ type Event = Omit<EventPageCardProps, 'status'> & {
 };
 
 export default function EventCardGallery() {
-  const events: Event[] = [
-    {
-      title: "SHIGMO",
-      date: "10 - 12 FEB 2025",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Past",
-      categories: ["Festival"]
-    },
-    {
-      title: "Goa Carnival",
-      date: "20 - 22 DEC 2024",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Upcoming",
-      categories: ["Carnival", "Parade"]
-    },
-    {
-      title: "Sunburn Festival",
-      date: "5 - 7 JAN 2025",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Upcoming",
-      categories: ["Music", "EDM"]
-    },
-    {
-      title: "Tropical Beats",
-      date: "15 - 16 NOV 2024",
-      image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
-      status: "Past",
-      categories: ["Music", "Beach"]
-    }
-  ];
-
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState("All events");
 
   const filteredEvents = useMemo(() => {
+    const events: Event[] = [
+      {
+        title: "SHIGMO",
+        date: "10 - 12 FEB 2025",
+        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
+        status: "Past",
+        categories: ["Festival"]
+      },
+      {
+        title: "Goa Carnival",
+        date: "20 - 22 DEC 2024",
+        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
+        status: "Upcoming",
+        categories: ["Carnival", "Parade"]
+      },
+      {
+        title: "Sunburn Festival",
+        date: "5 - 7 JAN 2025",
+        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
+        status: "Upcoming",
+        categories: ["Music", "EDM"]
+      },
+      {
+        title: "Tropical Beats",
+        date: "15 - 16 NOV 2024",
+        image: "https://www.tusktravel.com/blog/wp-content/uploads/2025/03/Shigmo-Festival-Goa.jpg",
+        status: "Past",
+        categories: ["Music", "Beach"]
+      }
+    ];
+    
     return events.filter(event => {
       // Apply search filter
       const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
