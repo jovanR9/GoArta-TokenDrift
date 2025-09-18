@@ -1,12 +1,6 @@
 import type { Metadata } from "next";
-import { DM_Sans } from 'next/font/google'
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthContext";
-
-const dm_sans = DM_Sans({
-  subsets: ['latin'],
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: "GoArta",
@@ -23,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={dm_sans.className}>
+      <body>
         <AuthProvider>
           <div className="relative">
             {/* Background div */}

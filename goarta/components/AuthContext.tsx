@@ -3,7 +3,7 @@ import React, { createContext, useContext, useEffect, useState, ReactNode } from
 import { supabaseClient } from "@/app/api/supabaselogin/supabase";
 
 // User type
-interface User {
+export interface User {
   id: string;
   email: string;
   fname?: string;
@@ -27,8 +27,10 @@ interface AuthContextType {
   logout: () => Promise<void>;
   socialLogin: (provider: "google" | "facebook") => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<{ success: boolean; error?: string }>;
+  resendConfirmationEmail: (email: string) => Promise<{ success: boolean; error?: string; message?: string }>; // ✅ added message
   isLoading: boolean;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -52,7 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       .from("users")
       .select("*")
       .eq("auth_id", auth_id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching profile:", error.message);
@@ -75,11 +77,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const init = async () => {
       try {
-        // 1. Load from localStorage (faster UI)
         const cached = localStorage.getItem("user");
         if (cached) setUser(JSON.parse(cached));
 
-        // 2. Verify with Supabase
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (session?.user) {
           const profile = await fetchUserProfile(session.user.id, session.user.email || "");
@@ -113,10 +113,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Login
   const login = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
       if (error) return { success: false, error: error.message };
 
       if (data?.user) {
@@ -125,8 +122,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return { success: true };
       }
       return { success: false, error: "Login failed" };
-    } catch (err: any) {
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      if (err instanceof Error) return { success: false, error: err.message };
+      return { success: false, error: "An unknown error occurred" };
     }
   };
 
@@ -155,16 +153,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         return { success: true, message: "Please confirm your email before logging in." };
       }
       return { success: false, error: "Signup failed" };
-    } catch (err: any) {
-      return { success: false, error: err.message };
+    } catch (err: unknown) {
+      if (err instanceof Error) return { success: false, error: err.message };
+      return { success: false, error: "An unknown error occurred" };
     }
   };
 
+  // Logout
   const logout = async () => {
     await supabaseClient.auth.signOut();
     setUserAndCache(null);
   };
 
+  // Social login
   const socialLogin = async (provider: "google" | "facebook") => {
     await supabaseClient.auth.signInWithOAuth({
       provider,
@@ -172,8 +173,34 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
   };
 
+  // ✅ Resend confirmation email
+ const resendConfirmationEmail = async (email: string) => {
+  try {
+    await supabaseClient.auth.resend({
+      type: "signup",
+      email,
+    });
+    return { success: true, message: "Confirmation email has been resent." }; // ✅ added message
+  } catch (err: unknown) {
+    if (err instanceof Error) return { success: false, error: err.message };
+    return { success: false, error: "An unknown error occurred" };
+  }
+};
+
+
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, socialLogin, updateProfile, isLoading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        login,
+        signup,
+        logout,
+        socialLogin,
+        updateProfile,
+        resendConfirmationEmail, // ✅ added here
+        isLoading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

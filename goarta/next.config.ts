@@ -4,7 +4,7 @@ import path from "path";
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.56.1'],
   images: {
-    domains: ['images.unsplash.com', 'incrediblegoa.org', 'www.tourmyindia.com', 'assets-in.bmscdn.com', 'avidlearning.in', 'blog.lemontreehotels.com', 'www.bestgoadeals.com','encrypted-tbn0.gstatic.com','pcsqsppnjgupgbwrpyti.supabase.co','storage.googleapis.com'],
+    domains: ['images.unsplash.com', 'incrediblegoa.org', 'www.tourmyindia.com', 'assets-in.bmscdn.com', 'avidlearning.in', 'blog.lemontreehotels.com', 'www.bestgoadeals.com','encrypted-tbn0.gstatic.com','pcsqsppnjgupgbwrpyti.supabase.co','storage.googleapis.com', 'www.tusktravel.com', 'goa.pscnotes.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -33,6 +33,14 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'www.bestgoadeals.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.tusktravel.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'goa.pscnotes.com',
       },
     ],
   },
