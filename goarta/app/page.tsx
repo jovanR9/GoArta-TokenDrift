@@ -9,8 +9,6 @@ import Footer from "@/components/Footer";
 import VideoSection from "@/components/Video";
 import UpcomingEventsCarousel from "@/components/TravelCarousel";
 
-import EventCard from "@/components/EventCard";
-
 export default function Home() {
   return (
     <div className="relative">
@@ -55,10 +53,6 @@ export default function Home() {
 
         <div className="flex justify-center items-center min-h-screen  ">
           <Past_events />
-        </div>
-
-        <div>
-          <EventCard />
         </div>
 
         <div className="flex justify-center items-center min-h-screen">

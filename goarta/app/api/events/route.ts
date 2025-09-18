@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabaseClient';
 
 export async function GET() {
   const { data: events, error } = await supabase
-    .from('events')
+    .from('new_events')
     .select('*');
 
   if (error) {
