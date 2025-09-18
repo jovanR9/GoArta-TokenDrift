@@ -1,26 +1,19 @@
 "use client";
-
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { supabaseClient } from "@/app/api/supabaselogin/supabase";
 
-// User type (matches your `users` table)
-// Update the User interface to match your database fields
+// User type
 interface User {
-  id: string; // auth.users.id
+  id: string;
   email: string;
-  fname?: string;        // Changed from first_name
-  lname?: string;        // Changed from last_name
-  phnumber?: string;
-  countrycode?: string;
+  fname?: string;
+  lname?: string;
   short_bio?: string;
   profile_pic?: string;
+  phnumber?: string;
+  countrycode?: string;
 }
+
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -28,70 +21,94 @@ interface AuthContextType {
     email: string,
     password: string,
     fname: string,
-    lname: string
-  ) => Promise<{ success: boolean; error?: string }>;
+    lname: string,
+    phnumber?: string
+  ) => Promise<{ success: boolean; error?: string; message?: string }>;
   logout: () => Promise<void>;
+  socialLogin: (provider: "google" | "facebook") => Promise<void>;
   updateProfile: (updates: Partial<User>) => Promise<{ success: boolean; error?: string }>;
+  isLoading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load current user session
+  // Helper to sync state + localStorage
+  const setUserAndCache = (profile: User | null) => {
+    setUser(profile);
+    if (profile) {
+      localStorage.setItem("user", JSON.stringify(profile));
+    } else {
+      localStorage.removeItem("user");
+    }
+  };
+
+  // Fetch profile from Supabase
+  const fetchUserProfile = async (auth_id: string, email: string) => {
+    const { data, error } = await supabaseClient
+      .from("users")
+      .select("*")
+      .eq("auth_id", auth_id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Error fetching profile:", error.message);
+      return null;
+    }
+
+    return {
+      id: auth_id,
+      email,
+      fname: data.fname,
+      lname: data.lname,
+      short_bio: data.short_bio,
+      profile_pic: data.profile_pic,
+      phnumber: data.phnumber,
+      countrycode: data.countrycode,
+    } as User;
+  };
+
+  // Check session on mount
   useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { session },
-      } = await supabaseClient.auth.getSession();
+    const init = async () => {
+      try {
+        // 1. Load from localStorage (faster UI)
+        const cached = localStorage.getItem("user");
+        if (cached) setUser(JSON.parse(cached));
 
-      if (session?.user) {
-        await fetchUserProfile(session.user.id, session.user.email || "");
-      }
-    };
-
-    getUser();
-
-    const { data: listener } = supabaseClient.auth.onAuthStateChange(
-      async (event, session) => {
+        // 2. Verify with Supabase
+        const { data: { session } } = await supabaseClient.auth.getSession();
         if (session?.user) {
-          await fetchUserProfile(session.user.id, session.user.email || "");
-        } else {
-          setUser(null);
+          const profile = await fetchUserProfile(session.user.id, session.user.email || "");
+          if (profile) setUserAndCache(profile);
         }
+      } catch (err) {
+        console.error("Init error:", err);
+      } finally {
+        setIsLoading(false);
       }
-    );
-
-    return () => {
-      listener.subscription.unsubscribe();
     };
+    init();
   }, []);
 
-  // Fetch profile from `users` table
-  // Fix the fetchUserProfile function
-const fetchUserProfile = async (id: string, email: string) => {
-  const { data: profile, error } = await supabaseClient
-    .from("users")
-    .select("fname, lname, phnumber, countrycode, short_bio, profile_pic")
-    .eq("auth_id", id)
-    .maybeSingle();
+  // Update profile
+  const updateProfile = async (updates: Partial<User>) => {
+    if (!user) return { success: false, error: "No user logged in" };
 
-  if (error) {
-    console.error("Error fetching user profile:", error.message);
-  }
+    const { error } = await supabaseClient
+      .from("users")
+      .update(updates)
+      .eq("auth_id", user.id);
 
-  setUser({
-    id,
-    email,
-    fname: profile?.fname || "",      // Keep as fname
-    lname: profile?.lname || "",      // Keep as lname
-    phnumber: profile?.phnumber || "",
-    countrycode: profile?.countrycode || "",
-    short_bio: profile?.short_bio || "",
-    profile_pic: profile?.profile_pic || "",
-  });
-};
+    if (error) return { success: false, error: error.message };
+
+    const updatedUser = { ...user, ...updates };
+    setUserAndCache(updatedUser);
+    return { success: true };
+  };
 
   // Login
   const login = async (email: string, password: string) => {
@@ -100,105 +117,70 @@ const fetchUserProfile = async (id: string, email: string) => {
         email,
         password,
       });
-
       if (error) return { success: false, error: error.message };
 
       if (data?.user) {
-        await fetchUserProfile(data.user.id, data.user.email || "");
+        const profile = await fetchUserProfile(data.user.id, data.user.email || "");
+        if (profile) setUserAndCache(profile);
+        return { success: true };
       }
-
-      return { success: true };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unexpected error";
-      return { success: false, error: msg };
+      return { success: false, error: "Login failed" };
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
   };
 
-  // Signup (also insert into `users` table)
-  const signup = async (
-    email: string,
-    password: string,
-    fname: string,
-    lname: string
-  ) => {
+  // Signup
+  const signup = async (email: string, password: string, fname: string, lname: string, phnumber?: string) => {
     try {
       const { data, error } = await supabaseClient.auth.signUp({
         email,
         password,
+        options: { emailRedirectTo: `${window.location.origin}/login` },
       });
-
       if (error) return { success: false, error: error.message };
 
       if (data?.user) {
-        // Create row in `users` table
         await supabaseClient.from("users").insert({
           auth_id: data.user.id,
           email,
           fname,
           lname,
+          phnumber: phnumber || "",
         });
 
-        await fetchUserProfile(data.user.id, email);
-      }
+        const profile: User = { id: data.user.id, email, fname, lname, phnumber };
+        setUserAndCache(profile);
 
-      return { success: true };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unexpected error";
-      return { success: false, error: msg };
+        return { success: true, message: "Please confirm your email before logging in." };
+      }
+      return { success: false, error: "Signup failed" };
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
   };
 
-  // Logout
   const logout = async () => {
     await supabaseClient.auth.signOut();
-    setUser(null);
+    setUserAndCache(null);
   };
 
-  // Update profile
-// Fix the updateProfile function
-const updateProfile = async (updates: Partial<User>) => {
-  if (!user) return { success: false, error: "No user is logged in." };
-
-  try {
-    const { error } = await supabaseClient
-      .from("users")
-      .update({
-        fname: updates.fname,           // Use fname instead of first_name
-        lname: updates.lname,           // Use lname instead of last_name
-        phnumber: updates.phnumber,
-        countrycode: updates.countrycode,
-        short_bio: updates.short_bio,
-        profile_pic: updates.profile_pic,
-      })
-      .eq("auth_id", user.id);
-
-    if (error) return { success: false, error: error.message };
-
-    // Update local state
-    setUser((prev) =>
-      prev ? { ...prev, ...updates } : prev
-    );
-
-    return { success: true };
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : "Unexpected error";
-    return { success: false, error: msg };
-  }
-};
+  const socialLogin = async (provider: "google" | "facebook") => {
+    await supabaseClient.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/` },
+    });
+  };
 
   return (
-    <AuthContext.Provider
-      value={{ user, login, signup, logout, updateProfile }}
-    >
+    <AuthContext.Provider value={{ user, login, signup, logout, socialLogin, updateProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = (): AuthContextType => {
+export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
+  if (context === undefined) throw new Error("useAuth must be used within an AuthProvider");
   return context;
 };
