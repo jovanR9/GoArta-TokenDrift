@@ -10,17 +10,17 @@ import React, {
 import { supabaseClient } from "@/app/api/supabaselogin/supabase";
 
 // User type (matches your `users` table)
+// Update the User interface to match your database fields
 interface User {
   id: string; // auth.users.id
   email: string;
-  first_name?: string;
-  last_name?: string;
+  fname?: string;        // Changed from first_name
+  lname?: string;        // Changed from last_name
   phnumber?: string;
   countrycode?: string;
   short_bio?: string;
   profile_pic?: string;
 }
-
 interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
@@ -69,28 +69,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   // Fetch profile from `users` table
-  const fetchUserProfile = async (id: string, email: string) => {
-    const { data: profile, error } = await supabaseClient
-      .from("users")
-      .select("fname, lname, phnumber, countrycode, short_bio, profile_pic")
-      .eq("auth_id", id)
-      .maybeSingle(); // ✅ safe: no error if no row
+  // Fix the fetchUserProfile function
+const fetchUserProfile = async (id: string, email: string) => {
+  const { data: profile, error } = await supabaseClient
+    .from("users")
+    .select("fname, lname, phnumber, countrycode, short_bio, profile_pic")
+    .eq("auth_id", id)
+    .maybeSingle();
 
-    if (error) {
-      console.error("Error fetching user profile:", error.message);
-    }
+  if (error) {
+    console.error("Error fetching user profile:", error.message);
+  }
 
-    setUser({
-      id,
-      email,
-      first_name: profile?.fname || "",
-      last_name: profile?.lname || "",
-      phnumber: profile?.phnumber || "",
-      countrycode: profile?.countrycode || "",
-      short_bio: profile?.short_bio || "",
-      profile_pic: profile?.profile_pic || "",
-    });
-  };
+  setUser({
+    id,
+    email,
+    fname: profile?.fname || "",      // Keep as fname
+    lname: profile?.lname || "",      // Keep as lname
+    phnumber: profile?.phnumber || "",
+    countrycode: profile?.countrycode || "",
+    short_bio: profile?.short_bio || "",
+    profile_pic: profile?.profile_pic || "",
+  });
+};
 
   // Login
   const login = async (email: string, password: string) => {
@@ -154,35 +155,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Update profile
-  const updateProfile = async (updates: Partial<User>) => {
-    if (!user) return { success: false, error: "No user is logged in." };
+// Fix the updateProfile function
+const updateProfile = async (updates: Partial<User>) => {
+  if (!user) return { success: false, error: "No user is logged in." };
 
-    try {
-      const { error } = await supabaseClient
-        .from("users")
-        .update({
-          fname: updates.first_name,
-          lname: updates.last_name,
-          phnumber: updates.phnumber,
-          countrycode: updates.countrycode,
-          short_bio: updates.short_bio,
-          profile_pic: updates.profile_pic,
-        })
-        .eq("auth_id", user.id);
+  try {
+    const { error } = await supabaseClient
+      .from("users")
+      .update({
+        fname: updates.fname,           // Use fname instead of first_name
+        lname: updates.lname,           // Use lname instead of last_name
+        phnumber: updates.phnumber,
+        countrycode: updates.countrycode,
+        short_bio: updates.short_bio,
+        profile_pic: updates.profile_pic,
+      })
+      .eq("auth_id", user.id);
 
-      if (error) return { success: false, error: error.message };
+    if (error) return { success: false, error: error.message };
 
-      // Update local state
-      setUser((prev) =>
-        prev ? { ...prev, ...updates } : prev
-      );
+    // Update local state
+    setUser((prev) =>
+      prev ? { ...prev, ...updates } : prev
+    );
 
-      return { success: true };
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Unexpected error";
-      return { success: false, error: msg };
-    }
-  };
+    return { success: true };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : "Unexpected error";
+    return { success: false, error: msg };
+  }
+};
 
   return (
     <AuthContext.Provider

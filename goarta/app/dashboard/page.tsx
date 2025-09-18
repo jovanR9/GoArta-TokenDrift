@@ -73,28 +73,22 @@ const ProfileDashboard = () => {
     setIsSaving(true);
     setError(null);
 
+    // Use the correct field names that match your database schema
     const updates = {
-      fname: profileData.fname,
-      lname: profileData.lname,
+      fname: profileData.fname,     // Matches users table
+      lname: profileData.lname,     // Matches users table
       phnumber: profileData.phnumber,
       countrycode: profileData.countrycode,
       short_bio: profileData.short_bio,
     };
 
     try {
-      // Check if updateProfile function exists in AuthContext
-      if (typeof updateProfile === 'function') {
-        const { success, error } = await updateProfile(updates);
-        if (success) {
-          setIsEditing(false);
-          console.log("Profile saved successfully!");
-        } else {
-          setError(error || "Failed to save profile. Please try again.");
-        }
+      const { success, error } = await updateProfile(updates);
+      if (success) {
+        setIsEditing(false);
+        console.log("Profile saved successfully!");
       } else {
-        // If updateProfile doesn't exist, you'll need to implement it in your AuthContext
-        setError("Profile update functionality not implemented. Please add updateProfile to your AuthContext.");
-        console.error("updateProfile function not found in AuthContext");
+        setError(error || "Failed to save profile. Please try again.");
       }
     } catch (err) {
       setError("An error occurred while saving profile. Please try again.");
