@@ -42,13 +42,13 @@ export default function EventsHero() {
           
           {/* Right Content - Image Block */}
           <div className="flex-1 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-md sm:max-w-lg lg:max-w-lg">
+            <div className="-mt-12 ml-9 relative w-96 max-w-md sm:max-w-lg lg:w-[40rem] lg:h-[20rem]">
               <Image
                 src="/carnival festival.png"
                 alt="Carnival Festival Float"
                 width={500}
                 height={500}
-                className="object-contain w-full h-auto scale-x-[-1]"
+                className="object-contain w-full h-88 scale-x-[-1]"
                 priority
               />
             </div>

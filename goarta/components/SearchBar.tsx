@@ -25,7 +25,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ onSearch, onFilterChange }) => {
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      <label className="text-lg font-bold">Browse through events:</label>
+      <label className="text-3xl font-bold">Browse through events:</label>
       <div className="flex items-center border rounded-lg px-4 py-2 bg-white shadow-md w-full">
         {/* Search input */}
         <input

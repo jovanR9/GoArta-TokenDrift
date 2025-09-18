@@ -54,14 +54,14 @@ export default function EventCardGallery() {
 
     return events.filter(event => {
       const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       let matchesFilter = true;
       if (filter === "Upcoming") {
         matchesFilter = event.status === "Upcoming";
       } else if (filter === "Past") {
         matchesFilter = event.status === "Past";
       }
-      
+
       return matchesSearch && matchesFilter;
     });
   }, [searchQuery, filter, events, loading, error]);
@@ -73,25 +73,26 @@ export default function EventCardGallery() {
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <div
         style={{
-          background: 'linear-gradient(180deg, #85A8EE70 0%, #2AFF007D 100%)'
+          background: "linear-gradient(180deg, #85A8EE70 0%, #2AFF007D 100%)",
         }}
-        className="w-full"
+        className="w-[22rem] h-[38rem] mt-10 lg:w-[92rem] lg:h-[31rem] rounded-3xl mx-auto flex flex-col items-center"
       >
         <EventsNavbar />
         <EventsHero />
       </div>
+
       <div className="flex-grow p-8">
-        
+
         {/* Container to align search bar with cards */}
         <div className="max-w-6xl mx-auto">
           {/* Search and Filter Component - Left aligned */}
-          <div className="mb-8">
-            <SearchBar 
-              onSearch={setSearchQuery} 
-              onFilterChange={setFilter} 
+          <div className="mb-8 mt-7">
+            <SearchBar
+              onSearch={setSearchQuery}
+              onFilterChange={setFilter}
             />
           </div>
-          
+
           {/* Events Grid - 3 cards per row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredEvents.map((event, index) => (
@@ -108,7 +109,7 @@ export default function EventCardGallery() {
           </div>
         </div>
       </div>
-      
+
       {/* Footer */}
       <Footer />
     </div>
