@@ -19,9 +19,9 @@ interface CarouselProps {
   loopDelay?: number;
 }
 
-const UpcomingEventsCarousel: React.FC<CarouselProps> = ({ 
-  autoLoop = true, 
-  loopDelay = 5000 
+const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
+  autoLoop = true,
+  loopDelay = 5000
 }) => {
   // State
   const [events, setEvents] = useState<EventData[]>([]);
@@ -61,7 +61,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data: EventData[] = await response.json();
-      
+
       // Add fallback images for events that don't have images
       const eventsWithImages = data.map((event, index) => {
         // If event doesn't have an image, use a fallback image
@@ -75,7 +75,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         }
         return event;
       });
-      
+
       setEvents(eventsWithImages);
       setOrder(eventsWithImages.map((_, index) => index));
     } catch (e: unknown) {
@@ -91,8 +91,8 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       setImagesLoaded(true);
       return;
     }
-    
-    const promises = events.map(({ image }) => 
+
+    const promises = events.map(({ image }) =>
       new Promise<HTMLImageElement>((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve(img);
@@ -100,7 +100,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         img.src = image;
       })
     );
-    
+
     try {
       await Promise.all(promises);
       setImagesLoaded(true);
@@ -114,18 +114,18 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   const step = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
       if (isAnimating || events.length === 0) return resolve();
-      
+
       setIsAnimating(true);
-      
+
       const newOrder = [...order.slice(1), order[0]];
       const newDetailsEven = !detailsEven;
-      
+
       setOrder(newOrder);
       setDetailsEven(newDetailsEven);
-      
+
       const detailsActive = newDetailsEven ? detailsEvenRef.current : detailsOddRef.current;
       const detailsInactive = newDetailsEven ? detailsOddRef.current : detailsEvenRef.current;
-      
+
       // Update content
       const activeData = events[newOrder[0]];
       if (detailsActive) {
@@ -133,7 +133,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         const title1El = detailsActive.querySelector('.title-1');
         const title2El = detailsActive.querySelector('.title-2');
         const descEl = detailsActive.querySelector('.desc');
-        
+
         if (textEl) textEl.textContent = activeData.date;
         if (title1El) title1El.textContent = activeData.title;
         if (title2El) title2El.textContent = activeData.places;
@@ -142,12 +142,12 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
 
       gsap.set(detailsActive, { zIndex: 22 });
       gsap.to(detailsActive, { opacity: 1, delay: 0.4, ease });
-      
+
       // Animate text elements
       const textSelectors = ['.text', '.title-1', '.title-2', '.desc', '.cta'];
       const delays = [0.1, 0.15, 0.15, 0.3, 0.35];
       const durations = [0.7, 0.7, 0.7, 0.4, 0.4];
-      
+
       textSelectors.forEach((selector, index) => {
         const element = detailsActive?.querySelector(selector);
         if (element) {
@@ -196,7 +196,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         borderRadius: 0,
         onComplete: () => {
           const xNew = offsetLeftRef.current + (rest.length - 1) * (cardWidth + gap);
-          
+
           gsap.set(cardRefs.current[prv], {
             x: xNew,
             y: offsetTopRef.current,
@@ -258,9 +258,9 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   // Loop function
   const loop = useCallback(async () => {
     if (!autoLoop) return;
-    
+
     await step();
-    
+
     if (loopTimeoutRef.current) {
       clearTimeout(loopTimeoutRef.current);
     }
@@ -270,12 +270,12 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   // Initialize animation
   const init = useCallback(() => {
     if (events.length === 0) return;
-    
+
     const [active, ...rest] = order;
     const detailsActive = detailsEven ? detailsEvenRef.current : detailsOddRef.current;
     const detailsInactive = detailsEven ? detailsOddRef.current : detailsEvenRef.current;
     const { innerHeight: height, innerWidth: width } = window;
-    
+
     offsetTopRef.current = height - 430;
     offsetLeftRef.current = width - 830;
 
@@ -383,7 +383,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   // Effects
   useEffect(() => {
     fetchEvents();
-    
+
     return () => {
       if (loopTimeoutRef.current) {
         clearTimeout(loopTimeoutRef.current);
@@ -613,24 +613,24 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
 
   if (loading) {
     return (
-      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{color: 'white', fontSize: '24px'}}>Loading upcoming events...</div>
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'white', fontSize: '24px' }}>Loading upcoming events...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{color: 'red', fontSize: '24px'}}>Error: {error}</div>
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'red', fontSize: '24px' }}>Error: {error}</div>
       </div>
     );
   }
 
   if (events.length === 0) {
     return (
-      <div style={{...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{color: 'white', fontSize: '24px'}}>No upcoming events at the moment.</div>
+      <div style={{ ...styles.container, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'white', fontSize: '24px' }}>No upcoming events at the moment.</div>
       </div>
     );
   }
@@ -639,25 +639,25 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   const setCardRef = (index: number) => (el: HTMLDivElement | null) => {
     if (el) cardRefs.current[index] = el;
   };
-  
+
   const setCardContentRef = (index: number) => (el: HTMLDivElement | null) => {
     if (el) cardContentRefs.current[index] = el;
   };
-  
+
   const setSlideItemRef = (index: number) => (el: HTMLDivElement | null) => {
     if (el) slideItemRefs.current[index] = el;
   };
 
   return (
     <>
-      
+
       <div ref={containerRef} style={styles.container}>
         {/* "Upcoming Events" text on the left side */}
         <div style={styles.upcomingEventsText}>
           <div style={styles.upcomingEventsTitle}>UPCOMING</div>
           <div style={styles.upcomingEventsSubtitle}>Events</div>
         </div>
-        
+
         {/* Cards */}
         {events.map((event, index) => (
           <div key={event.id}>
@@ -689,7 +689,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
             </div>
           </div>
           <div style={styles.titleBox}>
-            <div className="title-1" style={styles.title}>{events.length > 0 ? events[0].title : ''}</div>
+            <div className="title-1 " style={styles.title}>{events.length > 0 ? events[0].title : ''}</div>
           </div>
           <div style={styles.titleBox}>
             <div className="title-2" style={styles.title}>{events.length > 0 ? events[0].places : ''}</div>
@@ -699,7 +699,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
           </div>
           <div className="cta" style={styles.cta}>
             <button style={styles.bookmark}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '20px', height: '20px'}}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: '20px', height: '20px' }}>
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
@@ -725,7 +725,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
           </div>
           <div className="cta" style={styles.cta}>
             <button style={styles.bookmark}>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '20px', height: '20px'}}>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: '20px', height: '20px' }}>
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
@@ -736,12 +736,12 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         {/* Pagination */}
         <div ref={paginationRef} style={styles.pagination}>
           <div style={styles.arrow} onClick={handlePrevious}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{width: '20px', height: '20px'}}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '20px', height: '20px' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
             </svg>
           </div>
-          <div style={{...styles.arrow, ...styles.arrowRight}} onClick={handleNext}>
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{width: '20px', height: '20px'}}>
+          <div style={{ ...styles.arrow, ...styles.arrowRight }} onClick={handleNext}>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" style={{ width: '20px', height: '20px' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
             </svg>
           </div>
