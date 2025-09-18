@@ -1,45 +1,29 @@
+// components/Navbar.tsx
 "use client";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth, User } from "@/components/AuthContext";
-
-// User Avatar Component
-const UserAvatar = ({ user }: { user: User }) => {
-  const getInitials = () => {
-    return (
-      (user.fname?.charAt(0) || user.email?.charAt(0) || "U") +
-      (user.lname?.charAt(0) || "")
-    ).toUpperCase();
-  };
-
-  const getDisplayName = () => {
-    return user.fname || user.email?.split("@")[0] || "User";
-  };
-
-  return (
-    <div className="flex items-center gap-2">
-      {/* User Avatar Circle */}
-      <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
-        {getInitials()}
-      </div>
-
-      {/* User Name (hidden on mobile) */}
-      <span className="text-sm text-gray-700 font-medium hidden sm:inline">
-        {/* Hi, {getDisplayName()} */}
-      </span>
-    </div>
-  );
-};
+import { useAuth } from "@/components/AuthContext";
+import UserIcon from "./UserIcon";
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { user, logout, isLoading } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
     router.push("/"); // client-side redirect
   };
+
+  if (isLoading) return null; // Don't render until auth state is ready
+
+  // Null-safe initials and display name
+const initials = user ? 
+  ((user.fname?.[0] || user.email?.[0] || "U") + (user.lname?.[0] || "")).toUpperCase()
+  : "U";
+
+
+  const displayName = user ? user.fname || user.email?.split("@")[0] || "User" : "";
 
   return (
     <header className="navbar px-4 sm:px-6 lg:px-8 py-4">
@@ -71,12 +55,8 @@ export default function Navbar() {
 
           {user ? (
             <div className="flex items-center gap-3">
-              {/* User Avatar Component */}
-              <Link href="/dashboard">
-                <UserAvatar user={user} />
-              </Link>
+              <UserIcon initials={initials} />
 
-              {/* Logout Button */}
               <button
                 onClick={handleLogout}
                 className="block rounded-md bg-red-600 px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-white transition hover:bg-red-700"
