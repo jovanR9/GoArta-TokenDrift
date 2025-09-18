@@ -5,75 +5,12 @@ import {
   Camera,
   Edit,
   LogOut,
-  MapPin,
-  Globe,
-  Calendar,
-  Star,
 } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import DashboardCards from "@/components/DashboardCard";
 import { useRouter } from "next/navigation";
 
-// Cultural Tourism Dashboard Cards Component
-const CulturalDashboardCards = () => (
-  <div className="mt-16 px-6">
-    <div className="max-w-7xl mx-auto">
-      <h2 className="text-3xl font-bold text-amber-900 mb-8 text-center">
-        Your Cultural Journey
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {[
-          {
-            icon: MapPin,
-            title: "Places Visited",
-            value: "12",
-            subtitle: "Heritage Sites",
-            color: "from-amber-600 to-orange-600",
-          },
-          {
-            icon: Calendar,
-            title: "Tours Booked",
-            value: "8",
-            subtitle: "This Year",
-            color: "from-red-600 to-pink-600",
-          },
-          {
-            icon: Star,
-            title: "Reviews Given",
-            value: "24",
-            subtitle: "5-Star Average",
-            color: "from-purple-600 to-indigo-600",
-          },
-          {
-            icon: Globe,
-            title: "Countries",
-            value: "3",
-            subtitle: "Explored",
-            color: "from-teal-600 to-blue-600",
-          },
-        ].map((card, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-2xl shadow-xl p-6 transform hover:scale-105 transition-all duration-300 border border-amber-100"
-          >
-            <div
-              className={`w-12 h-12 rounded-full bg-gradient-to-r ${card.color} flex items-center justify-center mb-4`}
-            >
-              <card.icon className="w-6 h-6 text-white" />
-            </div>
-            <div className="text-3xl font-bold text-amber-900 mb-1">
-              {card.value}
-            </div>
-            <div className="text-lg font-semibold text-amber-800 mb-1">
-              {card.title}
-            </div>
-            <div className="text-sm text-amber-600">{card.subtitle}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  </div>
-);
+
 
 const ProfileDashboard = () => {
   const { user, logout, updateProfile, isLoading } = useAuth();

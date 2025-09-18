@@ -117,10 +117,7 @@ const AuthForm: React.FC = () => {
       );
 
       if (result.success) {
-        // Extract initials
-        const initials = `${signupData.firstName.charAt(0).toUpperCase()}${signupData.lastName.charAt(0).toUpperCase()}`;
-        // Store initials in local state or context (assuming AuthContext handles this)
-        // For now, we'll pass it via a prop or context update
+
         setSuccessMessage(`Welcome ${signupData.firstName}! Your account has been created successfully.`);
         resetForms();
         // Redirect to homepage

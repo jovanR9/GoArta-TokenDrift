@@ -61,6 +61,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return null;
     }
 
+    if (!data) {
+      return {
+        id: auth_id,
+        email,
+      } as User;
+    }
+
     return {
       id: auth_id,
       email,

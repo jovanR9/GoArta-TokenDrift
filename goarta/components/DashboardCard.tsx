@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import Image from 'next/image';
 import { X } from 'lucide-react';
 
 const formatDate = (dateStr: string) => {
@@ -128,15 +129,17 @@ export default function BookedEventsCards() {
                         className="flex gap-8 overflow-x-auto scrollbar-hide px-2 py-4"
                         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
                     >
-                        {bookedEvents.map((event, index) => (
+                        {bookedEvents.map((event) => (
                             <div
                                 key={event.id}
                                 className="flex-shrink-0 w-[320px] rounded-3xl bg-white border border-blue-600 shadow-md overflow-hidden hover:-translate-y-1 transition-transform duration-300"
                             >
                                 <div className="h-44 w-full overflow-hidden relative">
-                                    <img
+                                    <Image
                                         src={event.thumbnail}
                                         alt={event.title}
+                                        width={400}
+                                        height={250}
                                         className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
                                     />
                                     <div className="absolute top-3 right-3 bg-orange-500 text-white px-3 py-1 rounded-lg text-sm font-bold shadow-lg">

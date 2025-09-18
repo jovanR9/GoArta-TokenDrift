@@ -13,9 +13,6 @@ const UserAvatar = ({ user }: { user: User }) => {
     ).toUpperCase();
   };
 
-  const getDisplayName = () => {
-    return user.fname || user.email?.split("@")[0] || "User";
-  };
 
   return (
     <div className="flex items-center gap-2">
