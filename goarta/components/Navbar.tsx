@@ -18,15 +18,13 @@ export default function Navbar() {
   if (isLoading) return null; // Don't render until auth state is ready
 
   // Null-safe initials and display name
-const initials = user ? 
+  const initials = user ? 
   ((user.fname?.[0] || user.email?.[0] || "U") + (user.lname?.[0] || "")).toUpperCase()
   : "U";
 
 
-  const displayName = user ? user.fname || user.email?.split("@")[0] || "User" : "";
 
-  return (
-    <header className="navbar px-4 sm:px-6 lg:px-8 py-4">
+  return (    <header className="navbar px-4 sm:px-6 lg:px-8 py-4">
       <div className="mx-auto flex h-16 max-w-screen-xl items-center justify-between">
         {/* Logo */}
         <Link href="/">
