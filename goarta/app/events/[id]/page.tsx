@@ -86,7 +86,7 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             <div className="flex justify-center">
               <EventCard 
                 title={event.title}
-                image={event.image_url}
+                image={event.image_url || event.image}
                 status={event.status}
                 categories={event.categories}
               />
@@ -127,7 +127,7 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
                   <EventPageCard
                     title={relatedEvent.title}
                     date={relatedEvent.date_range}
-                    image={relatedEvent.image_url}
+                    image={relatedEvent.image_url || relatedEvent.image}
                     status={relatedEvent.status}
                     categories={relatedEvent.categories}
                   />

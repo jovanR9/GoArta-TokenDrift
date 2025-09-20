@@ -96,11 +96,11 @@ export default function EventCardGallery() {
           {/* Events Grid - 3 cards per row */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredEvents.map((event, index) => (
-              <div key={index} className="flex justify-center">
+              <div key={event.id} className="flex justify-center">
                 <EventPageCard
                   title={event.title}
                   date={event.date_range}
-                  image={event.image_url}
+                  image={event.image_url || event.image}
                   status={event.status}
                   categories={event.categories}
                 />

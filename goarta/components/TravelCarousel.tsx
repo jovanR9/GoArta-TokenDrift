@@ -11,6 +11,7 @@ interface EventData {
   places: string;
   description: string;
   image: string;
+  image_url?: string; // Optional field from Supabase
   alt: string;
 }
 
@@ -62,18 +63,21 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       }
       const data: EventData[] = await response.json();
 
-      // Add fallback images for events that don't have images
+      // Use the actual event images from the database
       const eventsWithImages = data.map((event, index) => {
-        // If event doesn't have an image, use a fallback image
-        if (!event.image || event.image.trim() === '') {
-          // Use a fallback image URL
+        // Use the image field which should now contain the correct image URL
+        if (event.image && event.image.trim() !== '') {
           return {
             ...event,
-            image: `https://picsum.photos/800/600?random=${index + 1}`,
             alt: `Image for ${event.title}`
           };
         }
-        return event;
+        // Use a fallback image URL if no image is available
+        return {
+          ...event,
+          image: `https://picsum.photos/800/600?random=${index + 1}`,
+          alt: `Image for ${event.title}`
+        };
       });
 
       setEvents(eventsWithImages);

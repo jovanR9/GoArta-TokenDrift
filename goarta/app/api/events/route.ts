@@ -11,5 +11,14 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(events);
+  // Transform the data to match the expected structure
+  const transformedEvents = events.map(event => ({
+    ...event,
+    // Map Supabase fields to expected fields if needed
+    places: event.venue_name || event.places || '',
+    date: event.date_range || event.start_time || event.date || '',
+    image: event.image_url || event.image || ''
+  }));
+
+  return NextResponse.json(transformedEvents);
 }
