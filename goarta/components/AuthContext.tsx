@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   // Fetch profile from Supabase
   const fetchUserProfile = async (auth_id: string, email: string) => {
+    console.log("Fetching user profile for auth_id:", auth_id);
     const { data, error } = await supabaseClient
       .from("users")
       .select("*")
@@ -61,22 +62,65 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return null;
     }
 
+    console.log("Database user data:", data);
+
+    // If no data exists for this user, create a basic profile
     if (!data) {
-      return {
-        id: auth_id,
-        email,
-      } as User;
+      console.log("No profile found, creating basic profile for user:", auth_id);
+      
+      // Get user metadata from auth
+      const { data: { user } } = await supabaseClient.auth.getUser();
+      const metadata = user?.user_metadata || {};
+      
+      // Create profile with available metadata
+      const profileData = {
+        auth_id: auth_id,
+        email: email,
+        fname: metadata.first_name || "",
+        lname: metadata.last_name || ""
+      };
+      
+      // Try to create a basic profile entry
+      const { data: insertedData, error: insertError } = await supabaseClient
+        .from("users")
+        .insert(profileData)
+        .select();
+      
+      if (insertError) {
+        console.error("Error creating basic profile:", insertError.message);
+        // Even if we can't create a profile, return a basic user object
+        return {
+          id: auth_id,
+          email,
+          fname: metadata.first_name || "",
+          lname: metadata.last_name || ""
+        } as User;
+      } else {
+        console.log("Basic profile created successfully:", insertedData);
+        // Return the newly created profile
+        const newProfile = insertedData?.[0];
+        return {
+          id: auth_id,
+          email,
+          fname: newProfile?.fname || metadata.first_name || "",
+          lname: newProfile?.lname || metadata.last_name || "",
+          short_bio: newProfile?.short_bio || "",
+          profile_pic: newProfile?.profile_pic || "",
+          phnumber: newProfile?.phnumber || "",
+          countrycode: newProfile?.countrycode || ""
+        } as User;
+      }
     }
 
     return {
       id: auth_id,
       email,
-      fname: data.fname,
-      lname: data.lname,
-      short_bio: data.short_bio,
-      profile_pic: data.profile_pic,
-      phnumber: data.phnumber,
-      countrycode: data.countrycode,
+      fname: data.fname || "",
+      lname: data.lname || "",
+      short_bio: data.short_bio || "",
+      profile_pic: data.profile_pic || "",
+      phnumber: data.phnumber || "",
+      countrycode: data.countrycode || ""
     } as User;
   };
 
@@ -85,16 +129,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const init = async () => {
       try {
         const cached = localStorage.getItem("user");
+        console.log("Cached user data:", cached);
         if (cached) setUser(JSON.parse(cached));
 
         const { data: { session } } = await supabaseClient.auth.getSession();
+        console.log("Supabase session:", session);
         if (session?.user) {
           const profile = await fetchUserProfile(session.user.id, session.user.email || "");
+          console.log("Fetched profile:", profile);
           if (profile) setUserAndCache(profile);
         }
       } catch (err) {
         console.error("Init error:", err);
       } finally {
+        console.log("Finished initialization, user:", user);
         setIsLoading(false);
       }
     };
@@ -105,14 +153,40 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const updateProfile = async (updates: Partial<User>) => {
     if (!user) return { success: false, error: "No user logged in" };
 
-    const { error } = await supabaseClient
+    console.log("Updating profile with:", updates);
+    console.log("Current user:", user);
+
+    // Try to update first
+    const { error: updateError } = await supabaseClient
       .from("users")
       .update(updates)
       .eq("auth_id", user.id);
 
-    if (error) return { success: false, error: error.message };
+    // If update fails, it might be because the record doesn't exist
+    if (updateError) {
+      console.log("Update failed, trying insert:", updateError.message);
+      
+      // Try to insert a new record
+      const insertData = {
+        auth_id: user.id,
+        email: user.email,
+        ...updates
+      };
+      
+      const { error: insertError } = await supabaseClient
+        .from("users")
+        .insert(insertData);
+        
+      if (insertError) {
+        console.error("Insert also failed:", insertError.message);
+        return { success: false, error: insertError.message };
+      }
+      
+      console.log("Insert successful");
+    }
 
     const updatedUser = { ...user, ...updates };
+    console.log("Updated user:", updatedUser);
     setUserAndCache(updatedUser);
     return { success: true };
   };
@@ -146,17 +220,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (error) return { success: false, error: error.message };
 
       if (data?.user) {
-        await supabaseClient.from("users").insert({
-          auth_id: data.user.id,
-          email,
-          fname,
-          lname,
-          phnumber: phnumber || "",
-        });
-
-        const profile: User = { id: data.user.id, email, fname, lname, phnumber };
-        setUserAndCache(profile);
-
+        // Don't insert user data here, let fetchUserProfile handle it
+        // when the user actually logs in
         return { success: true, message: "Please confirm your email before logging in." };
       }
       return { success: false, error: "Signup failed" };

@@ -24,12 +24,18 @@ const ProfileDashboard = () => {
     short_bio: "",
   });
 
+  // Debugging: Log profileData changes
+  useEffect(() => {
+    console.log("Profile data state updated:", profileData);
+  }, [profileData]);
+
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Populate form with user data on load
   useEffect(() => {
+    console.log("User data updated:", user);
     if (user) {
       setProfileData({
         fname: user?.fname || "",
