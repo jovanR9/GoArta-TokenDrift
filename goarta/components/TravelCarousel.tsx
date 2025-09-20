@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { gsap } from 'gsap';
+import Link from 'next/link';
 
 // TypeScript interfaces
 interface EventData {
@@ -44,6 +45,16 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   const slideItemRefs = useRef<HTMLDivElement[]>([]);
   const progressRef = useRef<HTMLDivElement>(null);
   const loopTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Helper function to create URL-friendly slugs
+  const slugify = (text: string) => {
+    return text.toLowerCase()
+      .replace(/\s+/g, '-')           // Replace spaces with -
+      .replace(/[^\w-]+/g, '')       // Remove all non-word chars
+      .replace(/--+/g, '-')         // Replace multiple - with single -
+      .replace(/^-+/, '')            // Trim - from start of text
+      .replace(/-+$/, '');           // Trim - from end of text
+  };
 
   // Animation variables
   const offsetTopRef = useRef<number>(200);
@@ -437,6 +448,8 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       backgroundPosition: 'center',
       backgroundSize: 'cover',
       boxShadow: '6px 6px 10px 2px rgba(0, 0, 0, 0.6)',
+      width: '100%',
+      height: '100%',
     },
     cardContent: {
       position: 'absolute' as const,
@@ -528,6 +541,9 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       marginLeft: '16px',
       textTransform: 'uppercase' as const,
       cursor: 'pointer',
+      textDecoration: 'none',
+      display: 'inline-flex',
+      alignItems: 'center',
     },
     pagination: {
       position: 'absolute' as const,
@@ -665,13 +681,15 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         {/* Cards */}
         {events.map((event, index) => (
           <div key={event.id}>
-            <div
-              ref={setCardRef(index)}
-              style={{
-                ...styles.card,
-                backgroundImage: `url(${event.image})`,
-              }}
-            />
+            <Link href={`/events/${slugify(event.title)}`}>
+              <div
+                ref={setCardRef(index)}
+                style={{
+                  ...styles.card,
+                  backgroundImage: `url(${event.image})`,
+                }}
+              />
+            </Link>
             <div
               ref={setCardContentRef(index)}
               style={styles.cardContent}
@@ -707,7 +725,6 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
-            <button style={styles.discover}>View Event Details</button>
           </div>
         </div>
 
@@ -733,7 +750,6 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
-            <button style={styles.discover}>View Event Details</button>
           </div>
         </div>
 
