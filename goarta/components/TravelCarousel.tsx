@@ -23,7 +23,7 @@ interface CarouselProps {
 
 const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   autoLoop = true,
-  loopDelay = 5000
+  loopDelay = 8000
 }) => {
   // State
   const [events, setEvents] = useState<EventData[]>([]);
@@ -156,12 +156,12 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       }
 
       gsap.set(detailsActive, { zIndex: 22 });
-      gsap.to(detailsActive, { opacity: 1, delay: 0.4, ease });
+      gsap.to(detailsActive, { opacity: 1, delay: 0.8, ease, duration: 1.5 });
 
       // Animate text elements
       const textSelectors = ['.text', '.title-1', '.title-2', '.desc', '.cta'];
-      const delays = [0.1, 0.15, 0.15, 0.3, 0.35];
-      const durations = [0.7, 0.7, 0.7, 0.4, 0.4];
+      const delays = [0.2, 0.3, 0.3, 0.6, 0.7];
+      const durations = [1.0, 1.0, 1.0, 0.8, 0.8];
 
       textSelectors.forEach((selector, index) => {
         const element = detailsActive?.querySelector(selector);
@@ -186,26 +186,28 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
 
       gsap.set(cardRefs.current[prv], { zIndex: 10 });
       gsap.set(cardRefs.current[active], { zIndex: 20 });
-      gsap.to(cardRefs.current[prv], { scale: 1.5, ease });
+      gsap.to(cardRefs.current[prv], { scale: 1.5, ease, duration: 1.2 });
 
       gsap.to(cardContentRefs.current[active], {
         y: offsetTopRef.current + cardHeight - 10,
         opacity: 0,
-        duration: 0.3,
+        duration: 0.6,
         ease,
       });
 
-      gsap.to(slideItemRefs.current[active], { x: 0, ease });
-      gsap.to(slideItemRefs.current[prv], { x: -numberSize, ease });
+      gsap.to(slideItemRefs.current[active], { x: 0, ease, duration: 1.0 });
+      gsap.to(slideItemRefs.current[prv], { x: -numberSize, ease, duration: 1.0 });
       gsap.to(progressRef.current, {
         width: 500 * (1 / newOrder.length) * (active + 1),
         ease,
+        duration: 1.0,
       });
 
       gsap.to(cardRefs.current[active], {
         x: 0,
         y: 0,
         ease,
+        duration: 1.5,
         width: window.innerWidth,
         height: window.innerHeight,
         borderRadius: 0,
@@ -254,7 +256,8 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
             width: cardWidth,
             height: cardHeight,
             ease,
-            delay: 0.1 * (index + 1),
+            duration: 1.2,
+            delay: 0.2 * (index + 1),
           });
           gsap.to(cardContentRefs.current[i], {
             x: xNew,
@@ -262,9 +265,10 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
             opacity: 1,
             zIndex: 40,
             ease,
-            delay: 0.1 * (index + 1),
+            duration: 1.2,
+            delay: 0.2 * (index + 1),
           });
-          gsap.to(slideItemRefs.current[i], { x: (index + 1) * numberSize, ease });
+          gsap.to(slideItemRefs.current[i], { x: (index + 1) * numberSize, ease, duration: 1.0 });
         }
       });
     });
@@ -348,15 +352,16 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     });
 
     // Start animation sequence
-    const startDelay = 0.6;
+    const startDelay = 1.2;
     gsap.to(coverRef.current, {
       x: width + 400,
-      delay: 0.5,
+      delay: 1.0,
       ease,
+      duration: 1.5,
       onComplete: () => {
         setTimeout(() => {
           if (autoLoop) loop();
-        }, 500);
+        }, 1000);
       },
     });
 
@@ -365,19 +370,21 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       gsap.to(cardRefs.current[i], {
         x: offsetLeftRef.current + index * (cardWidth + gap),
         zIndex: 30,
-        delay: startDelay + 0.05 * index,
+        delay: startDelay + 0.1 * index,
         ease,
+        duration: 1.5,
       });
       gsap.to(cardContentRefs.current[i], {
         x: offsetLeftRef.current + index * (cardWidth + gap),
         zIndex: 40,
-        delay: startDelay + 0.05 * index,
+        delay: startDelay + 0.1 * index,
         ease,
+        duration: 1.5,
       });
     });
 
-    gsap.to(paginationRef.current, { y: 0, opacity: 1, ease, delay: startDelay });
-    gsap.to(detailsActive, { opacity: 1, x: 0, ease, delay: startDelay });
+    gsap.to(paginationRef.current, { y: 0, opacity: 1, ease, delay: startDelay, duration: 1.0 });
+    gsap.to(detailsActive, { opacity: 1, x: 0, ease, delay: startDelay, duration: 1.5 });
   }, [autoLoop, detailsEven, ease, events.length, loop, order]);
 
   // Manual navigation
