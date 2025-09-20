@@ -33,6 +33,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
   const [imagesLoaded, setImagesLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [activeEventIndex, setActiveEventIndex] = useState<number>(0);
 
   // Refs
   const containerRef = useRef<HTMLDivElement>(null);
@@ -143,6 +144,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
 
       // Update content
       const activeData = events[newOrder[0]];
+      setActiveEventIndex(newOrder[0]);
       if (detailsActive) {
         const textEl = detailsActive.querySelector('.text');
         const title1El = detailsActive.querySelector('.title-1');
@@ -442,14 +444,14 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       margin: 0,
       backgroundColor: '#1a1a1a',
       color: '#FFFFFFDD',
-      position: 'relative' as const,
-      overflow: 'hidden' as const,
+      position: 'relative' ,
+      overflow: 'hidden' ,
       fontFamily: '"Inter", sans-serif',
       width: '100vw',
       height: '100vh',
     },
     card: {
-      position: 'absolute' as const,
+      position: 'absolute' ,
       left: 0,
       top: 0,
       backgroundPosition: 'center',
@@ -459,7 +461,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       height: '100%',
     },
     cardContent: {
-      position: 'absolute' as const,
+      position: 'absolute' ,
       left: 0,
       top: 0,
       color: '#FFFFFFDD',
@@ -481,24 +483,41 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       fontSize: '20px',
       fontFamily: '"Oswald", sans-serif',
     },
+    viewEventButton: {
+      border: '1px solid #ffffff',
+      backgroundColor: 'transparent',
+      height: '36px',
+      borderRadius: '99px',
+      color: '#ffffff',
+      padding: '4px 24px',
+      fontSize: '12px',
+      marginTop: '16px',
+      textTransform: 'uppercase',
+      cursor: 'pointer',
+      textDecoration: 'none',
+      display: 'inline-flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '120px',
+    },
     details: {
       zIndex: 22,
-      position: 'absolute' as const,
+      position: 'absolute' ,
       top: '240px',
       left: '60px',
     },
     placeBox: {
       height: '46px',
-      overflow: 'hidden' as const,
+      overflow: 'hidden' ,
     },
     placeBoxText: {
       paddingTop: '16px',
       fontSize: '20px',
-      position: 'relative' as const,
+      position: 'relative' ,
     },
     placeBoxTextBefore: {
       content: '""',
-      position: 'absolute' as const,
+      position: 'absolute' ,
       top: 0,
       left: 0,
       width: '30px',
@@ -509,7 +528,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     titleBox: {
       marginTop: '2px',
       height: '100px',
-      overflow: 'hidden' as const,
+      overflow: 'hidden' ,
     },
     title: {
       fontWeight: 600,
@@ -537,23 +556,9 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       placeItems: 'center',
       cursor: 'pointer',
     },
-    discover: {
-      border: '1px solid #ffffff',
-      backgroundColor: 'transparent',
-      height: '36px',
-      borderRadius: '99px',
-      color: '#ffffff',
-      padding: '4px 24px',
-      fontSize: '12px',
-      marginLeft: '16px',
-      textTransform: 'uppercase' as const,
-      cursor: 'pointer',
-      textDecoration: 'none',
-      display: 'inline-flex',
-      alignItems: 'center',
-    },
+    
     pagination: {
-      position: 'absolute' as const,
+      position: 'absolute' ,
       left: '0px',
       top: '0px',
       display: 'inline-flex',
@@ -591,14 +596,14 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     slideNumbers: {
       width: '50px',
       height: '50px',
-      overflow: 'hidden' as const,
+      overflow: 'hidden' ,
       zIndex: 60,
-      position: 'relative' as const,
+      position: 'relative' ,
     },
     slideItem: {
       width: '50px',
       height: '50px',
-      position: 'absolute' as const,
+      position: 'absolute' ,
       color: 'white',
       top: 0,
       left: 0,
@@ -608,7 +613,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       fontWeight: 'bold',
     },
     cover: {
-      position: 'absolute' as const,
+      position: 'absolute' ,
       left: 0,
       top: 0,
       width: '100vw',
@@ -618,7 +623,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     },
     // New styles for "Upcoming Events" text on the left
     upcomingEventsText: {
-      position: 'absolute' as const,
+      position: 'absolute' ,
       top: '100px',
       left: '60px',
       zIndex: 30,
@@ -688,15 +693,13 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
         {/* Cards */}
         {events.map((event, index) => (
           <div key={event.id}>
-            <Link href={`/events/${slugify(event.title)}`}>
-              <div
-                ref={setCardRef(index)}
-                style={{
-                  ...styles.card,
-                  backgroundImage: `url(${event.image})`,
-                }}
-              />
-            </Link>
+            <div
+              ref={setCardRef(index)}
+              style={{
+                ...styles.card,
+                backgroundImage: `url(${event.image})`,
+              }}
+            />
             <div
               ref={setCardContentRef(index)}
               style={styles.cardContent}
@@ -705,6 +708,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
               <div style={styles.contentPlace}>{event.date}</div>
               <div style={styles.contentTitle}>{event.title}</div>
               <div style={styles.contentTitle}>{event.places}</div>
+              
             </div>
           </div>
         ))}
@@ -724,14 +728,16 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
             <div className="title-2" style={styles.title}>{events.length > 0 ? events[0].places : ''}</div>
           </div>
           <div className="desc" style={styles.desc}>
-            {events.length > 0 ? events[0].description : ''}
-          </div>
+            {events.length > 0 ? events[0].description : ''}</div>
           <div className="cta" style={styles.cta}>
             <button style={styles.bookmark}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: '20px', height: '20px' }}>
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
+            <Link href={events.length > 0 && activeEventIndex < events.length ? `/events/${slugify(events[activeEventIndex].title)}` : '#'} style={styles.viewEventButton}>
+              View Event
+            </Link>
           </div>
         </div>
 
@@ -749,14 +755,16 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
             <div className="title-2" style={styles.title}>{events.length > 1 ? events[1].places : (events.length > 0 ? events[0].places : '')}</div>
           </div>
           <div className="desc" style={styles.desc}>
-            {events.length > 1 ? events[1].description : (events.length > 0 ? events[0].description : '')}
-          </div>
+            {events.length > 1 ? events[1].description : (events.length > 0 ? events[0].description : '')}</div>
           <div className="cta" style={styles.cta}>
             <button style={styles.bookmark}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{ width: '20px', height: '20px' }}>
                 <path fillRule="evenodd" d="M6.32 2.577a49.255 49.255 0 0111.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 01-1.085.67L12 18.089l-7.165 3.583A.75.75 0 013.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93z" clipRule="evenodd" />
               </svg>
             </button>
+            <Link href={events.length > 0 && activeEventIndex < events.length ? `/events/${slugify(events[activeEventIndex].title)}` : '#'} style={styles.viewEventButton}>
+              View Event
+            </Link>
           </div>
         </div>
 
