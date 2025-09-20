@@ -142,12 +142,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       } catch (err) {
         console.error("Init error:", err);
       } finally {
-        console.log("Finished initialization, user:", user);
         setIsLoading(false);
       }
     };
     init();
-  }, []);
+  }, []); // Empty dependency array - only run once on mount
 
   // Update profile
   const updateProfile = async (updates: Partial<User>) => {
@@ -210,7 +209,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   // Signup
-  const signup = async (email: string, password: string, fname: string, lname: string, phnumber?: string) => {
+  const signup = async (email: string, password: string) => {
     try {
       const { data, error } = await supabaseClient.auth.signUp({
         email,
