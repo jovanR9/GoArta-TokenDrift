@@ -26,7 +26,7 @@ const EventCard: React.FC<EventCardProps> = ({ title, image, status, categories 
       <div className="h-36 lg:h-36 absolute bottom-0 left-0 bg-white rounded-tr-2xl px-10 py-8 shadow-md w-2/3 flex flex-col">
         {/* Title */}
         <div>
-          <h2 className="font text-lg -ml-8 font-playfair font-bold text-black">
+          <h2 className="font text-lg -ml-8 font-playfair font-bold text-black lg:text-4xl lg:ml-1 lg:-mt-1">
             {title}
           </h2>
         </div>

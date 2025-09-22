@@ -18,7 +18,7 @@ const EventPageCardTag: React.FC<EventPageCardTagProps> = ({
   const calculatedTextColor = textColor || "#FFFFFF";
 
   return (
-    <div className="flex flex-wrap gap-2 justify-center"> {/* wrapper allows multiple tags in a row */}
+    <div className="flex flex-wrap gap-2 justify-center lg:mt-1"> {/* wrapper allows multiple tags in a row */}
       <div
         className="-ml-1 relative px-2 py-1 flex items-center justify-center font-bold text-xs sm:px-3 sm:py-1.5 sm:text-sm rounded-lg"
         style={{
