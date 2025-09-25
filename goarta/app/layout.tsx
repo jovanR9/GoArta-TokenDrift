@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AuthProvider } from "@/components/AuthContext";
+import Script from "next/script";   // ✅
 
 export const metadata: Metadata = {
   title: "GoArta",
@@ -44,6 +45,12 @@ export default function RootLayout({
             </div>
           </div>
         </AuthProvider>
+
+        {/* ✅ Razorpay SDK loader */}
+        <Script
+          src="https://checkout.razorpay.com/v1/checkout.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );
