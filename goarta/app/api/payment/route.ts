@@ -6,7 +6,7 @@ import { createClient } from "@supabase/supabase-js";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { eventId, name, email, contact } = body;
+    const { eventId, name, email } = body;
 
     if (!eventId) {
       return NextResponse.json({ error: "eventId required" }, { status: 400 });
