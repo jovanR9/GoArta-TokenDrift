@@ -16,7 +16,7 @@ export default function VideoSection() {
   // Define unique width and height for each box at each breakpoint
   const boxSizes = [
     // Box 1
-    ' -ml-1 w-44 h-96 sm:w-68 sm:h-38 md:w-80 md:h-[500px] lg:w-88 lg:h-[500px] lg:-ml-12',
+    ' -ml-1 w-44 h-96 sm:w-68 sm:h-38 md:w-80 md:h-[500px] lg:w-88 lg:h-[500px] lg:-ml-9',
     // Box 2
     ' w-[170px] h-48 sm:w-72 sm:h-40 md:w-96 md:h-60 md:-ml-8 lg:w-[430px] lg:h-58 lg:-ml-0',
     // Box 3
@@ -31,7 +31,7 @@ export default function VideoSection() {
           <h2 className="text-3xl font-bold text-gray-900 mb-4">
             Experience Unforgettable Events
           </h2>
-      <p className="hidden lg:block text-lg text-gray-700 mb-6">
+          <p className="hidden lg:block text-lg text-gray-700 mb-6 lg:-ml-2">
             Cultural festivals bring people together through vibrant traditions, dance, and storytelling. They celebrate heritage with color, music, and shared joy, creating moments that connect generations. <br /><br />
             Musical events offer high-energy experiences and soulful performances. From electronic beats to acoustic sets, they create spaces where rhythm and emotion take center stage. <br /><br />
             Tourist experiences blend history and beauty—whether through heritage walks, architectural wonders, or scenic escapes. Each moment invites reflection, discovery, and delight.

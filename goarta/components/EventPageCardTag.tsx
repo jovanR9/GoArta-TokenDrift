@@ -6,28 +6,26 @@ interface EventPageCardTagProps {
   label: string;
   innerColor?: string; // Default center color
   outerColor?: string; // Default border color
-  textColor?: string; // Text color
+  textColor?: string;  // Text color
 }
 
 const EventPageCardTag: React.FC<EventPageCardTagProps> = ({
   label,
   innerColor = "#DD00FF",
   outerColor = "#570065",
-  textColor, // Added textColor prop
+  textColor,
 }) => {
-  // Default text color is white unless specified
   const calculatedTextColor = textColor || "#FFFFFF";
-  
+
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex flex-wrap gap-2 justify-center lg:mt-1"> {/* wrapper allows multiple tags in a row */}
       <div
-        className="relative px-4 py-2 flex items-center justify-center font-bold text-sm"
+        className="-ml-1 relative px-2 py-1 flex items-center justify-center font-bold text-xs sm:px-3 sm:py-1.5 sm:text-sm rounded-lg"
         style={{
           background: `radial-gradient(circle, ${innerColor} 40%, ${outerColor} 100%)`,
-          borderRadius: "12px", // Slightly higher corner radius
-          boxShadow: `0 0 12px ${outerColor}`,
-          color: calculatedTextColor, // Apply text color
-          fontFamily: 'Inter, sans-serif', // Use Inter font
+          boxShadow: `0 0 8px ${outerColor}`,
+          color: calculatedTextColor,
+          fontFamily: "Inter, sans-serif",
         }}
       >
         {label}

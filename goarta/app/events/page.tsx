@@ -100,7 +100,11 @@ export default function EventCardGallery() {
                 <EventPageCard
                   title={event.title}
                   date={event.date_range}
+<<<<<<< HEAD
                   image={event.image_url}
+=======
+                  image={event.image_url || event.image_url}
+>>>>>>> 9a9e63b7fd113f41eaf0405c777802b9ca125ecc
                   status={event.status}
                   categories={event.categories}
                 />

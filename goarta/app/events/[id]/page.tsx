@@ -84,7 +84,7 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
           <div className="max-w-6xl mx-auto">
             {/* Hero Section with EventCard */}
             <div className="flex justify-center">
-              <EventCard 
+              <EventCard
                 title={event.title}
                 image={event.image_url || event.image}
                 status={event.status}
@@ -101,7 +101,7 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             </div>
 
             <div className="mt-8 flex justify-center">
-              <EventHighlights 
+              <EventHighlights
                 djLineup={event.dj_lineup}
                 fireworksCountdown={event.fireworks_countdown}
                 foodBeverageStalls={event.food_beverage_stalls}
@@ -109,7 +109,7 @@ const EventDetailPage = async ({ params }: { params: Promise<{ id: string }> }) 
             </div>
 
             <div className="mt-8 flex justify-center">
-              <EntryAndAccess 
+              <EntryAndAccess
                 entryType={event.entry_type}
                 ticketOptions={event.ticket_options}
               />

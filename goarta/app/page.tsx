@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import VideoSection from "@/components/Video";
 import UpcomingEventsCarousel from "@/components/TravelCarousel";
 
+
 export default function Home() {
   return (
     <div className="relative">
