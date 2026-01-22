@@ -466,22 +466,27 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       top: 0,
       color: '#FFFFFFDD',
       paddingLeft: '16px',
-    },
-    contentStart: {
-      width: '30px',
-      height: '5px',
-      borderRadius: '99px',
-      backgroundColor: '#FFFFFFDD',
+      paddingRight: '16px', // Added for better spacing
+      width: cardWidth, // Explicitly set width
+      boxSizing: 'border-box' as const, // Ensure padding is included in the width
     },
     contentPlace: {
       marginTop: '6px',
       fontSize: '13px',
       fontWeight: 500,
+      whiteSpace: 'nowrap' as const,
+      overflow: 'hidden' as const,
+      textOverflow: 'ellipsis' as const,
+      display: 'block' as const, // Ensure block-level behavior
     },
     contentTitle: {
       fontWeight: 600,
       fontSize: '20px',
       fontFamily: '"Oswald", sans-serif',
+      whiteSpace: 'nowrap' as const,
+      overflow: 'hidden' as const,
+      textOverflow: 'ellipsis' as const,
+      display: 'block' as const, // Ensure block-level behavior
     },
     viewEventButton: {
       border: '1px solid #ffffff',
@@ -505,6 +510,7 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
       position: 'absolute' as const,
       top: '240px',
       left: '60px',
+      width: '500px', // Added to constrain the width
     },
     placeBox: {
       height: '46px',
@@ -527,13 +533,17 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
     },
     titleBox: {
       marginTop: '2px',
-      height: '100px',
+      height: 'auto', // Allow height to adjust to content
+      maxHeight: '240px', // Prevent excessive height
       overflow: 'hidden' ,
     },
     title: {
       fontWeight: 600,
       fontSize: '72px',
       fontFamily: '"Oswald", sans-serif',
+      whiteSpace: 'normal' as const, // Allow text to wrap
+      wordWrap: 'break-word' as const, // Break long words
+      lineHeight: '1.2', // Adjust line height for wrapped text
     },
     desc: {
       marginTop: '16px',
@@ -697,14 +707,13 @@ const UpcomingEventsCarousel: React.FC<CarouselProps> = ({
               ref={setCardRef(index)}
               style={{
                 ...styles.card,
-                backgroundImage: `url(${event.image})`,
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url(${event.image})`,
               }}
             />
             <div
               ref={setCardContentRef(index)}
               style={styles.cardContent}
             >
-              <div style={styles.contentStart}></div>
               <div style={styles.contentPlace}>{event.date}</div>
               <div style={styles.contentTitle}>{event.title}</div>
               <div style={styles.contentTitle}>{event.places}</div>
