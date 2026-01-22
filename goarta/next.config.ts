@@ -4,7 +4,7 @@ import path from "path";
 const nextConfig: NextConfig = {
   allowedDevOrigins: ['192.168.56.1'],
   images: {
-    domains: ['images.unsplash.com', 'incrediblegoa.org', 'www.tourmyindia.com', 'assets-in.bmscdn.com', 'avidlearning.in', 'blog.lemontreehotels.com', 'www.bestgoadeals.com','encrypted-tbn0.gstatic.com','pcsqsppnjgupgbwrpyti.supabase.co','storage.googleapis.com', 'www.tusktravel.com', 'goa.pscnotes.com'],
+    domains: ['images.unsplash.com', 'incrediblegoa.org', 'www.tourmyindia.com', 'assets-in.bmscdn.com', 'avidlearning.in', 'blog.lemontreehotels.com', 'www.bestgoadeals.com', 'encrypted-tbn0.gstatic.com', 'pcsqsppnjgupgbwrpyti.supabase.co', 'storage.googleapis.com', 'www.tusktravel.com', 'goa.pscnotes.com', 'www.dorsetthotels.com', 'static.tripzilla.in', 'variety.com', 'aaniekgoa.com', 'itsgoa.com', 'cdn.thegoavilla.com', 'inngoa.com', 'www.susegadsuitesgoa.com', 'static.wixstatic.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -41,6 +41,46 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'goa.pscnotes.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'variety.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pcsqsppnjgupgbwrpyti.supabase.co',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.dorsetthotels.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.tripzilla.in',
+      },
+      {
+        protocol: 'https',
+        hostname: 'aaniekgoa.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'itsgoa.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.thegoavilla.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'inngoa.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.susegadsuitesgoa.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static.wixstatic.com',
       },
     ],
   },

@@ -3,6 +3,18 @@ import React, { useRef, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabaseClient } from "@/app/api/supabaselogin/supabase";
 import Link from "next/link";
+import Image from "next/image";
+
+const FIXED_IMAGES = [
+  "https://aaniekgoa.com/wp-content/uploads/2023/06/honwy-2.jpeg",
+  "https://itsgoa.com/wp-content/uploads/2016/07/img_4734.jpg",
+  "https://cdn.thegoavilla.com/static/img/articles/sao-jao-festival.jpg",
+  "https://inngoa.com/wp-content/uploads/2013/08/Vasco-Saptah-3.jpg",
+  "https://www.susegadsuitesgoa.com/wp-content/uploads/2025/02/shirgao.jpg",
+  "https://static.wixstatic.com/media/798804_ebec6f03971f4779ae3eaf2985aa58b9~mv2.png/v1/fill/w_894,h_570,al_c,q_90/798804_ebec6f03971f4779ae3eaf2985aa58b9~mv2.png"
+];
+
+const MotionImage = motion(Image);
 
 type Event = {
   id: number;
@@ -52,12 +64,12 @@ export default function PastEvents() {
       } else {
         console.log("Fetched events:", data);
         // Map the event_date to date property to maintain compatibility with existing code
-        const mappedData: Event[] = data?.map((event: SupabaseEvent) => ({
+        const mappedData: Event[] = data?.map((event: SupabaseEvent, index: number) => ({
           id: event.id,
           title: event.title,
           date: event.event_date,
           location: event.location,
-          thumbnail: event.thumbnail
+          thumbnail: FIXED_IMAGES[index % FIXED_IMAGES.length] // Use fixed images cyclically
         })) || [];
         setEventsData(mappedData);
       }
@@ -142,16 +154,14 @@ export default function PastEvents() {
                 transition={{ duration: 0.5, delay: index * 0.08 }}
                 whileHover={{ y: -6, transition: { duration: 0.25 } }}
               >
-                <div className="h-44 w-full overflow-hidden">
-                  <motion.img
-                    src={event.thumbnail && !event.thumbnail.includes('example.com') ? event.thumbnail : "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop"}
+                <div className="h-44 w-full overflow-hidden relative">
+                  <MotionImage
+                    src={event.thumbnail}
                     alt={event.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
                     whileHover={{ scale: 1.04 }}
                     transition={{ duration: 0.6 }}
-                    onError={(e) => {
-                      e.currentTarget.src = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=1600&auto=format&fit=crop";
-                    }}
                   />
                 </div>
 
