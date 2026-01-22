@@ -12,10 +12,10 @@ import { createConversation, addMessage, updateConversation, getConversation } f
 interface Event {
   title: string;
   description: string;
-  event_date: string;
-  event_time: string;
-  location: string;
-  category: string;
+  date_range: string;
+  categories: string[] | string; // detailed as jsonb, could be array or string
+  entry_type: string;
+  ticket_options: any; // jsonb
 }
 
 // ------------------ SaveItinerary Tool ------------------
@@ -75,37 +75,47 @@ class SaveItineraryTool extends StructuredTool<typeof SaveItinerarySchema> {
 const saveItineraryTool = new SaveItineraryTool();
 
 // ------------------ FetchEvents Tool ------------------
-const FetchEventsSchema = z.object({});
+const FetchEventsSchema = z.object({
+  limit: z.number().optional().describe('The maximum number of events to fetch. Default is 10.'),
+});
 
 class FetchEventsTool extends StructuredTool<typeof FetchEventsSchema> {
   name = 'fetch_events';
   description =
-    'Fetches a list of upcoming events in Goa from the database. Use this tool to answer questions about events, suggest activities, or incorporate events into a travel itinerary.';
+    'Fetches a list of upcoming (latest) events in Goa from the database. Use this tool to find events happening soon to include in itineraries or suggest activities.';
   schema = FetchEventsSchema;
 
   constructor() {
     super();
   }
 
-  async _call({}: z.infer<typeof this.schema>) {
+  async _call({ limit = 10 }: z.infer<typeof this.schema>) {
     try {
-      const { data, error } = await supabase.from('events').select('*');
+      const { data, error } = await supabase
+        .from('new_events')
+        .select('*')
+        .limit(limit);
 
       if (error) {
         console.error('Error fetching events from Supabase:', error);
         return `Failed to fetch events: ${error.message}`;
       }
 
-      const eventsString = (data ?? [])
+      if (!data || data.length === 0) {
+        return 'No upcoming events found in the database. You can suggest general activities instead.';
+      }
+
+      const eventsString = data
         .map(
           (event: Event) =>
-            `Event: ${event.title}\nDescription: ${event.description}\nDate: ${event.event_date}\nTime: ${event.event_time}\nLocation: ${event.location}\nCategory: ${event.category}`
+            `- **${event.title}** (${Array.isArray(event.categories) ? event.categories.join(', ') : event.categories})
+             Date: ${event.date_range}
+             Entry: ${event.entry_type}
+             Description: ${event.description}`
         )
         .join('\n\n');
 
-      return eventsString
-        ? `Here are some upcoming events in Goa:\n${eventsString}`
-        : 'No upcoming events found in the database.';
+      return `Here are the upcoming events in Goa:\n${eventsString}`;
     } catch (e: unknown) {
       console.error('Exception in fetch_events tool:', e);
       return `An error occurred while fetching events: ${(e as Error).message}`;
@@ -123,13 +133,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
+    // Define tools
     const tools = [saveItineraryTool, fetchEventsTool];
 
-    const chat = new ChatGoogleGenerativeAI({
-      model: 'gemini-2.5-flash',
+    // Use a model that supports tools and system instructions
+    // gemma-3-27b-it threw "[400 Bad Request] Developer instruction is not enabled"
+    const MODEL_NAME = 'gemini-2.5-flash-lite';
+    const SUPPORTS_TOOLS = true;
+
+    // Initialize the Chat Model
+    let chat = new ChatGoogleGenerativeAI({
+      model: MODEL_NAME,
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.7,
-    }).bindTools(tools);
+    });
+
+
 
     const memory = new BufferWindowMemory({
       k: 9,
@@ -142,7 +161,6 @@ export async function POST(req: NextRequest) {
     // Handle conversation creation or retrieval
     let currentConversationId = conversationId;
     if (!currentConversationId) {
-      // Create a new conversation with a default title (will be updated later)
       const conversation = await createConversation('New Conversation');
       if (conversation) {
         currentConversationId = conversation.id;
@@ -154,76 +172,179 @@ export async function POST(req: NextRequest) {
       const messagesToAdd: BaseMessage[] = rawHistory.map((msg: { type: 'user' | 'ai'; text: string }) => {
         if (msg.type === 'user') return new HumanMessage(msg.text);
         if (msg.type === 'ai') return new AIMessage(msg.text);
-        // Fallback for unexpected types, though ideally this shouldn't happen with proper type checking upstream
-        return new AIMessage(`Error: Could not parse previous message of type ${msg.type}`);
+        return new AIMessage(msg.text);
       });
       await memory.chatHistory.addMessages(messagesToAdd);
     }
 
+    // System prompt with or without tool instructions
+    let systemPromptContent = `Current Date and Time: ${currentDateTime}
+
+You are GoaGuide, an expert local travel companion for Goa. 🌴✨
+
+YOUR CAPABILITIES:
+1. **Itinerary Creation**: You construct detailed day-by-day itineraries (e.g., 6 days in Goa). You MUST mix **general sight-seeing**, **food recommendations**, **adventure activities**, and **specific upcoming events**.
+2. **Local Knowledge**: You know the best places for:
+   - **Food**: Local Goan cuisine, cafes, seafood.
+   - **Adventure**: Water sports, trekking, hidden spots.
+   - **Culture**: Heritage sites, churches, temples.
+
+INSTRUCTIONS:
+- When asked for an itinerary (e.g., "6 day itinerary"), build the itinerary incorporating general activities.
+- If the user asks about specific categories (food, adventure), give rich, specific recommendations.
+- Keep the tone friendly, upbeat, and helpful. Use emojis.
+- Always be ready to help the user explore Goa!`;
+
+    // Only add tool instructions if supported
+    if (SUPPORTS_TOOLS) {
+      systemPromptContent += `
+3. **Event Recommendations**: You have access to a database of real, upcoming events in Goa via the 'fetch_events' tool. ALWAYS check this tool when asked about "what's happening", "events", or when building an itinerary to see if there's something cool to include.
+
+ADDITIONAL INSTRUCTIONS:
+- Check for upcoming events using 'fetch_events' to see if any align with the user's trip.
+- If 'fetch_events' returns no events, proceed with general recommendations but mention you checked.
+- Always be ready to save the itinerary if the user seems happy with it (using 'save_itinerary' tool), or suggest they can save it.
+`;
+    } else {
+      // If tools are not supported (e.g. gemma-3-27b-it), we:
+      // 1. Pre-fetch upcoming events directly
+      // 2. Inject them into the system context
+
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        const { data: eventsData } = await supabase
+          .from('events')
+          .select('*')
+          .gte('event_date', today)
+          .order('event_date', { ascending: true })
+          .limit(10); // Fetch top 10 upcoming events
+
+        if (eventsData && eventsData.length > 0) {
+          const eventsList = eventsData.map((e: Event) =>
+            `- ${e.title} (${e.category}): ${e.event_date} @ ${e.location}. ${e.description}`
+          ).join('\n');
+
+          systemPromptContent += `
+DATA CONTEXT (Upcoming Events in Goa):
+Here is a list of real, upcoming events you can recommend or include in itineraries:
+${eventsList}
+`;
+        } else {
+          systemPromptContent += `
+DATA CONTEXT:
+No specific upcoming events were found in the database. Rely on general seasonal advice.
+`;
+        }
+      } catch (err) {
+        console.error("Error pre-fetching events:", err);
+        systemPromptContent += `
+DATA CONTEXT:
+Could not fetch live events due to an error. Rely on general knowledge.
+`;
+      }
+
+      systemPromptContent += `
+NOTE:
+- You have been provided with a list of upcoming events above. Use them!
+`;
+    }
+
+
     const prompt = ChatPromptTemplate.fromMessages([
-      new SystemMessage(`Current Date and Time: ${currentDateTime}
-        You are GoaGuide, a passionate and knowledgeable travel companion specializing in creating unforgettable experiences across Goa! 🌴✨
-
-        ## Core Personality Traits
-        - 🔍 Curious Explorer – love hidden treasures
-        - 🤗 Friendly Guide – talk like a local friend
-        - 📝 Detail-Oriented – remember preferences
-        - 🔄 Flexible Planner – always have backups
-        - 🛡️ Safety-Conscious – weave in tips
-        - 📚 Cultural Storyteller – share history & legends
-
-        ## Communication Style
-        - Use emojis warmly
-        - Write like texting a friend
-        - Keep spacing clean
-        - Stay upbeat, avoid jargon
-        - Always pivot to solutions
-
-        ... (rest of your detailed system prompt here) ...
-      `),
+      new SystemMessage({ content: systemPromptContent }),
       new MessagesPlaceholder('history'),
-      new MessagesPlaceholder('agent_scratchpad'),
+      new MessagesPlaceholder('agent_scratchpad'), // Keep this for compatibility, though unused if no tools
       new HumanMessage('{input}'),
     ]);
 
-    const agent = await createToolCallingAgent({
-      llm: chat,
-      tools,
-      prompt,
-    });
+    let agentExecutor;
 
-    const agentExecutor = new AgentExecutor({
-      agent,
-      tools,
-      memory,
-      returnIntermediateSteps: true,
-    });
+    if (SUPPORTS_TOOLS) {
+      // Create an agent capable of calling tools
+      const agent = await createToolCallingAgent({
+        llm: chat,
+        tools,
+        prompt,
+      });
 
-    // Save user message to database if conversation exists
+      agentExecutor = new AgentExecutor({
+        agent,
+        tools,
+        memory,
+        returnIntermediateSteps: true,
+      });
+    } else {
+      // Fallback: Create a simple LLM chain/invocation wrapper using AgentExecutor structure is tricky without tools,
+      // so standard chain or a dummy agent is better. 
+      // However, standard LangChain AgentExecutor fails if no tools.
+      // We will switch to a simple LLMChain logic here for no-tool models.
+
+      // Manual history handling for non-agent flow
+      const historyMessages = await memory.chatHistory.getMessages();
+      const currentPrompt = await prompt.formatMessages({
+        history: historyMessages,
+        agent_scratchpad: [], // Empty scratchpad
+        input: message
+      });
+
+      // Save user message (happens before invocation)
+      if (currentConversationId) {
+        await addMessage(currentConversationId, 'user', message);
+      }
+
+      const response = await chat.invoke(currentPrompt);
+
+      // Save AI response
+      if (currentConversationId) {
+        await addMessage(currentConversationId, 'ai', response.content as string);
+
+        // Update title logic...
+        try {
+          const conversation = await getConversation(currentConversationId);
+          if (conversation && conversation.title === 'New Conversation') {
+            let title = message.trim();
+            title = title.replace(/\s+/g, ' ');
+            title = title.length > 60 ? title.substring(0, 60) + '...' : title;
+            if (title.length < 3) title = "Chat Conversation";
+            await updateConversation(currentConversationId, { title });
+          }
+        } catch (error) {
+          console.error('Error updating conversation title:', error);
+        }
+      }
+
+      // Update memory
+      await memory.chatHistory.addMessage(new AIMessage(response.content as string));
+
+      const serializableHistory = (await memory.chatHistory.getMessages()).map((msg) => ({
+        type: msg._getType() === 'human' ? 'user' : 'ai',
+        text: msg.content,
+      }));
+
+      return NextResponse.json({
+        aiResponse: response.content,
+        history: serializableHistory,
+        conversationId: currentConversationId,
+      });
+    }
+
+    // Only reached if SUPPORTS_TOOLS is true
     if (currentConversationId) {
       await addMessage(currentConversationId, 'user', message);
     }
 
     const result = await agentExecutor.invoke({ input: message });
 
-    // Save AI response to database if conversation exists
     if (currentConversationId) {
       await addMessage(currentConversationId, 'ai', result.output);
-      
-      // Update conversation title if it still has the default title
-      // We check this by retrieving the current conversation and seeing if the title is "New Conversation"
+
       try {
         const conversation = await getConversation(currentConversationId);
         if (conversation && conversation.title === 'New Conversation') {
-          // Create a meaningful title from the user's first message
           let title = message.trim();
-          // Remove extra whitespace and limit length
           title = title.replace(/\s+/g, ' ');
           title = title.length > 60 ? title.substring(0, 60) + '...' : title;
-          // If the message is too short or empty, use a default
-          if (title.length < 3) {
-            title = "Chat Conversation";
-          }
+          if (title.length < 3) title = "Chat Conversation";
           await updateConversation(currentConversationId, { title });
         }
       } catch (error) {
