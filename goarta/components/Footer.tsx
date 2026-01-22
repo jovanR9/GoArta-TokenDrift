@@ -1,16 +1,20 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Footer = () => {
   return (
     <footer className="bg-white lg:grid lg:grid-cols-5 dark:bg-gray-900">
       <div className="relative block h-32 lg:col-span-2 lg:h-full">
-        <Image
-          src="/token_drift_logo.png" // Using the token_drift_logo.png
-          alt="Token Drift Logo"
-          layout="fill" // Use fill for responsive image
-          objectFit="cover"
-        />
+        <Link href="/">
+          <Image
+            src="/token_drift_logo.png" // Using the token_drift_logo.png
+            alt="Token Drift Logo"
+            layout="fill" // Use fill for responsive image
+            objectFit="cover"
+            className="cursor-pointer"
+          />
+        </Link>
       </div>
 
       <div className="px-4 py-16 sm:px-6 lg:col-span-3 lg:px-8">
@@ -22,7 +26,7 @@ const Footer = () => {
               </span>
 
               <a
-                href="#"
+                href="tel:0123456789"
                 className="block text-2xl font-medium text-gray-900 hover:opacity-75 sm:text-3xl dark:text-white"
               >
                 0123456789
@@ -62,15 +66,15 @@ const Footer = () => {
 
               <ul className="mt-6 space-y-4 text-sm">
                 <li>
-                  <a href="#" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
+                  <Link href="/events" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
                     Upcoming Events
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
-                  <a href="#" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
+                  <Link href="/ai-itinerary" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
                     Build Itinerary
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -92,9 +96,9 @@ const Footer = () => {
                 </li>
 
                 <li>
-                  <a href="#" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
+                  <Link href="/dashboard" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
                     Accounts Review
-                  </a>
+                  </Link>
                 </li>
               </ul>
             </div>
