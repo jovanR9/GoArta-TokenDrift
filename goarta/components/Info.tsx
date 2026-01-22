@@ -3,10 +3,10 @@ import Image from "next/image";
 export default function Info() {
     return (
         <>
-            <section className="overflow-hidden sm:grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
+            <section id="about" className="overflow-hidden sm:grid sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
                 <div className="p-8 md:p-12 lg:px-16 lg:py-24">
                     <div className="mx-auto max-w-xl text-center ltr:sm:text-left rtl:sm:text-right ">
-                        
+
                         <div className="bg-white/80 rounded-xl shadow-lg p-8 lg:w-[700px]">
                             <h1 className="text-2xl font-bold text-gray-900 md:text-3xl">
                                 What is GoArta?

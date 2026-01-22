@@ -84,15 +84,15 @@ const Footer = () => {
 
               <ul className="mt-6 space-y-4 text-sm">
                 <li>
-                  <a href="#" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
+                  <Link href="/#about" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
                     About
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
-                  <a href="#" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
+                  <Link href="/#" className="text-gray-700 transition hover:opacity-75 dark:text-gray-200">
                     Meet the Team
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
@@ -109,21 +109,21 @@ const Footer = () => {
           <div className="sm:flex sm:items-center sm:justify-between">
             <ul className="flex flex-wrap gap-4 text-xs">
               <li>
-                <a href="#" className="text-gray-500 transition hover:opacity-75 dark:text-gray-400">
+                <Link href="/#" className="text-gray-500 transition hover:opacity-75 dark:text-gray-400">
                   Terms & Conditions
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="text-gray-500 transition hover:opacity-75 dark:text-gray-400">
+                <Link href="/#" className="text-gray-500 transition hover:opacity-75 dark:text-gray-400">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
 
               <li>
-                <a href="#" className="text-gray-500 transition hover:opacity-75 dark:text-gray-400">
+                <Link href="/#" className="text-gray-500 transition hover:opacity-75 dark:text-gray-400">
                   Cookies
-                </a>
+                </Link>
               </li>
             </ul>
 
