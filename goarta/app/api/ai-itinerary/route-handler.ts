@@ -12,10 +12,13 @@ import { createConversation, addMessage, updateConversation, getConversation } f
 interface Event {
   title: string;
   description: string;
-  date_range: string;
-  categories: string[] | string; // detailed as jsonb, could be array or string
-  entry_type: string;
-  ticket_options: any; // jsonb
+  date_range?: string;
+  event_date?: string;
+  categories?: string[] | string;
+  category?: string;
+  location?: string;
+  entry_type?: string;
+  ticket_options?: unknown; // jsonb
 }
 
 // ------------------ SaveItinerary Tool ------------------
@@ -108,9 +111,9 @@ class FetchEventsTool extends StructuredTool<typeof FetchEventsSchema> {
       const eventsString = data
         .map(
           (event: Event) =>
-            `- **${event.title}** (${Array.isArray(event.categories) ? event.categories.join(', ') : event.categories})
-             Date: ${event.date_range}
-             Entry: ${event.entry_type}
+            `- **${event.title}** (${Array.isArray(event.categories) ? event.categories.join(', ') : (event.categories || event.category || 'General')})
+             Date: ${event.date_range || event.event_date || 'TBD'}
+             Entry: ${event.entry_type || 'N/A'}
              Description: ${event.description}`
         )
         .join('\n\n');
@@ -142,7 +145,7 @@ export async function POST(req: NextRequest) {
     const SUPPORTS_TOOLS = true;
 
     // Initialize the Chat Model
-    let chat = new ChatGoogleGenerativeAI({
+    const chat = new ChatGoogleGenerativeAI({
       model: MODEL_NAME,
       apiKey: process.env.GOOGLE_API_KEY,
       temperature: 0.7,
@@ -157,6 +160,24 @@ export async function POST(req: NextRequest) {
       inputKey: 'input',
       outputKey: 'output',
     });
+
+    // Handle legacy method missing in newer ChatMessageHistory
+    if (memory.chatHistory) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (typeof (memory.chatHistory as any).addUserMessage !== 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (memory.chatHistory as any).addUserMessage = async (message: string) => {
+          await memory.chatHistory.addMessage(new HumanMessage(message));
+        };
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if (typeof (memory.chatHistory as any).addAIChatMessage !== 'function') {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (memory.chatHistory as any).addAIChatMessage = async (message: string) => {
+          await memory.chatHistory.addMessage(new AIMessage(message));
+        };
+      }
+    }
 
     // Handle conversation creation or retrieval
     let currentConversationId = conversationId;
@@ -221,7 +242,7 @@ ADDITIONAL INSTRUCTIONS:
 
         if (eventsData && eventsData.length > 0) {
           const eventsList = eventsData.map((e: Event) =>
-            `- ${e.title} (${e.category}): ${e.event_date} @ ${e.location}. ${e.description}`
+            `- ${e.title} (${e.category || (Array.isArray(e.categories) ? e.categories.join(', ') : e.categories)}): ${e.event_date || e.date_range} @ ${e.location || 'Unknown Location'}. ${e.description}`
           ).join('\n');
 
           systemPromptContent += `
