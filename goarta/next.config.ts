@@ -84,10 +84,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  outputFileTracingRoot: path.join(__dirname, "./"),
-  turbopack: {
-    root: path.join(__dirname, './'),
-  },
+  // experimental: {
+  //   outputFileTracingRoot: path.join(__dirname, "./"),
+  // },
 };
 
 export default nextConfig;
