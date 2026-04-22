@@ -2,7 +2,6 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['192.168.56.1'],
   images: {
     domains: ['images.unsplash.com', 'incrediblegoa.org', 'www.tourmyindia.com', 'assets-in.bmscdn.com', 'avidlearning.in', 'blog.lemontreehotels.com', 'www.bestgoadeals.com', 'encrypted-tbn0.gstatic.com', 'pcsqsppnjgupgbwrpyti.supabase.co', 'storage.googleapis.com', 'www.tusktravel.com', 'goa.pscnotes.com', 'www.dorsetthotels.com', 'static.tripzilla.in', 'variety.com', 'aaniekgoa.com', 'itsgoa.com', 'cdn.thegoavilla.com', 'inngoa.com', 'www.susegadsuitesgoa.com', 'static.wixstatic.com'],
     remotePatterns: [
